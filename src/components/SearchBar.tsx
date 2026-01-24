@@ -6,8 +6,8 @@ interface SearchBarProps {
 
 export default function SearchBar({ value, onChange, onFilterClick }: SearchBarProps) {
   return (
-    <div className="bg-white border-b border-gray-200 sticky top-[52px] z-30 w-full">
-      <div className="px-4 py-4 space-y-3">
+    <div style={{ width: '100vw', boxSizing: 'border-box' }} className="bg-white border-b border-gray-200 sticky top-0 z-30">
+      <div style={{ width: '100%', boxSizing: 'border-box' }} className="px-4 py-4 space-y-3">
         {/* 搜索框 */}
         <div className="relative">
           <input

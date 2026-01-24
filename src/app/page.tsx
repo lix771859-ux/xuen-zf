@@ -113,10 +113,10 @@ export default function Home() {
                 <p className="text-sm text-gray-600 mb-4">
                   找到 {items.length} 个房产
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
                   {items.length > 0 ? (
                     items.map((property) => (
-                      <div key={property.id} className="w-full">
+                      <div key={property.id}>
                         <PropertyCard
                           property={property}
                           isFavorite={isFavorite(property.id)}
@@ -125,7 +125,7 @@ export default function Home() {
                       </div>
                     ))
                   ) : (
-                    <div className="col-span-full text-center py-8">
+                    <div style={{ gridColumn: '1 / -1' }} className="text-center py-8">
                       <p className="text-gray-500">未找到符合条件的房产</p>
                     </div>
                   )}
