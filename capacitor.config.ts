@@ -3,7 +3,7 @@ import { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.xuenzf.rentapp',
   appName: '租房APP',
-  webDir: 'out',
+  webDir: '.next',
   server: {
     androidScheme: 'https'
   },
