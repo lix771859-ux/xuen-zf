@@ -122,7 +122,7 @@ export default function Auth() {
                 value={formData.name}
                 onChange={handleChange}
                 placeholder="请输入你的姓名"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full text-gray-700 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required={!isLogin}
               />
             </div>
@@ -139,9 +139,8 @@ export default function Auth() {
               value={formData.email}
               onChange={handleChange}
               placeholder="example@email.com"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full text-gray-700 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
-              text-gray-700
             />
           </div>
 
@@ -156,9 +155,8 @@ export default function Auth() {
               value={formData.password}
               onChange={handleChange}
               placeholder="至少 6 个字符"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full text-gray-700 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
-              text-gray-700
             />
           </div>
 
@@ -174,7 +172,7 @@ export default function Auth() {
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 placeholder="再次输入密码"
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full text-gray-700 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required={!isLogin}
               />
             </div>
