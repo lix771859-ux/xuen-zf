@@ -66,8 +66,8 @@ export default function Home() {
   // Auth state
   const { user, loading: authLoading, signOut } = useSupabaseUser();
   const [signingOut, setSigningOut] = useState(false);
-  const [sheetY, setSheetY] = useState(0); // 0表示展开，正值表示下拉
-  const sheetRef = useRef<HTMLDivElement>(null);
+  const [sheetY, setSheetY] = useState(0); // 初始完全展开，隐藏地图
+  const [isDragging, setIsDragging] = useState(false);
   const startYRef = useRef(0);
   const startSheetYRef = useRef(0);
 
@@ -81,35 +81,54 @@ export default function Home() {
   };
 
   // 处理拖动开始
-  const handleTouchStart = (e: React.TouchEvent) => {
-    startYRef.current = e.touches[0].clientY;
+  const handleDragStart = (e: React.MouseEvent | React.TouchEvent) => {
+    setIsDragging(true);
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    startYRef.current = clientY;
     startSheetYRef.current = sheetY;
   };
 
-  // 处理拖动中
-  const handleTouchMove = (e: React.TouchEvent) => {
-    const currentY = e.touches[0].clientY;
-    const diff = currentY - startYRef.current;
-    let newY = startSheetYRef.current + diff;
+  // 全局拖动事件
+  useEffect(() => {
+    if (!isDragging) return;
 
-    // 限制范围：0（完全展开）到 最大高度（回到初始位置）
-    if (newY < 0) newY = 0;
-    if (newY > 500) newY = 500; // 最多下拉500px
+    const handleDragMove = (e: MouseEvent | TouchEvent) => {
+      e.preventDefault();
+      const clientY = e instanceof TouchEvent ? e.touches[0].clientY : e.clientY;
+      const diff = clientY - startYRef.current;
+      let newY = startSheetYRef.current + diff;
 
-    setSheetY(newY);
-  };
+      // 限制范围：0（完全展开）到 500（初始位置）
+      if (newY < 0) newY = 0;
+      if (newY > 500) newY = 500;
 
-  // 处理拖动结束
-  const handleTouchEnd = () => {
-    // 根据速度或位置决定是否贴靠
-    if (sheetY > 100) {
-      // 下拉超过100px，回弹到初始位置
-      setSheetY(500);
-    } else {
-      // 否则完全展开
-      setSheetY(0);
-    }
-  };
+      setSheetY(newY);
+    };
+
+    const handleDragEnd = () => {
+      setIsDragging(false);
+      // 根据位置自动贴靠
+      if (sheetY > 250) {
+        // 回到初始位置
+        setSheetY(500);
+      } else {
+        // 完全展开
+        setSheetY(0);
+      }
+    };
+
+    document.addEventListener('mousemove', handleDragMove);
+    document.addEventListener('mouseup', handleDragEnd);
+    document.addEventListener('touchmove', handleDragMove, { passive: false });
+    document.addEventListener('touchend', handleDragEnd);
+
+    return () => {
+      document.removeEventListener('mousemove', handleDragMove);
+      document.removeEventListener('mouseup', handleDragEnd);
+      document.removeEventListener('touchmove', handleDragMove);
+      document.removeEventListener('touchend', handleDragEnd);
+    };
+  }, [isDragging, sheetY]);
 
   return (
     <div className="w-screen h-screen flex flex-col bg-gray-50 overflow-x-hidden">
@@ -135,29 +154,31 @@ export default function Home() {
         {activeTab === 'search' && (
           <>
             {/* 背景地图 */}
-            <div className="absolute inset-0 z-0">
+            <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 10 }}>
               <MapPreview />
             </div>
 
             {/* 可上滑的房产列表 */}
             <div
-              ref={sheetRef}
-              onTouchStart={handleTouchStart}
-              onTouchMove={handleTouchMove}
-              onTouchEnd={handleTouchEnd}
-              className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-2xl overflow-hidden z-10 transition-transform duration-300"
+              className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-2xl pointer-events-auto flex flex-col"
               style={{
                 height: '70vh',
                 top: `calc(30vh + ${sheetY}px)`,
+                transition: 'top 0.3s ease-out',
+                zIndex: 50,
               }}
             >
               {/* 拖动指示器 */}
-              <div className="sticky top-0 bg-white pt-2 pb-1 flex justify-center cursor-grab active:cursor-grabbing">
-                <div className="w-12 h-1 bg-gray-300 rounded-full\"></div>
+              <div
+                onMouseDown={handleDragStart}
+                onTouchStart={handleDragStart}
+                className="flex-shrink-0 bg-white pt-3 pb-2 flex justify-center cursor-grab active:cursor-grabbing select-none touch-none hover:bg-gray-50"
+              >
+                <div className="w-12 h-1.5 bg-gray-400 rounded-full"></div>
               </div>
 
               {/* 滚动内容 */}
-              <div className="overflow-y-auto h-full pb-20">
+              <div className="flex-1 overflow-y-auto pb-20">
                 {/* 筛选标签 */}
                 <div className="px-4 py-3 flex gap-2 overflow-x-auto">
                   <button className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-medium whitespace-nowrap">
@@ -188,10 +209,10 @@ export default function Home() {
                   <p className="text-sm text-gray-600 mb-4">
                     {t('foundProperties', { count: items.length })}
                   </p>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                     {items.length > 0 ? (
-                      items.map((property) => (
-                        <div key={property.id}>
+                      items.map((property, index) => (
+                        <div key={`${property.id}-${index}`}>
                           <PropertyCard
                             property={property}
                             isFavorite={isFavorite(property.id)}
@@ -200,7 +221,7 @@ export default function Home() {
                         </div>
                       ))
                     ) : (
-                      <div style={{ gridColumn: '1 / -1' }} className="text-center py-8">
+                      <div className="text-center py-8">
                         <p className="text-gray-500">{t('noProperties')}</p>
                       </div>
                     )}

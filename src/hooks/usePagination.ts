@@ -41,7 +41,52 @@ export function usePagination(options: PaginationOptions = {}) {
 
   const pageSize = options.pageSize || 10;
 
-  const fetchPage = useCallback(
+  // 重置并加载第一页
+  useEffect(() => {
+    const fetchPage = async (pageNumber: number) => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const params = new URLSearchParams({
+          page: String(pageNumber),
+          pageSize: String(pageSize),
+          minPrice: String(options.minPrice || 0),
+          maxPrice: String(options.maxPrice || 999999),
+          ...(options.bedrooms !== null && options.bedrooms !== undefined && {
+            bedrooms: String(options.bedrooms),
+          }),
+          ...(options.area && { area: options.area }),
+          ...(options.search && { search: options.search }),
+        });
+
+        const url = `/api/properties?${params}`;
+        console.log('Fetching properties from:', url);
+        const response = await fetch(url);
+        const result: PaginationResponse = await response.json();
+        console.log('API response:', result);
+
+        if (pageNumber === 1) {
+          setItems(result.data);
+          console.log('Set items:', result.data);
+        } else {
+          setItems((prev) => [...prev, ...result.data]);
+        }
+
+        setHasMore(pageNumber < result.totalPages);
+        setPage(pageNumber);
+      } catch (err) {
+        console.error('Fetch error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPage(1);
+  }, [pageSize, options.minPrice, options.maxPrice, options.bedrooms, options.area, options.search]);
+
+  const fetchPageForMore = useCallback(
     async (pageNumber: number) => {
       setIsLoading(true);
       setError(null);
@@ -62,12 +107,7 @@ export function usePagination(options: PaginationOptions = {}) {
         const response = await fetch(`/api/properties?${params}`);
         const result: PaginationResponse = await response.json();
 
-        if (pageNumber === 1) {
-          setItems(result.data);
-        } else {
-          setItems((prev) => [...prev, ...result.data]);
-        }
-
+        setItems((prev) => [...prev, ...result.data]);
         setHasMore(pageNumber < result.totalPages);
         setPage(pageNumber);
       } catch (err) {
@@ -76,19 +116,14 @@ export function usePagination(options: PaginationOptions = {}) {
         setIsLoading(false);
       }
     },
-    [pageSize, options]
+    [pageSize, options.minPrice, options.maxPrice, options.bedrooms, options.area, options.search]
   );
-
-  // 重置并加载第一页
-  useEffect(() => {
-    fetchPage(1);
-  }, [options.minPrice, options.maxPrice, options.bedrooms, options.area, options.search]);
 
   const loadMore = useCallback(() => {
     if (!isLoading && hasMore) {
-      fetchPage(page + 1);
+      fetchPageForMore(page + 1);
     }
-  }, [page, isLoading, hasMore, fetchPage]);
+  }, [page, isLoading, hasMore, fetchPageForMore]);
 
   return { items, isLoading, hasMore, error, loadMore, page };
 }
