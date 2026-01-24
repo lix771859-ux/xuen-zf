@@ -84,7 +84,7 @@ export default function LandlordPropertiesPage() {
       }
       setMessage('发布成功');
       setProperties((prev) => [json.data, ...prev]);
-      setForm({ title: '', price: undefined, image: null });
+      setForm({ title: '', price: 0, image: null });
     } catch (err: any) {
       setMessage(err.message || '发布失败');
     } finally {
