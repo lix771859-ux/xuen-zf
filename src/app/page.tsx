@@ -58,28 +58,30 @@ export default function Home() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="w-screen h-screen flex flex-col bg-gray-50 overflow-x-hidden">
       {/* 顶部导航栏 */}
-      <div className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
+      <div className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm w-full">
         <div className="px-4 py-3">
           <h1 className="text-2xl font-bold text-blue-600">租房App</h1>
         </div>
       </div>
 
+      {/* 搜索栏（完全独立，不在 overflow 容器内） */}
+      {activeTab === 'search' && (
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          onFilterClick={() => setIsFilterOpen(true)}
+        />
+      )}
+
       {/* 主容器 */}
       <div
-        className="flex-1 overflow-y-auto pb-20"
+        className="flex-1 overflow-y-auto pb-20 w-full"
         ref={scrollContainerRef}
       >
         {activeTab === 'search' && (
           <>
-            {/* 搜索栏（不受 max-w-md 限制） */}
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              onFilterClick={() => setIsFilterOpen(true)}
-            />
-
             <div>
               {/* 筛选标签 */}
               <div className="px-4 py-3 flex gap-2 overflow-x-auto">
@@ -107,19 +109,20 @@ export default function Home() {
               </div>
 
               {/* 房产列表 */}
-              <div className="px-4 py-2">
+              <div className="w-full px-4 py-2">
                 <p className="text-sm text-gray-600 mb-4">
                   找到 {items.length} 个房产
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                   {items.length > 0 ? (
                     items.map((property) => (
-                      <PropertyCard
-                        key={property.id}
-                        property={property}
-                        isFavorite={isFavorite(property.id)}
-                        onToggleFavorite={toggleFavorite}
-                      />
+                      <div key={property.id} className="w-full">
+                        <PropertyCard
+                          property={property}
+                          isFavorite={isFavorite(property.id)}
+                          onToggleFavorite={toggleFavorite}
+                        />
+                      </div>
                     ))
                   ) : (
                     <div className="col-span-full text-center py-8">
