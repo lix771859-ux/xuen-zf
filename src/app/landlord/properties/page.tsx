@@ -93,7 +93,18 @@ export default function LandlordPropertiesPage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto p-4 space-y-6">
+    <div className="max-w-3xl mx-auto p-4 space-y-6 relative">
+      {/* 关闭按钮 */}
+      <button
+        onClick={() => router.back()}
+        className="absolute right-4 top-4 text-gray-400 hover:text-gray-700 bg-white rounded-full border border-gray-200 w-9 h-9 flex items-center justify-center shadow-sm z-10"
+        title="关闭"
+        type="button"
+      >
+        <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
       <h1 className="text-2xl font-bold">房东房源管理</h1>
       {/* 登录提示 */}
       {!userId && (
