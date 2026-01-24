@@ -71,16 +71,16 @@ export default function Home() {
         className="flex-1 overflow-y-auto pb-20"
         ref={scrollContainerRef}
       >
-        <div className="max-w-md mx-auto">
-          {activeTab === 'search' && (
-            <div>
-              {/* 搜索栏 */}
-              <SearchBar
-                value={searchQuery}
-                onChange={setSearchQuery}
-                onFilterClick={() => setIsFilterOpen(true)}
-              />
+        {activeTab === 'search' && (
+          <>
+            {/* 搜索栏（不受 max-w-md 限制） */}
+            <SearchBar
+              value={searchQuery}
+              onChange={setSearchQuery}
+              onFilterClick={() => setIsFilterOpen(true)}
+            />
 
+            <div className="max-w-md mx-auto">
               {/* 筛选标签 */}
               <div className="px-4 py-3 flex gap-2 overflow-x-auto">
                 <button className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-medium whitespace-nowrap">
@@ -143,9 +143,11 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          )}
+          </>
+        )}
 
-          {activeTab === 'saved' && (
+        {activeTab === 'saved' && (
+          <div className="max-w-md mx-auto">
             <div className="px-4 py-4">
               {favoriteProperties.length > 0 ? (
                 <div className="space-y-3">
@@ -167,9 +169,11 @@ export default function Home() {
                 </div>
               )}
             </div>
-          )}
+          </div>
+        )}
 
-          {activeTab === 'messages' && (
+        {activeTab === 'messages' && (
+          <div className="max-w-md mx-auto">
             <div className="px-4 py-8">
               <div className="bg-white rounded-lg p-6 text-center space-y-4">
                 <svg className="w-16 h-16 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -181,9 +185,11 @@ export default function Home() {
                 </a>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {activeTab === 'profile' && (
+        {activeTab === 'profile' && (
+          <div className="max-w-md mx-auto">
             <div className="px-4 py-8 space-y-4">
               <div className="bg-white rounded-lg p-6 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
@@ -217,8 +223,8 @@ export default function Home() {
                 </button>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* 底部导航栏 */}
