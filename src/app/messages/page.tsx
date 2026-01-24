@@ -87,7 +87,7 @@ export default function Messages() {
             ...conv.messages,
             {
               id: conv.messages.length + 1,
-              sender: 'user',
+              sender: 'user' as const,
               text: inputMessage,
               timestamp: new Date().toLocaleTimeString('zh-CN', {
                 hour: '2-digit',
