@@ -208,6 +208,7 @@ const propertyData = [
   },
 ];
 
+export default function PropertyDetail({ params }: { params: { id: string } }) {
   const [liked, setLiked] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const { t, language } = useI18n();
