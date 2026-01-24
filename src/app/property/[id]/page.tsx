@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { useI18n } from '@/i18n/context';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const propertyData = [
   {
@@ -211,7 +212,7 @@ const propertyData = [
 export default function PropertyDetail({ params }: { params: { id: string } }) {
   const [liked, setLiked] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
-  const { t, language } = useI18n();
+  const { language } = useI18n();
 
   const property = propertyData.find((p) => p.id === parseInt(params.id, 10)) || propertyData[0];
 
@@ -270,6 +271,14 @@ export default function PropertyDetail({ params }: { params: { id: string } }) {
             alt={property.title}
             className="w-full h-full object-cover"
           />
+          <Image
+            src={property.images[selectedImage]}
+            alt={property.title}
+            width={800}
+            height={600}
+            className="w-full h-full object-cover"
+            priority
+          />
           {/* 图片指示器 */}
           <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 flex gap-2">
             {property.images.map((_, index) => (
@@ -292,7 +301,7 @@ export default function PropertyDetail({ params }: { params: { id: string } }) {
                   selectedImage === index ? 'border-white' : 'border-white/30 hover:border-white/50'
                 }`}
               >
-                <img src={image} alt="" className="w-full h-full object-cover" />
+                <Image src={image} alt="" width={48} height={48} className="w-full h-full object-cover" />
               </button>
             ))}
           </div>
