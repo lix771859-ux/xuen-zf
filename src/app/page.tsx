@@ -169,15 +169,6 @@ export default function Home() {
                 zIndex: 50,
               }}
             >
-              {/* 拖动指示器 */}
-              <div
-                onMouseDown={handleDragStart}
-                onTouchStart={handleDragStart}
-                className="flex-shrink-0 bg-white pt-3 pb-2 flex justify-center cursor-grab active:cursor-grabbing select-none touch-none hover:bg-gray-50"
-              >
-                <div className="w-12 h-1.5 bg-gray-400 rounded-full"></div>
-              </div>
-
               {/* 滚动内容 */}
               <div className="flex-1 overflow-y-auto pb-20">
                 {/* 筛选标签 */}
