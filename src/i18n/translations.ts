@@ -72,7 +72,7 @@ export const translations = {
   },
   zh: {
     // Header
-    appName: '租房APP',
+    appName: '租房网',
     
     // Navigation
     search: '搜索',

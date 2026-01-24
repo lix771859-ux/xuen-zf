@@ -170,7 +170,7 @@ export default function Home() {
               }}
             >
               {/* 滚动内容 */}
-              <div className="flex-1 overflow-y-auto pb-20">
+              <div className="flex-1 overflow-y-auto pb-20 md:pb-40">
                 {/* 筛选标签 */}
                 <div className="px-4 py-3 flex gap-2 overflow-x-auto">
                   <button className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-medium whitespace-nowrap">
