@@ -1,4 +1,10 @@
-export default function SearchBar() {
+interface SearchBarProps {
+  value: string;
+  onChange: (value: string) => void;
+  onFilterClick: () => void;
+}
+
+export default function SearchBar({ value, onChange, onFilterClick }: SearchBarProps) {
   return (
     <div className="bg-white border-b border-gray-200 sticky top-[52px] z-30">
       <div className="max-w-md mx-auto px-4 py-4 space-y-3">
@@ -7,6 +13,8 @@ export default function SearchBar() {
           <input
             type="text"
             placeholder="搜索城市或地址..."
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
             className="w-full px-4 py-2.5 bg-gray-100 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
           />
           <svg className="absolute right-3 top-2.5 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -24,11 +32,14 @@ export default function SearchBar() {
           </button>
           <button className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium flex items-center justify-center gap-1">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2.422-3.634a9.01 9.01 0 0117.156 0L21 12M3 12a9 9 0 0118 0m0 0l2.422 3.634m-17.156 0A9.01 9.01 0 0021 12m0 0l2.422-3.634m-17.156 0h17.156" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9m-9 5h4" />
             </svg>
-            日期
+            卧室
           </button>
-          <button className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium flex items-center justify-center gap-1">
+          <button
+            onClick={onFilterClick}
+            className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium flex items-center justify-center gap-1"
+          >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

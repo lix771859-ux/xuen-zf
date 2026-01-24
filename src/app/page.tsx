@@ -1,64 +1,61 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import SearchBar from '@/components/SearchBar';
 import PropertyCard from '@/components/PropertyCard';
 import BottomNav from '@/components/BottomNav';
+import FilterModal, { FilterState } from '@/components/FilterModal';
+import { useFavorites } from '@/hooks/useFavorites';
+import { usePagination } from '@/hooks/usePagination';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('search');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState<FilterState>({
+    minPrice: 1000,
+    maxPrice: 15000,
+    bedrooms: null,
+    area: '',
+  });
 
-  // 模拟房产数据
-  const properties = [
-    {
-      id: 1,
-      title: '现代公寓 - 市中心',
-      price: 4500,
-      address: '中山路123号',
-      bedrooms: 2,
-      bathrooms: 2,
-      sqft: 1200,
-      image: 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=500&h=500&fit=crop',
-      rating: 4.8,
-      reviews: 24,
-    },
-    {
-      id: 2,
-      title: '豪华别墅 - 安静社区',
-      price: 8500,
-      address: '绿岛路456号',
-      bedrooms: 4,
-      bathrooms: 3,
-      sqft: 3500,
-      image: 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=500&h=500&fit=crop',
-      rating: 4.9,
-      reviews: 42,
-    },
-    {
-      id: 3,
-      title: '温馨一室 - 靠近地铁',
-      price: 2800,
-      address: '翠景路789号',
-      bedrooms: 1,
-      bathrooms: 1,
-      sqft: 600,
-      image: 'https://images.unsplash.com/photo-1493857671505-72967e2e2760?w=500&h=500&fit=crop',
-      rating: 4.6,
-      reviews: 18,
-    },
-    {
-      id: 4,
-      title: '家庭公寓 - 靠近学校',
-      price: 5200,
-      address: '学府街321号',
-      bedrooms: 3,
-      bathrooms: 2,
-      sqft: 1800,
-      image: 'https://images.unsplash.com/photo-1545545741-2ea3ebf61fa3?w=500&h=500&fit=crop',
-      rating: 4.7,
-      reviews: 31,
-    },
-  ];
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
+  const { items, isLoading, hasMore, loadMore } = usePagination({
+    pageSize: 6,
+    minPrice: filters.minPrice,
+    maxPrice: filters.maxPrice,
+    bedrooms: filters.bedrooms,
+    area: filters.area || undefined,
+    search: searchQuery,
+  });
+
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  // 无限滚动逻辑
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoading) {
+          loadMore();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [hasMore, isLoading, loadMore]);
+
+  // 获取收藏的房产
+  const favoriteProperties = items.filter((p) => favorites.has(p.id));
+
+  const handleFilterApply = (newFilters: FilterState) => {
+    setFilters(newFilters);
+  };
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
@@ -70,61 +67,154 @@ export default function Home() {
       </div>
 
       {/* 主容器 */}
-      <div className="flex-1 overflow-y-auto pb-20">
+      <div
+        className="flex-1 overflow-y-auto pb-20"
+        ref={scrollContainerRef}
+      >
         <div className="max-w-md mx-auto">
           {activeTab === 'search' && (
             <div>
               {/* 搜索栏 */}
-              <SearchBar />
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                onFilterClick={() => setIsFilterOpen(true)}
+              />
 
               {/* 筛选标签 */}
               <div className="px-4 py-3 flex gap-2 overflow-x-auto">
                 <button className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-medium whitespace-nowrap">
                   全部
                 </button>
-                <button className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50">
+                <button
+                  onClick={() => setIsFilterOpen(true)}
+                  className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
+                >
                   价格
                 </button>
-                <button className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50">
+                <button
+                  onClick={() => setIsFilterOpen(true)}
+                  className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
+                >
                   卧室
                 </button>
-                <button className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50">
+                <button
+                  onClick={() => setIsFilterOpen(true)}
+                  className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
+                >
                   地区
                 </button>
               </div>
 
               {/* 房产列表 */}
               <div className="px-4 py-2">
-                <p className="text-sm text-gray-600 mb-4">找到 {properties.length} 个房产</p>
+                <p className="text-sm text-gray-600 mb-4">
+                  找到 {items.length} 个房产
+                </p>
                 <div className="space-y-3">
-                  {properties.map((property) => (
-                    <PropertyCard key={property.id} property={property} />
-                  ))}
+                  {items.length > 0 ? (
+                    items.map((property) => (
+                      <PropertyCard
+                        key={property.id}
+                        property={property}
+                        isFavorite={isFavorite(property.id)}
+                        onToggleFavorite={toggleFavorite}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-500">未找到符合条件的房产</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* 加载更多指示器 */}
+                <div ref={loadMoreRef} className="py-8 text-center">
+                  {isLoading && (
+                    <div className="flex items-center justify-center gap-2">
+                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-100"></div>
+                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-200"></div>
+                    </div>
+                  )}
+                  {!hasMore && items.length > 0 && (
+                    <p className="text-gray-500 text-sm">没有更多房产了</p>
+                  )}
                 </div>
               </div>
             </div>
           )}
 
           {activeTab === 'saved' && (
-            <div className="px-4 py-8 text-center">
-              <p className="text-gray-500 text-lg">暂无收藏房产</p>
+            <div className="px-4 py-4">
+              {favoriteProperties.length > 0 ? (
+                <div className="space-y-3">
+                  <p className="text-sm text-gray-600 mb-4">
+                    收藏了 {favoriteProperties.length} 个房产
+                  </p>
+                  {favoriteProperties.map((property) => (
+                    <PropertyCard
+                      key={property.id}
+                      property={property}
+                      isFavorite={true}
+                      onToggleFavorite={toggleFavorite}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <p className="text-gray-500 text-lg">暂无收藏房产</p>
+                </div>
+              )}
             </div>
           )}
 
           {activeTab === 'messages' && (
-            <div className="px-4 py-8 text-center">
-              <p className="text-gray-500 text-lg">暂无消息</p>
+            <div className="px-4 py-8">
+              <div className="bg-white rounded-lg p-6 text-center space-y-4">
+                <svg className="w-16 h-16 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                <p className="text-gray-500 text-lg">暂无消息</p>
+                <a href="/messages" className="inline-block text-blue-600 hover:text-blue-700 text-sm font-medium">
+                  查看消息 →
+                </a>
+              </div>
             </div>
           )}
 
           {activeTab === 'profile' && (
-            <div className="px-4 py-8">
+            <div className="px-4 py-8 space-y-4">
               <div className="bg-white rounded-lg p-6 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
                   U
                 </div>
                 <p className="text-lg font-medium">用户账户</p>
                 <p className="text-gray-500 text-sm mt-1">点击登录或注册</p>
+                <a href="/auth" className="inline-block mt-4 px-6 py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                  登录/注册
+                </a>
+              </div>
+
+              <div className="bg-white rounded-lg p-4 space-y-3">
+                <a href="/map" className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
+                  <span className="font-medium text-gray-900">地图视图</span>
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+                <button className="w-full text-left flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
+                  <span className="font-medium text-gray-900">设置</span>
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+                <button className="w-full text-left flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg text-red-600">
+                  <span className="font-medium">退出登录</span>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                </button>
               </div>
             </div>
           )}
@@ -133,6 +223,14 @@ export default function Home() {
 
       {/* 底部导航栏 */}
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      {/* 筛选弹层 */}
+      <FilterModal
+        isOpen={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        onApply={handleFilterApply}
+        initialFilters={filters}
+      />
     </div>
   );
 }
