@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { supabaseBrowser } from '@/lib/supabaseBrowser';
 
 export default function Auth() {
   const router = useRouter();
@@ -13,6 +14,9 @@ export default function Auth() {
     confirmPassword: '',
     name: '',
   });
+  const [isLandlord, setIsLandlord] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -21,15 +25,43 @@ export default function Auth() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // 这里实现认证逻辑
-    console.log('Form submitted:', formData);
-    alert(isLogin ? '登录成功!' : '注册成功!');
-    // 登录/注册成功后跳转到首页
-    setTimeout(() => {
-      router.push('/');
-    }, 500);
+    setError(null);
+    setLoading(true);
+
+    try {
+      if (isLogin) {
+        const { data, error: err } = await supabaseBrowser.auth.signInWithPassword({
+          email: formData.email,
+          password: formData.password,
+        });
+        if (err) throw err;
+        // 登录成功
+        router.push('/');
+      } else {
+        if (formData.password !== formData.confirmPassword) {
+          throw new Error('两次输入的密码不一致');
+        }
+
+        const { data, error: err } = await supabaseBrowser.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: {
+            data: { name: formData.name },
+          },
+        });
+        if (err) throw err;
+
+        // 提示邮箱验证（若开启）
+        alert('注册成功！如果启用了邮箱验证，请查收邮件完成激活。');
+        router.push('/');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '操作失败');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -146,6 +178,22 @@ export default function Auth() {
             </div>
           )}
 
+          {/* 我是房东（仅注册） */}
+          {!isLogin && (
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="isLandlord"
+                checked={isLandlord}
+                onChange={(e) => setIsLandlord(e.target.checked)}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label htmlFor="isLandlord" className="text-sm text-gray-600">
+                我是房东
+              </label>
+            </div>
+          )}
+
           {/* 记住我（仅登录） */}
           {isLogin && (
             <div className="flex items-center gap-2">
@@ -161,11 +209,15 @@ export default function Auth() {
           )}
 
           {/* 提交按钮 */}
+          {error && (
+            <p className="text-sm text-red-600">{error}</p>
+          )}
           <button
             type="submit"
-            className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors mt-6"
+            disabled={loading}
+            className="w-full py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors mt-6 disabled:opacity-60"
           >
-            {isLogin ? '登录' : '注册'}
+            {loading ? '处理中…' : (isLogin ? '登录' : '注册')}
           </button>
         </form>
 
@@ -173,7 +225,21 @@ export default function Auth() {
         {isLogin && (
           <p className="text-center text-sm text-gray-600 mt-4">
             忘记密码？{' '}
-            <button className="text-blue-600 hover:text-blue-700 font-medium">
+            <button
+              onClick={async () => {
+                if (!formData.email) {
+                  alert('请先填写邮箱');
+                  return;
+                }
+                const { error: err } = await supabaseBrowser.auth.resetPasswordForEmail(formData.email);
+                if (err) {
+                  alert('发送失败：' + err.message);
+                } else {
+                  alert('重置邮件已发送，请检查邮箱');
+                }
+              }}
+              className="text-blue-600 hover:text-blue-700 font-medium"
+            >
               重置
             </button>
           </p>

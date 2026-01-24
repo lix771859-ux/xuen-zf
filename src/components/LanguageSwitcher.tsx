@@ -6,25 +6,31 @@ export function LanguageSwitcher() {
   const { language, setLanguage } = useI18n();
 
   return (
-    <div className="flex gap-2">
+    <div className="relative inline-flex bg-gray-100 rounded-lg p-1 shadow-sm">
       <button
         onClick={() => setLanguage('en')}
-        className={`px-3 py-1 rounded text-sm font-medium transition ${
+        className={`relative px-4 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 z-10 ${
           language === 'en'
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            ? 'text-blue-600'
+            : 'text-gray-600 hover:text-gray-900'
         }`}
       >
+        {language === 'en' && (
+          <div className="absolute inset-0 bg-white rounded-md shadow-sm -z-10" />
+        )}
         EN
       </button>
       <button
         onClick={() => setLanguage('zh')}
-        className={`px-3 py-1 rounded text-sm font-medium transition ${
+        className={`relative px-4 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 z-10 ${
           language === 'zh'
-            ? 'bg-blue-600 text-white'
-            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            ? 'text-blue-600'
+            : 'text-gray-600 hover:text-gray-900'
         }`}
       >
+        {language === 'zh' && (
+          <div className="absolute inset-0 bg-white rounded-md shadow-sm -z-10" />
+        )}
         中文
       </button>
     </div>

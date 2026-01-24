@@ -10,6 +10,8 @@ import { MapPreview } from '@/components/MapPreview';
 import { useFavorites } from '@/hooks/useFavorites';
 import { usePagination } from '@/hooks/usePagination';
 import { useI18n } from '@/i18n/context';
+import { useSupabaseUser } from '@/hooks/useSupabaseUser';
+import { supabaseBrowser } from '@/lib/supabaseBrowser';
 
 export default function Home() {
   const { t } = useI18n();
@@ -61,6 +63,18 @@ export default function Home() {
     setFilters(newFilters);
   };
 
+  // Auth state
+  const { user, loading: authLoading, signOut } = useSupabaseUser();
+  const [signingOut, setSigningOut] = useState(false);
+  const handleLogout = async () => {
+    setSigningOut(true);
+    try {
+      await signOut();
+    } finally {
+      setSigningOut(false);
+    }
+  };
+
   return (
     <div className="w-screen h-screen flex flex-col bg-gray-50 overflow-x-hidden">
       {/* 顶部导航栏 */}
@@ -80,79 +94,88 @@ export default function Home() {
         />
       )}
 
-      {/* 主容器 */}
-      <div
-        className="flex-1 overflow-y-auto pb-20 w-full"
-        ref={scrollContainerRef}
-      >
+      {/* 主容器 - 地图 + 可上滑列表 */}
+      <div className="flex-1 relative overflow-hidden w-full">
         {activeTab === 'search' && (
           <>
-            <div>
-              {/* 地图预览 */}
-              <div className="px-4 py-4">
-                <MapPreview />
+            {/* 背景地图 */}
+            <div className="absolute inset-0 z-0">
+              <MapPreview />
+            </div>
+
+            {/* 可上滑的房产列表 */}
+            <div
+              className="absolute inset-x-0 bottom-0 top-1/3 bg-white rounded-t-3xl shadow-2xl overflow-hidden z-10"
+              ref={scrollContainerRef}
+            >
+              {/* 拖动指示器 */}
+              <div className="sticky top-0 bg-white pt-2 pb-1 flex justify-center">
+                <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
               </div>
 
-              {/* 筛选标签 */}
-              <div className="px-4 py-3 flex gap-2 overflow-x-auto">
-                <button className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-medium whitespace-nowrap">
-                  {t('allBtn')}
-                </button>
-                <button
-                  onClick={() => setIsFilterOpen(true)}
-                  className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
-                >
-                  {t('filterPrice')}
-                </button>
-                <button
-                  onClick={() => setIsFilterOpen(true)}
-                  className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
-                >
-                  {t('filterBedrooms')}
-                </button>
-                <button
-                  onClick={() => setIsFilterOpen(true)}
-                  className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
-                >
-                  {t('filterArea')}
-                </button>
-              </div>
-
-              {/* 房产列表 */}
-              <div className="w-full px-4 py-2">
-                <p className="text-sm text-gray-600 mb-4">
-                  {t('foundProperties', { count: items.length })}
-                </p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
-                  {items.length > 0 ? (
-                    items.map((property) => (
-                      <div key={property.id}>
-                        <PropertyCard
-                          property={property}
-                          isFavorite={isFavorite(property.id)}
-                          onToggleFavorite={toggleFavorite}
-                        />
-                      </div>
-                    ))
-                  ) : (
-                    <div style={{ gridColumn: '1 / -1' }} className="text-center py-8">
-                      <p className="text-gray-500">{t('noProperties')}</p>
-                    </div>
-                  )}
+              {/* 滚动内容 */}
+              <div className="overflow-y-auto h-full pb-20">
+                {/* 筛选标签 */}
+                <div className="px-4 py-3 flex gap-2 overflow-x-auto">
+                  <button className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-medium whitespace-nowrap">
+                    {t('allBtn')}
+                  </button>
+                  <button
+                    onClick={() => setIsFilterOpen(true)}
+                    className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
+                  >
+                    {t('filterPrice')}
+                  </button>
+                  <button
+                    onClick={() => setIsFilterOpen(true)}
+                    className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
+                  >
+                    {t('filterBedrooms')}
+                  </button>
+                  <button
+                    onClick={() => setIsFilterOpen(true)}
+                    className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
+                  >
+                    {t('filterArea')}
+                  </button>
                 </div>
 
-                {/* 加载更多指示器 */}
-                <div ref={loadMoreRef} className="py-8 text-center">
-                  {isLoading && (
-                    <div className="flex items-center justify-center gap-2">
-                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
-                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-100"></div>
-                      <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-200"></div>
-                    </div>
-                  )}
-                  {!hasMore && items.length > 0 && (
-                    <p className="text-gray-500 text-sm">{t('noMoreProperties')}</p>
-                  )}
+                {/* 房产列表 */}
+                <div className="w-full px-4 py-2">
+                  <p className="text-sm text-gray-600 mb-4">
+                    {t('foundProperties', { count: items.length })}
+                  </p>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1rem' }}>
+                    {items.length > 0 ? (
+                      items.map((property) => (
+                        <div key={property.id}>
+                          <PropertyCard
+                            property={property}
+                            isFavorite={isFavorite(property.id)}
+                            onToggleFavorite={toggleFavorite}
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <div style={{ gridColumn: '1 / -1' }} className="text-center py-8">
+                        <p className="text-gray-500">{t('noProperties')}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 加载更多指示器 */}
+                  <div ref={loadMoreRef} className="py-8 text-center">
+                    {isLoading && (
+                      <div className="flex items-center justify-center gap-2">
+                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce"></div>
+                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-100"></div>
+                        <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-200"></div>
+                      </div>
+                    )}
+                    {!hasMore && items.length > 0 && (
+                      <p className="text-gray-500 text-sm">{t('noMoreProperties')}</p>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -160,7 +183,7 @@ export default function Home() {
         )}
 
         {activeTab === 'saved' && (
-          <div>
+          <div className="overflow-y-auto h-full pb-20">
             <div className="px-4 py-4">
               {favoriteProperties.length > 0 ? (
                 <div>
@@ -188,7 +211,7 @@ export default function Home() {
         )}
 
         {activeTab === 'messages' && (
-          <div>
+          <div className="overflow-y-auto h-full pb-20">
             <div className="px-4 py-8">
               <div className="bg-white rounded-lg p-6 text-center space-y-4">
                 <svg className="w-16 h-16 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -204,17 +227,34 @@ export default function Home() {
         )}
 
         {activeTab === 'profile' && (
-          <div>
+          <div className="overflow-y-auto h-full pb-20">
             <div className="px-4 py-8 space-y-4">
               <div className="bg-white rounded-lg p-6 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
-                  U
+                  {(user?.email?.[0] || 'U').toUpperCase()}
                 </div>
-                <p className="text-lg font-medium">{t('userAccount')}</p>
-                <p className="text-gray-500 text-sm mt-1">{t('clickToLogin')}</p>
-                <a href="/auth" className="inline-block mt-4 px-6 py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-                  {t('loginRegister')}
-                </a>
+                {user ? (
+                  <>
+                    <p className="text-lg font-medium">{user.email}</p>
+                    <p className="text-gray-500 text-sm mt-1">已登录</p>
+                    <div className="mt-4 flex items-center justify-center gap-3">
+                      <a href="/landlord/properties" className="px-4 py-2.5 bg-gray-100 text-gray-900 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
+                        管理房源
+                      </a>
+                      <button onClick={handleLogout} disabled={signingOut} className="px-4 py-2.5 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-60">
+                        {signingOut ? '退出中…' : t('logout')}
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-lg font-medium">{t('userAccount')}</p>
+                    <p className="text-gray-500 text-sm mt-1">{t('clickToLogin')}</p>
+                    <a href="/auth" className="inline-block mt-4 px-6 py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors">
+                      {t('loginRegister')}
+                    </a>
+                  </>
+                )}
               </div>
 
               <div className="bg-white rounded-lg p-4 space-y-3">

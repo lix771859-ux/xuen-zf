@@ -9,7 +9,7 @@ interface PaginationOptions {
   search?: string;
 }
 
-interface Property {
+export interface Property {
   id: number;
   title: string;
   price: number;
@@ -21,6 +21,7 @@ interface Property {
   rating: number;
   reviews: number;
   area: string;
+  description?: string;
 }
 
 interface PaginationResponse {

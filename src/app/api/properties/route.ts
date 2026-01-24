@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { supabaseServer } from '@/lib/supabaseServer';
 
 // Flushing, Queens, NY Properties
 const allProperties = [
@@ -116,37 +117,146 @@ export async function GET(request: Request) {
   const maxPrice = parseInt(searchParams.get('maxPrice') || '999999');
   const bedrooms = searchParams.get('bedrooms');
   const area = searchParams.get('area');
-  const search = searchParams.get('search') || '';
+  const search = (searchParams.get('search') || '').trim();
+  const landlordId = searchParams.get('landlord_id');
 
-  // 过滤数据
-  let filtered = allProperties.filter((property) => {
-    if (search && !property.title.toLowerCase().includes(search.toLowerCase()) &&
-        !property.address.toLowerCase().includes(search.toLowerCase())) {
-      return false;
-    }
-    if (property.price < minPrice || property.price > maxPrice) {
-      return false;
-    }
-    if (bedrooms && property.bedrooms !== parseInt(bedrooms)) {
-      return false;
-    }
-    if (area && property.area !== area) {
-      return false;
-    }
-    return true;
-  });
+  try {
+    // 构建查询
+    let query = supabaseServer
+      .from('properties')
+      .select('*', { count: 'exact' })
+      .gte('price', minPrice)
+      .lte('price', maxPrice);
 
-  // 分页
-  const total = filtered.length;
-  const start = (page - 1) * pageSize;
-  const end = start + pageSize;
-  const data = filtered.slice(start, end);
+    if (bedrooms) {
+      query = query.eq('bedrooms', parseInt(bedrooms));
+    }
+    if (area) {
+      query = query.eq('area', area);
+    }
+    if (landlordId) {
+      query = query.eq('landlord_id', landlordId);
+    }
+    if (search) {
+      // 在 title 或 address 中模糊匹配
+      query = query.or(`title.ilike.%${search}%,address.ilike.%${search}%`);
+    }
 
-  return NextResponse.json({
-    data,
-    total,
-    page,
-    pageSize,
-    totalPages: Math.ceil(total / pageSize),
-  });
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize - 1; // Supabase range 是包含式
+
+    const { data, count, error } = await query
+      .order('created_at', { ascending: false })
+      .range(start, end);
+
+    if (error) throw error;
+
+    // 转换数据库字段到前端期望格式
+    const mappedData = (data ?? []).map((prop: any) => ({
+      id: prop.id,
+      title: prop.title,
+      price: Number(prop.price),
+      address: prop.address || '',
+      bedrooms: prop.bedrooms ?? 0,
+      bathrooms: prop.bathrooms ?? 0,
+      sqft: prop.sqft ?? 0,
+      image: prop.images?.[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&h=600&fit=crop',
+      rating: 4.5,
+      reviews: 0,
+      area: prop.area || '',
+      description: prop.description || '',
+    }));
+
+    return NextResponse.json({
+      data: mappedData,
+      total: count ?? 0,
+      page,
+      pageSize,
+      totalPages: Math.ceil((count ?? 0) / pageSize),
+    });
+  } catch (err) {
+    // 回退到内置示例数据，保证页面可用
+    let filtered = allProperties.filter((property) => {
+      if (
+        search &&
+        !property.title.toLowerCase().includes(search.toLowerCase()) &&
+        !property.address.toLowerCase().includes(search.toLowerCase())
+      ) {
+        return false;
+      }
+      if (property.price < minPrice || property.price > maxPrice) {
+        return false;
+      }
+      if (bedrooms && property.bedrooms !== parseInt(bedrooms)) {
+        return false;
+      }
+      if (area && property.area !== area) {
+        return false;
+      }
+      return true;
+    });
+
+    const total = filtered.length;
+    const start = (page - 1) * pageSize;
+    const end = start + pageSize;
+    const data = filtered.slice(start, end);
+
+    return NextResponse.json({
+      data,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
+      fallback: true,
+    });
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const {
+      title,
+      description,
+      price,
+      address,
+      bedrooms,
+      bathrooms,
+      sqft,
+      area,
+      images,
+      landlord_id,
+    } = body;
+
+    if (!title || !price) {
+      return NextResponse.json({ error: '缺少必要字段: title/price' }, { status: 400 });
+    }
+
+    const { data, error } = await supabaseServer
+      .from('properties')
+      .insert([
+        {
+          title,
+          description: description ?? null,
+          price,
+          address: address ?? null,
+          bedrooms: bedrooms ?? null,
+          bathrooms: bathrooms ?? null,
+          sqft: sqft ?? null,
+          area: area ?? null,
+          images: images ?? null,
+          landlord_id: landlord_id ?? null,
+        },
+      ])
+      .select('*')
+      .single();
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+
+    return NextResponse.json({ data }, { status: 201 });
+  } catch (err) {
+    return NextResponse.json({ error: '无效的请求体' }, { status: 400 });
+  }
 }
