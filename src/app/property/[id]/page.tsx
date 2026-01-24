@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useI18n } from '@/i18n/context';
 import Link from 'next/link';
 
 const propertyData = [
@@ -207,11 +208,31 @@ const propertyData = [
   },
 ];
 
-export default function PropertyDetail({ params }: { params: { id: string } }) {
   const [liked, setLiked] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
+  const { t, language } = useI18n();
 
   const property = propertyData.find((p) => p.id === parseInt(params.id, 10)) || propertyData[0];
+
+  // 所有label和静态文本优先用英文
+  const labels = {
+    back: 'Back',
+    bedrooms: 'Bedrooms',
+    baths: 'Baths',
+    sqft: 'Sqft',
+    basedOn: 'Based on',
+    reviews: 'reviews',
+    about: 'About this home',
+    amenities: 'Amenities',
+    landlordInfo: language === 'zh' ? '房东信息' : 'Landlord Info',
+    responseTime: 'Response time',
+    recentReviews: 'Recent reviews',
+    greatStay: 'Great stay',
+    messageLandlord: 'Message landlord',
+    applyNow: 'Apply now',
+    addressNote: 'Flushing, Queens · Close to transit & shops',
+    priceUnit: '/mo · Flushing, Queens',
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-32">
@@ -222,7 +243,7 @@ export default function PropertyDetail({ params }: { params: { id: string } }) {
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            <span className="text-sm font-medium">Back</span>
+            <span className="text-sm font-medium">{labels.back}</span>
           </Link>
           <button
             onClick={() => setLiked(!liked)}
@@ -281,22 +302,22 @@ export default function PropertyDetail({ params }: { params: { id: string } }) {
           <h1 className="text-2xl font-bold text-gray-900">{property.title}</h1>
           <div className="flex items-baseline gap-2 mt-2">
             <span className="text-3xl font-bold text-blue-600">${property.price.toLocaleString()}</span>
-            <span className="text-gray-500">/mo · Flushing, Queens</span>
+            <span className="text-gray-500">{labels.priceUnit}</span>
           </div>
 
           {/* 基本信息 */}
           <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-gray-100">
             <div className="text-center">
               <p className="text-2xl font-bold text-gray-900">{property.bedrooms}</p>
-              <p className="text-xs text-gray-500 mt-1">Bedrooms</p>
+              <p className="text-xs text-gray-500 mt-1">{labels.bedrooms}</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-gray-900">{property.bathrooms}</p>
-              <p className="text-xs text-gray-500 mt-1">Baths</p>
+              <p className="text-xs text-gray-500 mt-1">{labels.baths}</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold text-gray-900">{property.sqft}</p>
-              <p className="text-xs text-gray-500 mt-1">Sqft</p>
+              <p className="text-xs text-gray-500 mt-1">{labels.sqft}</p>
             </div>
           </div>
 
@@ -308,7 +329,7 @@ export default function PropertyDetail({ params }: { params: { id: string } }) {
             </svg>
             <div>
               <p className="font-medium text-gray-900">{property.address}</p>
-              <p className="text-sm text-gray-500 mt-1">Flushing, Queens · Close to transit & shops</p>
+              <p className="text-sm text-gray-500 mt-1">{labels.addressNote}</p>
             </div>
           </div>
 
@@ -320,19 +341,19 @@ export default function PropertyDetail({ params }: { params: { id: string } }) {
               </svg>
               <span className="font-semibold text-gray-900">{property.rating}</span>
             </div>
-            <span className="text-sm text-gray-500">Based on {property.reviews} reviews</span>
+            <span className="text-sm text-gray-500">{labels.basedOn} {property.reviews} {labels.reviews}</span>
           </div>
         </div>
 
         {/* 描述 */}
         <div className="bg-white px-4 py-4 mt-2 border-b border-gray-200">
-          <h2 className="font-semibold text-gray-900 mb-2">About this home</h2>
+          <h2 className="font-semibold text-gray-900 mb-2">{labels.about}</h2>
           <p className="text-gray-600 text-sm leading-6">{property.description}</p>
         </div>
 
         {/* 设施 */}
         <div className="bg-white px-4 py-4 mt-2 border-b border-gray-200">
-          <h2 className="font-semibold text-gray-900 mb-4">Amenities</h2>
+          <h2 className="font-semibold text-gray-900 mb-4">{labels.amenities}</h2>
           <div className="grid grid-cols-2 gap-3">
             {property.amenities.map((amenity, index) => (
               <div key={index} className="flex items-center gap-2">
@@ -347,7 +368,7 @@ export default function PropertyDetail({ params }: { params: { id: string } }) {
 
         {/* 房东信息 */}
         <div className="bg-white px-4 py-4 mt-2 border-b border-gray-200">
-          <h2 className="font-semibold text-gray-900 mb-4">房东信息</h2>
+          <h2 className="font-semibold text-gray-900 mb-4">{labels.landlordInfo}</h2>
           <div className="flex items-start gap-3">
             <img
               src={property.landlord.avatar}
@@ -361,7 +382,7 @@ export default function PropertyDetail({ params }: { params: { id: string } }) {
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
                 <span className="text-sm font-semibold text-gray-900">{property.landlord.rating}</span>
-                <span className="text-sm text-gray-500">({property.landlord.reviews} reviews)</span>
+                <span className="text-sm text-gray-500">({property.landlord.reviews} {labels.reviews})</span>
               </div>
               <p className="text-xs text-gray-500 mt-2">{property.landlord.responseTime}</p>
             </div>
@@ -370,7 +391,7 @@ export default function PropertyDetail({ params }: { params: { id: string } }) {
 
         {/* 评价 */}
         <div className="bg-white px-4 py-4 mt-2 border-b border-gray-200">
-          <h2 className="font-semibold text-gray-900 mb-4">Recent reviews</h2>
+          <h2 className="font-semibold text-gray-900 mb-4">{labels.recentReviews}</h2>
           <div className="space-y-4">
             {[1, 2].map((i) => (
               <div key={i} className="pb-4 border-b border-gray-100 last:border-0">
@@ -382,7 +403,7 @@ export default function PropertyDetail({ params }: { params: { id: string } }) {
                       </svg>
                     ))}
                   </div>
-                  <span className="text-sm font-medium text-gray-900">Great stay</span>
+                  <span className="text-sm font-medium text-gray-900">{labels.greatStay}</span>
                 </div>
                 <p className="text-sm text-gray-700 mt-2">Clean home, responsive landlord, and super convenient to transit and food in Flushing.</p>
                 <p className="text-xs text-gray-500 mt-2">Alice · 2 months ago</p>
@@ -396,10 +417,10 @@ export default function PropertyDetail({ params }: { params: { id: string } }) {
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-4 max-w-md mx-auto">
         <div className="flex gap-3">
           <button className="flex-1 py-3 border-2 border-blue-600 text-blue-600 rounded-lg font-semibold hover:bg-blue-50 transition-colors">
-            Message landlord
+            {labels.messageLandlord}
           </button>
           <button className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors">
-            Apply now
+            {labels.applyNow}
           </button>
         </div>
       </div>

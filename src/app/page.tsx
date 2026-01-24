@@ -172,28 +172,30 @@ export default function Home() {
               {/* 滚动内容 */}
               <div className="flex-1 overflow-y-auto pb-20 md:pb-40">
                 {/* 筛选标签 */}
-                <div className="px-4 py-3 flex gap-2 overflow-x-auto">
-                  <button className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-medium whitespace-nowrap">
-                    {t('allBtn')}
-                  </button>
-                  <button
-                    onClick={() => setIsFilterOpen(true)}
-                    className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
-                  >
-                    {t('filterPrice')}
-                  </button>
-                  <button
-                    onClick={() => setIsFilterOpen(true)}
-                    className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
-                  >
-                    {t('filterBedrooms')}
-                  </button>
-                  <button
-                    onClick={() => setIsFilterOpen(true)}
-                    className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
-                  >
-                    {t('filterArea')}
-                  </button>
+                <div className="px-4 py-3 flex gap-2 overflow-x-auto justify-between items-center">
+                  <div className="flex gap-2 overflow-x-auto">
+                    <button className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-medium whitespace-nowrap">
+                      {t('allBtn')}
+                    </button>
+                    <button
+                      onClick={() => setIsFilterOpen(true)}
+                      className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
+                    >
+                      {t('filterPrice')}
+                    </button>
+                    <button
+                      onClick={() => setIsFilterOpen(true)}
+                      className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
+                    >
+                      {t('filterBedrooms')}
+                    </button>
+                    <button
+                      onClick={() => setIsFilterOpen(true)}
+                      className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
+                    >
+                      {t('filterArea')}
+                    </button>
+                  </div>
                 </div>
 
                 {/* 房产列表 */}
@@ -294,9 +296,6 @@ export default function Home() {
                     <p className="text-lg font-medium">{user.email}</p>
                     <p className="text-gray-500 text-sm mt-1">已登录</p>
                     <div className="mt-4 flex items-center justify-center gap-3">
-                      <a href="/landlord/properties" className="px-4 py-2.5 bg-gray-100 text-gray-900 rounded-lg font-semibold hover:bg-gray-200 transition-colors">
-                        管理房源
-                      </a>
                       <button onClick={handleLogout} disabled={signingOut} className="px-4 py-2.5 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-60">
                         {signingOut ? '退出中…' : t('logout')}
                       </button>
