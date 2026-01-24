@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ServiceWorkerRegistration } from "@/components/ServiceWorkerRegistration";
-import { I18nProvider } from "@/i18n/context";
+import { Providers } from "./providers";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,7 +17,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "租房 - 找到你的理想家园",
   description: "快速查找和租赁你喜爱的房产",
-  viewport: "width=device-width, initial-scale=1, maximum-scale=1",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -37,6 +36,12 @@ export const metadata: Metadata = {
       { url: "/icon-512.png", sizes: "512x512" },
     ],
   },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({
@@ -59,10 +64,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-50 min-h-screen`}
       >
-        <I18nProvider>
+        <Providers>
           <ServiceWorkerRegistration />
           {children}
-        </I18nProvider>
+        </Providers>
       </body>
     </html>
   );
