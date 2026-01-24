@@ -66,12 +66,48 @@ export default function Home() {
   // Auth state
   const { user, loading: authLoading, signOut } = useSupabaseUser();
   const [signingOut, setSigningOut] = useState(false);
+  const [sheetY, setSheetY] = useState(0); // 0表示展开，正值表示下拉
+  const sheetRef = useRef<HTMLDivElement>(null);
+  const startYRef = useRef(0);
+  const startSheetYRef = useRef(0);
+
   const handleLogout = async () => {
     setSigningOut(true);
     try {
       await signOut();
     } finally {
       setSigningOut(false);
+    }
+  };
+
+  // 处理拖动开始
+  const handleTouchStart = (e: React.TouchEvent) => {
+    startYRef.current = e.touches[0].clientY;
+    startSheetYRef.current = sheetY;
+  };
+
+  // 处理拖动中
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const currentY = e.touches[0].clientY;
+    const diff = currentY - startYRef.current;
+    let newY = startSheetYRef.current + diff;
+
+    // 限制范围：0（完全展开）到 最大高度（回到初始位置）
+    if (newY < 0) newY = 0;
+    if (newY > 500) newY = 500; // 最多下拉500px
+
+    setSheetY(newY);
+  };
+
+  // 处理拖动结束
+  const handleTouchEnd = () => {
+    // 根据速度或位置决定是否贴靠
+    if (sheetY > 100) {
+      // 下拉超过100px，回弹到初始位置
+      setSheetY(500);
+    } else {
+      // 否则完全展开
+      setSheetY(0);
     }
   };
 
@@ -105,12 +141,19 @@ export default function Home() {
 
             {/* 可上滑的房产列表 */}
             <div
-              className="absolute inset-x-0 bottom-0 top-1/3 bg-white rounded-t-3xl shadow-2xl overflow-hidden z-10"
-              ref={scrollContainerRef}
+              ref={sheetRef}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-2xl overflow-hidden z-10 transition-transform duration-300"
+              style={{
+                height: '70vh',
+                top: `calc(30vh + ${sheetY}px)`,
+              }}
             >
               {/* 拖动指示器 */}
-              <div className="sticky top-0 bg-white pt-2 pb-1 flex justify-center">
-                <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
+              <div className="sticky top-0 bg-white pt-2 pb-1 flex justify-center cursor-grab active:cursor-grabbing">
+                <div className="w-12 h-1 bg-gray-300 rounded-full\"></div>
               </div>
 
               {/* 滚动内容 */}
