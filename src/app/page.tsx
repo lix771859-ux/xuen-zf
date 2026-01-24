@@ -6,6 +6,7 @@ import PropertyCard from '@/components/PropertyCard';
 import BottomNav from '@/components/BottomNav';
 import FilterModal, { FilterState } from '@/components/FilterModal';
 import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import { MapPreview } from '@/components/MapPreview';
 import { useFavorites } from '@/hooks/useFavorites';
 import { usePagination } from '@/hooks/usePagination';
 import { useI18n } from '@/i18n/context';
@@ -87,6 +88,11 @@ export default function Home() {
         {activeTab === 'search' && (
           <>
             <div>
+              {/* 地图预览 */}
+              <div className="px-4 py-4">
+                <MapPreview />
+              </div>
+
               {/* 筛选标签 */}
               <div className="px-4 py-3 flex gap-2 overflow-x-auto">
                 <button className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-medium whitespace-nowrap">
