@@ -118,11 +118,11 @@ export default function LandlordPropertiesPage() {
           <form onSubmit={handleSubmit} className="bg-white p-4 rounded-lg border space-y-3">
             <div>
               <label className="block text-sm font-medium mb-1">标题</label>
-              <input name="title" value={form.title} onChange={handleChange} className="w-full border rounded px-3 py-2" required />
+              <input name="title" value={form.title} onChange={handleChange} className="w-full border border-gray-400 text-gray-800 placeholder-gray-500 rounded px-3 py-2" required placeholder="请输入标题" />
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">描述</label>
-              <textarea name="description" value={form.description || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+              <textarea name="description" value={form.description || ''} onChange={handleChange} className="w-full border border-gray-400 text-gray-800 placeholder-gray-500 rounded px-3 py-2" placeholder="请输入描述" />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
@@ -132,14 +132,15 @@ export default function LandlordPropertiesPage() {
                   name="price"
                   value={form.price === undefined ? '' : form.price}
                   onChange={handleChange}
-                  className="w-full border rounded px-3 py-2"
+                  className="w-full border border-gray-400 text-gray-800 placeholder-gray-500 rounded px-3 py-2" 
                   required
                   min={0}
+                  placeholder="请输入价格"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">地址</label>
-                <input name="address" value={form.address || ''} onChange={handleChange} className="w-full border rounded px-3 py-2" />
+                <input name="address" value={form.address || ''} onChange={handleChange} className="w-full border border-gray-400 text-gray-800 placeholder-gray-500 rounded px-3 py-2" placeholder="请输入地址" />
               </div>
             </div>
             <div>
