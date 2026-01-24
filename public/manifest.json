@@ -1,0 +1,57 @@
+{
+  "name": "租房APP - 找到你的理想家园",
+  "short_name": "租房",
+  "description": "快速查找和租赁你喜爱的房产",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#2563eb",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-540.png",
+      "sizes": "540x720",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshot-1280.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "categories": ["real-estate", "lifestyle"],
+  "shortcuts": [
+    {
+      "name": "搜索房产",
+      "short_name": "搜索",
+      "description": "搜索租赁房产",
+      "url": "/?tab=search",
+      "icons": []
+    },
+    {
+      "name": "我的收藏",
+      "short_name": "收藏",
+      "description": "查看已收藏的房产",
+      "url": "/?tab=saved",
+      "icons": []
+    }
+  ],
+  "prefer_related_applications": false
+}
