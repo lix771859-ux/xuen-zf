@@ -83,8 +83,12 @@ export default function LandlordPropertiesPage() {
         throw new Error(json.error || '发布失败');
       }
       setMessage('发布成功');
-      setProperties((prev) => [json.data, ...prev]);
       setForm({ title: '', price: 0, image: null });
+      // 新增后刷新列表
+      fetch(`/api/properties?landlord_id=${userId}&page=1&pageSize=20`)
+        .then((r) => r.json())
+        .then((res) => setProperties(res.data ?? []))
+        .catch(() => {});
     } catch (err: any) {
       setMessage(err.message || '发布失败');
     } finally {
