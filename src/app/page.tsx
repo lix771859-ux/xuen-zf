@@ -98,9 +98,9 @@ export default function Home() {
       const diff = clientY - startYRef.current;
       let newY = startSheetYRef.current + diff;
 
-      // 限制范围：0（完全展开）到 500（初始位置）
-      if (newY < 0) newY = 0;
-      if (newY > 500) newY = 500;
+      // 限制范围：-200（向上滚出）到 300（向下隐藏）
+      if (newY < -200) newY = -200;
+      if (newY > 300) newY = 300;
 
       setSheetY(newY);
     };
@@ -108,11 +108,12 @@ export default function Home() {
     const handleDragEnd = () => {
       setIsDragging(false);
       // 根据位置自动贴靠
-      if (sheetY > 250) {
+      if (sheetY > 150) {
         // 回到初始位置
-        setSheetY(500);
-      } else {
-        // 完全展开
+        setSheetY(300);
+      } else if (sheetY < -100) {
+        // 完全展开到顶部
+        setSheetY(-200);
         setSheetY(0);
       }
     };
@@ -162,8 +163,8 @@ export default function Home() {
             <div
               className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-2xl pointer-events-auto flex flex-col"
               style={{
-                height: '70vh',
-                top: `calc(30vh + ${sheetY}px)`,
+                height: '100vh',
+                top: `${sheetY}px`,
                 transition: 'top 0.3s ease-out',
                 zIndex: 50,
               }}
