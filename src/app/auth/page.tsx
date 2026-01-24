@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function Auth() {
+  const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
@@ -24,6 +26,10 @@ export default function Auth() {
     // 这里实现认证逻辑
     console.log('Form submitted:', formData);
     alert(isLogin ? '登录成功!' : '注册成功!');
+    // 登录/注册成功后跳转到首页
+    setTimeout(() => {
+      router.push('/');
+    }, 500);
   };
 
   return (
