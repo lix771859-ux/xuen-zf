@@ -141,6 +141,7 @@ export default function Auth() {
               placeholder="example@email.com"
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
+              text-gray-700
             />
           </div>
 
@@ -157,6 +158,7 @@ export default function Auth() {
               placeholder="至少 6 个字符"
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required
+              text-gray-700
             />
           </div>
 
