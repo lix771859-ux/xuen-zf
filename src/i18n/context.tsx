@@ -1,0 +1,61 @@
+'use client';
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { translations, Language } from './translations';
+
+interface I18nContextType {
+  language: Language;
+  setLanguage: (lang: Language) => void;
+  t: (key: string, vars?: Record<string, string | number>) => string;
+}
+
+const I18nContext = createContext<I18nContextType | undefined>(undefined);
+
+export function I18nProvider({ children }: { children: React.ReactNode }) {
+  const [language, setLanguageState] = useState<Language>('en');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const saved = localStorage.getItem('language') as Language;
+    if (saved && (saved === 'en' || saved === 'zh')) {
+      setLanguageState(saved);
+    }
+  }, []);
+
+  const setLanguage = (lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem('language', lang);
+  };
+
+  const t = (key: string, vars?: Record<string, string | number>): string => {
+    const dict = translations[language];
+    let text = (dict as any)[key] || key;
+    
+    if (vars) {
+      Object.entries(vars).forEach(([k, v]) => {
+        text = text.replace(`{${k}}`, String(v));
+      });
+    }
+    
+    return text;
+  };
+
+  if (!mounted) {
+    return <>{children}</>;
+  }
+
+  return (
+    <I18nContext.Provider value={{ language, setLanguage, t }}>
+      {children}
+    </I18nContext.Provider>
+  );
+}
+
+export function useI18n() {
+  const context = useContext(I18nContext);
+  if (!context) {
+    throw new Error('useI18n must be used within I18nProvider');
+  }
+  return context;
+}

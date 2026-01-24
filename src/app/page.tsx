@@ -5,10 +5,13 @@ import SearchBar from '@/components/SearchBar';
 import PropertyCard from '@/components/PropertyCard';
 import BottomNav from '@/components/BottomNav';
 import FilterModal, { FilterState } from '@/components/FilterModal';
+import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { useFavorites } from '@/hooks/useFavorites';
 import { usePagination } from '@/hooks/usePagination';
+import { useI18n } from '@/i18n/context';
 
 export default function Home() {
+  const { t } = useI18n();
   const [activeTab, setActiveTab] = useState('search');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -61,8 +64,9 @@ export default function Home() {
     <div className="w-screen h-screen flex flex-col bg-gray-50 overflow-x-hidden">
       {/* 顶部导航栏 */}
       <div className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm w-full">
-        <div className="px-4 py-3">
-          <h1 className="text-2xl font-bold text-blue-600">租房App</h1>
+        <div className="px-4 py-3 flex items-center justify-between">
+          <h1 className="text-2xl font-bold text-blue-600">{t('appName')}</h1>
+          <LanguageSwitcher />
         </div>
       </div>
 
