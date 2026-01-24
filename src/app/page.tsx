@@ -61,7 +61,7 @@ export default function Home() {
     <div className="h-screen flex flex-col bg-gray-50">
       {/* 顶部导航栏 */}
       <div className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-md mx-auto px-4 py-3">
+        <div className="px-4 py-3">
           <h1 className="text-2xl font-bold text-blue-600">租房App</h1>
         </div>
       </div>
@@ -80,7 +80,7 @@ export default function Home() {
               onFilterClick={() => setIsFilterOpen(true)}
             />
 
-            <div className="max-w-md mx-auto">
+            <div>
               {/* 筛选标签 */}
               <div className="px-4 py-3 flex gap-2 overflow-x-auto">
                 <button className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-medium whitespace-nowrap">
@@ -111,7 +111,7 @@ export default function Home() {
                 <p className="text-sm text-gray-600 mb-4">
                   找到 {items.length} 个房产
                 </p>
-                <div className="space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                   {items.length > 0 ? (
                     items.map((property) => (
                       <PropertyCard
@@ -122,7 +122,7 @@ export default function Home() {
                       />
                     ))
                   ) : (
-                    <div className="text-center py-8">
+                    <div className="col-span-full text-center py-8">
                       <p className="text-gray-500">未找到符合条件的房产</p>
                     </div>
                   )}
@@ -147,21 +147,23 @@ export default function Home() {
         )}
 
         {activeTab === 'saved' && (
-          <div className="max-w-md mx-auto">
+          <div>
             <div className="px-4 py-4">
               {favoriteProperties.length > 0 ? (
-                <div className="space-y-3">
+                <div>
                   <p className="text-sm text-gray-600 mb-4">
                     收藏了 {favoriteProperties.length} 个房产
                   </p>
-                  {favoriteProperties.map((property) => (
-                    <PropertyCard
-                      key={property.id}
-                      property={property}
-                      isFavorite={true}
-                      onToggleFavorite={toggleFavorite}
-                    />
-                  ))}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {favoriteProperties.map((property) => (
+                      <PropertyCard
+                        key={property.id}
+                        property={property}
+                        isFavorite={true}
+                        onToggleFavorite={toggleFavorite}
+                      />
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-8">
@@ -173,7 +175,7 @@ export default function Home() {
         )}
 
         {activeTab === 'messages' && (
-          <div className="max-w-md mx-auto">
+          <div>
             <div className="px-4 py-8">
               <div className="bg-white rounded-lg p-6 text-center space-y-4">
                 <svg className="w-16 h-16 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -189,7 +191,7 @@ export default function Home() {
         )}
 
         {activeTab === 'profile' && (
-          <div className="max-w-md mx-auto">
+          <div>
             <div className="px-4 py-8 space-y-4">
               <div className="bg-white rounded-lg p-6 text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-2xl font-bold">
