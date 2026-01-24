@@ -29,18 +29,18 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   const t = (key: string, vars?: Record<string, string | number>): string => {
     const dict = translations[language];
     let text = (dict as any)[key] || key;
-    
+
     if (vars) {
       Object.entries(vars).forEach(([k, v]) => {
         text = text.replace(`{${k}}`, String(v));
       });
     }
-    
+
     return text;
   };
 
   return (
-    <I18nContext.Provider value={{ language, setLanguage, t }}>
+    <I18nContext.Provider value={{ language, setLanguage, t }} key={`lang-${language}`}>
       {children}
     </I18nContext.Provider>
   );

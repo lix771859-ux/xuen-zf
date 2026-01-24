@@ -98,7 +98,7 @@ const allProperties = [
     title: 'Waterfront 2BR',
     price: 3200,
     address: '201 Willets Point Blvd, Flushing',
-    bedrooms: 3,
+    bedrooms: 2,
     bathrooms: 2,
     sqft: 1600,
     image: 'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=500&h=500&fit=crop',

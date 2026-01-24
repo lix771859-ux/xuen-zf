@@ -1,3 +1,7 @@
+'use client';
+
+import { useI18n } from '@/i18n/context';
+
 interface Property {
   id: number;
   title: string;
@@ -18,6 +22,8 @@ interface PropertyCardProps {
 }
 
 export default function PropertyCard({ property, isFavorite, onToggleFavorite }: PropertyCardProps) {
+  const { t } = useI18n();
+
   return (
     <a href={`/property/${property.id}`} className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
       <div className="relative">
@@ -50,8 +56,8 @@ export default function PropertyCard({ property, isFavorite, onToggleFavorite }:
 
         {/* 价格 */}
         <div className="mt-1 flex items-baseline gap-1">
-          <span className="text-xl font-bold text-blue-600">¥{property.price.toLocaleString()}</span>
-          <span className="text-xs text-gray-500">/月</span>
+          <span className="text-xl font-bold text-blue-600">${property.price.toLocaleString()}</span>
+          <span className="text-xs text-gray-500">{t('perMonth')}</span>
         </div>
 
         {/* 地址 */}
@@ -69,19 +75,19 @@ export default function PropertyCard({ property, isFavorite, onToggleFavorite }:
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-3m0 0l7-4 7 4M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9m-9 5h4" />
             </svg>
-            {property.bedrooms} 卧室
+            {property.bedrooms} {t('bedroomsCount')}
           </div>
           <div className="flex items-center gap-1">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 6V4m12 2v2m7 0a2 2 0 01-2 2H3a2 2 0 01-2-2V4a2 2 0 012-2h14a2 2 0 012 2v16a2 2 0 01-2 2H3a2 2 0 01-2-2V4z" />
             </svg>
-            {property.bathrooms} 卫浴
+            {property.bathrooms} {t('bathrooms')}
           </div>
           <div className="flex items-center gap-1">
             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
             </svg>
-            {property.sqft} ㎡
+            {property.sqft} {t('sqft')}
           </div>
         </div>
 
@@ -93,7 +99,7 @@ export default function PropertyCard({ property, isFavorite, onToggleFavorite }:
             </svg>
             <span className="text-sm font-semibold text-gray-900">{property.rating}</span>
           </div>
-          <span className="text-xs text-gray-500">({property.reviews} 评价)</span>
+          <span className="text-xs text-gray-500">({property.reviews} {t('reviews')})</span>
         </div>
       </div>
     </a>

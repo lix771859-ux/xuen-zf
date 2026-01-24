@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useI18n } from '@/i18n/context';
 
 interface FilterModalProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export interface FilterState {
 
 export default function FilterModal({ isOpen, onClose, onApply, initialFilters }: FilterModalProps) {
   const [filters, setFilters] = React.useState<FilterState>(initialFilters);
+  const { t } = useI18n();
 
   if (!isOpen) return null;
 
@@ -29,9 +31,9 @@ export default function FilterModal({ isOpen, onClose, onApply, initialFilters }
   return (
     <div className="fixed inset-0 bg-black/40 z-50 animate-in fade-in">
       <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl max-w-md mx-auto animate-in slide-in-from-bottom">
-        {/* 头部 */}
+        {/* Header */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">筛选</h2>
+          <h2 className="text-lg font-semibold text-gray-900">{t('filterTitle')}</h2>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
@@ -42,14 +44,14 @@ export default function FilterModal({ isOpen, onClose, onApply, initialFilters }
           </button>
         </div>
 
-        {/* 筛选内容 */}
+        {/* Filter content */}
         <div className="px-4 py-4 space-y-6 max-h-96 overflow-y-auto">
-          {/* 价格范围 */}
+          {/* Price range */}
           <div>
-            <h3 className="font-semibold text-gray-900 mb-3">月租范围</h3>
+            <h3 className="font-semibold text-gray-900 mb-3">{t('priceRange')}</h3>
             <div className="space-y-3">
               <div>
-                <label className="text-sm text-gray-600">最低 ¥{filters.minPrice}</label>
+                <label className="text-sm text-gray-600">{t('minPrice')} ${filters.minPrice}</label>
                 <input
                   type="range"
                   min="1000"
@@ -63,7 +65,7 @@ export default function FilterModal({ isOpen, onClose, onApply, initialFilters }
                 />
               </div>
               <div>
-                <label className="text-sm text-gray-600">最高 ¥{filters.maxPrice}</label>
+                <label className="text-sm text-gray-600">{t('maxPrice')} ${filters.maxPrice}</label>
                 <input
                   type="range"
                   min="1000"
@@ -79,9 +81,9 @@ export default function FilterModal({ isOpen, onClose, onApply, initialFilters }
             </div>
           </div>
 
-          {/* 卧室数 */}
+          {/* Bedrooms */}
           <div>
-            <h3 className="font-semibold text-gray-900 mb-3">卧室数</h3>
+            <h3 className="font-semibold text-gray-900 mb-3">{t('bedroomsCount')}</h3>
             <div className="flex gap-2">
               {[1, 2, 3, 4, '5+'].map((num) => (
                 <button
@@ -104,25 +106,25 @@ export default function FilterModal({ isOpen, onClose, onApply, initialFilters }
             </div>
           </div>
 
-          {/* 地区 */}
+          {/* Area */}
           <div>
-            <h3 className="font-semibold text-gray-900 mb-3">地区</h3>
+            <h3 className="font-semibold text-gray-900 mb-3">{t('areaSelect')}</h3>
             <select
               value={filters.area}
               onChange={(e) => setFilters({ ...filters, area: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">全部地区</option>
-              <option value="downtown">市中心</option>
-              <option value="east">东区</option>
-              <option value="west">西区</option>
-              <option value="north">北区</option>
-              <option value="south">南区</option>
+              <option value="">All</option>
+              <option value="downtown">Downtown</option>
+              <option value="east">East</option>
+              <option value="west">West</option>
+              <option value="north">North</option>
+              <option value="south">South</option>
             </select>
           </div>
         </div>
 
-        {/* 底部按钮 */}
+        {/* Footer */}
         <div className="flex gap-3 px-4 py-4 border-t border-gray-200">
           <button
             onClick={() => {
@@ -131,13 +133,13 @@ export default function FilterModal({ isOpen, onClose, onApply, initialFilters }
             }}
             className="flex-1 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
           >
-            重置
+            {t('reset')}
           </button>
           <button
             onClick={handleApply}
             className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
           >
-            应用
+            {t('apply')}
           </button>
         </div>
       </div>
