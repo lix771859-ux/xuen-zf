@@ -19,8 +19,8 @@ export default function Home() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filters, setFilters] = useState<FilterState>({
-    minPrice: 1000,
-    maxPrice: 15000,
+    minPrice: 0,
+    maxPrice: 150000,
     bedrooms: null,
     area: '',
   });
