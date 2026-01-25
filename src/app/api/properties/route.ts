@@ -182,8 +182,8 @@ export async function GET(request: Request) {
     let query = supabaseServer
       .from('properties')
       .select('*', { count: 'exact' })
-      .gte('price', minPrice)
-      .lte('price', maxPrice);
+      // .gte('price', minPrice)
+      // .lte('price', maxPrice);
 
     if (bedrooms) {
       query = query.eq('bedrooms', parseInt(bedrooms));
