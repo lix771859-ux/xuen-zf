@@ -61,7 +61,7 @@ export default function SearchBar({ value, onChange, onFilterClick }: SearchBarP
             onClick={handleAddClick}
             className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-medium rounded-lg hover:shadow-lg hover:from-blue-700 hover:to-blue-600 transition-all whitespace-nowrap"
           >
-            Add Property
+            + rent
           </a>
         </div>
       </div>
