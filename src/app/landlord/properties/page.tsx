@@ -1,9 +1,14 @@
 'use client';
 
+'use client';
+
 import { useEffect, useState } from 'react';
 import { useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
+
+// 页面初始未登录直接跳转到登录页（放到 useEffect）
+// 必须在组件内
 
 
 interface PropertyForm {
