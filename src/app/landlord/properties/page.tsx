@@ -122,17 +122,38 @@ export default function LandlordPropertiesPage() {
   };
 
   // 图片上传处理
-  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files || files.length === 0) return;
-    // 这里只做本地预览模拟
-    const file = files[0];
-    const reader = new FileReader();
-    reader.onload = () => {
-      setForm((prev) => ({ ...prev, image: reader.result as string }));
-    };
-    reader.readAsDataURL(file);
-  };
+  // ...existing code...
+const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const files = e.target.files;
+  if (!files || files.length === 0) return;
+  const file = files[0];
+
+  // 生成唯一文件名
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+  const filePath = `property-images/${fileName}`;
+
+  // 上传到 Supabase Storage
+  const { data, error } = await supabaseBrowser.storage
+    .from('property-images') // 你的 bucket 名称
+    .upload(filePath, file);
+
+  if (error) {
+    alert('图片上传失败');
+    return;
+  }
+
+  // 获取图片公开 URL
+  const { data: publicUrlData } = supabaseBrowser.storage
+    .from('property-images')
+    .getPublicUrl(filePath);
+
+  setForm((prev) => ({
+    ...prev,
+    image:publicUrlData.publicUrl
+  }))
+};
+// ...existing code...
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -154,6 +175,7 @@ export default function LandlordPropertiesPage() {
       }
       setMessage('发布成功');
       setForm({ title: '', price: 0, image: null });
+      router.push('/');
       // 新增后刷新列表
       fetch(`/api/properties?landlord_id=${userId}&page=1&pageSize=20`)
         .then((r) => r.json())
