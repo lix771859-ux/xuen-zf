@@ -161,8 +161,15 @@ export default function LandlordPropertiesPage() {
     }
   };
 
+  // 未登录直接跳转登录页
+  if (userId === null) {
+    if (typeof window !== 'undefined') {
+      router.push('/auth');
+    }
+    return null;
+  }
   return (
-    <div className="max-w-3xl mx-auto p-4 space-y-6 relative">
+    <div className="max-w-3xl mx-auto p-4 space-y-6 relative bg-white min-h-screen">
       {/* 关闭按钮 */}
       <button
         onClick={() => router.back()}
