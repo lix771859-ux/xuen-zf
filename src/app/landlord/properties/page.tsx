@@ -179,7 +179,7 @@ export default function LandlordPropertiesPage() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
-      <h1 className="text-2xl font-bold">房东房源管理</h1>
+      <h1 className="text-2xl font-bold text-gray-800">房东房源管理</h1>
       {/* 登录提示 */}
       {!userId && (
         <div className="p-4 bg-yellow-50 border border-yellow-200 rounded">
@@ -218,7 +218,7 @@ export default function LandlordPropertiesPage() {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">图片上传</label>
+              <label className="block text-sm font-medium mb-1 text-gray-800">图片上传</label>
               <div className="mt-2">
                 <label htmlFor="property-image-upload">
                   <div className="w-28 h-28 bg-gray-100 rounded-lg border flex items-center justify-center overflow-hidden cursor-pointer relative">
@@ -245,7 +245,7 @@ export default function LandlordPropertiesPage() {
             </button>
           </form>
           <div className="space-y-3">
-            <h2 className="text-xl font-semibold">我的房源</h2>
+            <h2 className="text-xl font-semibold text-gray-800">我的房源</h2>
             <div className="grid md:grid-cols-2 gap-3">
               {properties.map((p) => (
                 <div key={p.id} className="border rounded p-3 bg-white relative">
