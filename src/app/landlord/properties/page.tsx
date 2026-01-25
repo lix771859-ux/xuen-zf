@@ -95,6 +95,13 @@ export default function LandlordPropertiesPage() {
   useEffect(() => {
     const init = async () => {
       const { data } = await supabaseBrowser.auth.getUser();
+      if (!data.user?.id) {
+        setMessage('请先登录后再发布房源，正在跳转到登录页...');
+        setTimeout(() => {
+          router.push('/auth');
+        }, 1200);
+        return;
+      }
       setUserId(data.user?.id ?? null);
       if (data.user?.id) {
         fetch(`/api/properties?landlord_id=${data.user.id}&page=1&pageSize=20`)
@@ -132,13 +139,6 @@ export default function LandlordPropertiesPage() {
     setSubmitting(true);
     setMessage(null);
     try {
-      if (!userId) {
-        setMessage('请先登录后再发布房源，正在跳转到登录页...');
-        setTimeout(() => {
-          router.push('/auth');
-        }, 1200);
-        return;
-      }
       const res = await fetch('/api/properties', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
