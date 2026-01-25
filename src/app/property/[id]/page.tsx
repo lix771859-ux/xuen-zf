@@ -212,7 +212,7 @@ const propertyData = [
 export default function PropertyDetail({ params }: { params: { id: string } }) {
   const property = propertyData.find((p) => p.id === parseInt(params.id, 10)) || propertyData[0];
   return (
-    <div className="min-h-screen bg-gray-50 pb-10">
+    <div className="min-h-screen bg-white pb-10">
       {/* 返回按钮 */}
       <div className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center">
@@ -243,12 +243,27 @@ export default function PropertyDetail({ params }: { params: { id: string } }) {
             <span className="text-3xl font-bold text-blue-600">${property.price.toLocaleString()}</span>
             <span className="text-gray-500">/月</span>
           </div>
-          <div className="flex items-start gap-3">
-            <svg className="w-5 h-5 text-gray-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <p className="font-medium text-gray-900">{property.address}</p>
+          <div className="flex flex-wrap gap-4 mb-2">
+            <span className="text-gray-700">{property.address}</span>
+            <span className="text-gray-700">{property.sqft} 平方尺</span>
+            <span className="text-gray-700">{property.bedrooms} 室 {property.bathrooms} 卫</span>
+          </div>
+          <div className="mb-2">
+            <span className="text-gray-700">评分：{property.rating}（{property.reviews}条评价）</span>
+          </div>
+          <div className="mb-2">
+            <span className="text-gray-700">{property.description}</span>
+          </div>
+          <div className="mb-2">
+            <span className="text-gray-700">配套：{property.amenities?.join('、')}</span>
+          </div>
+          <div className="flex items-center gap-3 mt-4">
+            <img src={property.landlord.avatar} alt={property.landlord.name} className="w-10 h-10 rounded-full" />
+            <div>
+              <div className="font-medium text-gray-900">房东：{property.landlord.name}</div>
+              <div className="text-xs text-gray-500">房东评分：{property.landlord.rating}（{property.landlord.reviews}条）</div>
+              <div className="text-xs text-gray-500">{property.landlord.responseTime}</div>
+            </div>
           </div>
         </div>
       </div>

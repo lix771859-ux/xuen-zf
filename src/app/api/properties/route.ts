@@ -1,3 +1,60 @@
+// 删除房源
+export async function DELETE(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const id = searchParams.get('id');
+  if (!id) {
+    return NextResponse.json({ error: '缺少房源id' }, { status: 400 });
+  }
+  const { error } = await supabaseServer.from('properties').delete().eq('id', id);
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 400 });
+  }
+  return NextResponse.json({ success: true });
+}
+
+// 编辑房源
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json();
+    const {
+      id,
+      title,
+      description,
+      price,
+      address,
+      bedrooms,
+      bathrooms,
+      sqft,
+      area,
+      images,
+      landlord_id,
+    } = body;
+    if (!id || !title || !price) {
+      return NextResponse.json({ error: '缺少必要字段: id/title/price' }, { status: 400 });
+    }
+    const { error } = await supabaseServer
+      .from('properties')
+      .update({
+        title,
+        description: description ?? null,
+        price,
+        address: address ?? null,
+        bedrooms: bedrooms ?? null,
+        bathrooms: bathrooms ?? null,
+        sqft: sqft ?? null,
+        area: area ?? null,
+        images: images ?? null,
+        landlord_id: landlord_id ?? null,
+      })
+      .eq('id', id);
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
+    return NextResponse.json({ success: true });
+  } catch (err) {
+    return NextResponse.json({ error: '无效的请求体' }, { status: 400 });
+  }
+}
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabaseServer';
 
