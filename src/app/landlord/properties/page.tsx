@@ -182,8 +182,8 @@ export default function LandlordPropertiesPage() {
       <h1 className="text-2xl font-bold text-gray-800">房东房源管理</h1>
       {/* 登录提示 */}
       {!userId && (
-        <div className="p-4 bg-yellow-50 border border-yellow-200 rounded">
-          请先登录，以发布和管理房源。
+        <div className="p-4 text-gray-800 bg-yellow-50 border border-yellow-200 rounded">
+          请先登录，即将跳到登录页。。。
         </div>
       )}
       {/* 表单和房源列表 */}
