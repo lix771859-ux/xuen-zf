@@ -69,11 +69,11 @@ export const translations = {
     // Common
     loading: 'Loading...',
     error: 'Error',
+    newRent: 'New Rent',
   },
   zh: {
     // Header
     appName: '租房网',
-    
     // Navigation
     search: '搜索',
     saved: '收藏',
@@ -140,6 +140,7 @@ export const translations = {
     // Common
     loading: '加载中...',
     error: '错误',
+    newRent: '发布房源',
   },
 };
 
