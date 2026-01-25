@@ -71,6 +71,7 @@ export const translations = {
     loading: 'Loading...',
     error: 'Error',
     newRent: 'Add Property',
+    pleaseLogin: 'Please Login',
   },
   zh: {
     // Header
