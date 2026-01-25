@@ -19,10 +19,15 @@ export default function SearchBar({ value, onChange, onFilterClick }: SearchBarP
     supabaseBrowser.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
   }, []);
 
+  const [addBtnText, setAddBtnText] = useState(t('newRent'));
   const handleAddClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     if (!userId) {
-      router.push('/auth');
+      setAddBtnText(t('pleaseLogin'));
+      setTimeout(() => {
+        setAddBtnText(t('newRent'));
+        router.push('/auth');
+      }, 500);
     } else {
       router.push('/landlord/properties');
     }
@@ -61,7 +66,7 @@ export default function SearchBar({ value, onChange, onFilterClick }: SearchBarP
             onClick={handleAddClick}
             className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-medium rounded-lg hover:shadow-lg hover:from-blue-700 hover:to-blue-600 transition-all whitespace-nowrap"
           >
-            {t('newRent')}
+            {addBtnText}
           </a>
         </div>
       </div>

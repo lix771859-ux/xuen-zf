@@ -1,3 +1,4 @@
+// ...existing code...
 export const translations = {
   en: {
     // Header
@@ -141,6 +142,7 @@ export const translations = {
     loading: '加载中...',
     error: '错误',
     newRent: '发布房源',
+    pleaseLogin: '请先登录',
   },
 };
 
