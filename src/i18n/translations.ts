@@ -69,7 +69,7 @@ export const translations = {
     // Common
     loading: 'Loading...',
     error: 'Error',
-    newRent: 'New Rent',
+    newRent: 'Add Property',
   },
   zh: {
     // Header
