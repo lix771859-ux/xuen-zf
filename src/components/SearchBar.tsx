@@ -1,6 +1,9 @@
 'use client';
 
 import { useI18n } from '@/i18n/context';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabaseBrowser } from '@/lib/supabaseBrowser';
 
 interface SearchBarProps {
   value: string;
@@ -10,6 +13,20 @@ interface SearchBarProps {
 
 export default function SearchBar({ value, onChange, onFilterClick }: SearchBarProps) {
   const { t } = useI18n();
+  const router = useRouter();
+  const [userId, setUserId] = useState<string | null>(null);
+  useEffect(() => {
+    supabaseBrowser.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+  }, []);
+
+  const handleAddClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (!userId) {
+      router.push('/auth');
+    } else {
+      router.push('/landlord/properties');
+    }
+  };
 
   return (
     <div style={{ width: '100vw', boxSizing: 'border-box' }} className="bg-white border-b border-gray-200 sticky top-0 z-30">
@@ -41,6 +58,7 @@ export default function SearchBar({ value, onChange, onFilterClick }: SearchBarP
           </div>
           <a
             href="/landlord/properties"
+            onClick={handleAddClick}
             className="px-4 py-2.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-medium rounded-lg hover:shadow-lg hover:from-blue-700 hover:to-blue-600 transition-all whitespace-nowrap"
           >
             Add Property
