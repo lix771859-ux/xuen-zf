@@ -307,11 +307,11 @@ export default function LandlordPropertiesPage() {
                           <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded">保存</button>
                         </form>
                       </div>
-                    )
-              {properties.length === 0 && (
-                <p className="text-sm text-gray-500">暂无房源</p>
-              )}
-            </div>
+                    )}
+            {properties.length === 0 && (
+              <p className="text-sm text-gray-500">暂无房源</p>
+            )}
+          </div>
           </div>
         </>
       )}
