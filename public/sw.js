@@ -21,6 +21,10 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') {
     return;
   }
+  // 跳过 API 请求，不缓存
+  if (event.request.url.includes('/api/')) {
+    return;
+  }
 
   event.respondWith(
     caches.match(event.request).then(response => {
