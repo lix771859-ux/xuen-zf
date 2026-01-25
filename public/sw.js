@@ -26,6 +26,11 @@ self.addEventListener('fetch', event => {
     return;
   }
 
+  // 跳过首页 HTML，不缓存
+  // if (event.request.mode === 'navigate' && event.request.url.endsWith('/')) {
+  //   return;
+  // }
+
   event.respondWith(
     caches.match(event.request).then(response => {
       if (response) {
