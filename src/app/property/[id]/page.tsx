@@ -11,7 +11,7 @@ import Image from 'next/image';
     const { id } = await params;
     // 自动适配本地和生产环境，优先用 NEXT_PUBLIC_APP_URL
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL
-      || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+      || 'http://localhost:3000';
     const res = await fetch(`${baseUrl}/api/property/${id}`, { cache: 'no-store' });
     const property = await res.json();
 
