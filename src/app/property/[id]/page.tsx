@@ -5,17 +5,19 @@
 // import { useI18n } from '@/i18n/context';
 import Link from 'next/link';
 import Image from 'next/image';
-
+import { supabaseServer } from '@/lib/supabaseServer';
 
   export default async function PropertyDetail({ params }: { params: { id: string } }) {
     const { id } =  params;
     // 自动适配本地和生产环境，优先用 NEXT_PUBLIC_APP_URL
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL
-      || 'http://localhost:3000';
-    const res = await fetch(`${baseUrl}/api/property/${id}`, { cache: 'no-store' });
-    const property = await res.json();
+    const { data: property, error } = await supabaseServer
+    .from('properties')
+    .select('*')
+    .eq('id', id)
+    .single();
 
-    if (property.error) {
+
+    if (error || !property) {
       return <div className="min-h-screen flex items-center justify-center text-gray-500">未找到房源</div>;
     }
 
