@@ -8,7 +8,7 @@ import Image from 'next/image';
 
 
   export default async function PropertyDetail({ params }: { params: { id: string } }) {
-    const { id } = await params;
+    const { id } =  params;
     // 自动适配本地和生产环境，优先用 NEXT_PUBLIC_APP_URL
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL
       || 'http://localhost:3000';
