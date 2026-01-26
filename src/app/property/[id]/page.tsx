@@ -15,7 +15,7 @@ import { supabaseServer } from '@/lib/supabaseServer';
     .select('*')
     .eq('id', id)
     .single();
-
+    console.log('Fetched property:', property);
 
     if (error || !property) {
       return <div className="min-h-screen flex items-center justify-center text-gray-500">未找到房源</div>;
