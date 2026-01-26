@@ -1,15 +1,12 @@
-// import type { NextConfig } from 'next';
-
 const nextConfig = {
   experimental: {
     dynamicIO: false,
   },
-
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'cbtfmicezymjvrvupnqoy.supabase.co',
+        hostname: 'cbtfmicezymjvrrupnwx.supabase.co',
         pathname: '/storage/v1/object/public/**',
       },
       {
