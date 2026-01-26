@@ -1,8 +1,8 @@
 
-'use client';
+// 'use client';
 
-import { useState } from 'react';
-import { useI18n } from '@/i18n/context';
+// import { useState } from 'react';
+// import { useI18n } from '@/i18n/context';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -209,8 +209,9 @@ const propertyData = [
   },
 ];
 
-export default function PropertyDetail({ params }: { params: { id: string } }) {
-  const property = propertyData.find((p) => p.id === parseInt(params.id, 10)) || propertyData[0];
+export default async function PropertyDetail({ params }: { params: { id: string } }) {
+  const { id } = await params;
+  const property = propertyData.find((p) => p.id === parseInt(id, 10)) || propertyData[0];
   return (
     <div className="min-h-screen bg-white pb-10">
       {/* 返回按钮 */}
