@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabaseServer';
 
 export async function GET(request: Request, context: { params: { id: string } }) {
-  const { id } = await context.params;
+  const { id } =  context.params;
   const { data, error } = await supabaseServer
     .from('properties')
     .select('*')
