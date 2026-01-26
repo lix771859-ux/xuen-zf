@@ -13,6 +13,7 @@ export default async function PropertyDetail({ params }: { params: { id: string 
 
   console.log('Fetched property:', property);
 
+
   if (error || !property) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-500">
