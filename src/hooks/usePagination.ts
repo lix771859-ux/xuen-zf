@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
-import { useRefreshStore  } from '@/store/useRefreshStore';
+// import { useRefreshStore  } from '@/store/useRefreshStore';
 interface PaginationOptions {
   pageSize?: number;
   minPrice?: number;
@@ -39,13 +39,7 @@ export function usePagination(options: PaginationOptions = {}) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { shouldRefresh,clearRefresh } = useRefreshStore()
-  const reset = () => {
-    setItems([])
-    setPage(1)
-    setHasMore(true)
-    loadPage(1)
-  }
+  // const { shouldRefresh,clearRefresh } = useRefreshStore()
 
   const pageSize = options.pageSize || 10;
   const loadPage = async (pageNum: number) => {
@@ -169,5 +163,5 @@ export function usePagination(options: PaginationOptions = {}) {
     }
   }, [page, isLoading, hasMore, fetchPageForMore]);
 
-  return { items, isLoading, hasMore, error, loadMore, page, reset };
+  return { items, isLoading, hasMore, error, loadMore, page };
 }
