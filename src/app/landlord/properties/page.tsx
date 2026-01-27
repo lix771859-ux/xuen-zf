@@ -176,10 +176,10 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       setForm({ title: '', price: 0, image: null });
       // useRefreshStore.getState().markShouldRefresh()
       // 新增后刷新列表
-      // fetch(`/api/properties?landlord_id=${userId}&page=1&pageSize=20`)
-      //   .then((r) => r.json())
-      //   .then((res) => setProperties(res.data ?? []))
-      //   .catch(() => {});
+      fetch(`/api/properties?landlord_id=${userId}&page=1&pageSize=20`)
+        .then((r) => r.json())
+        .then((res) => setProperties(res.data ?? []))
+        .catch(() => {});
       router.push('/');
     } catch (err: any) {
       setMessage(err.message || '发布失败');
