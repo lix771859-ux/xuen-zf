@@ -2,8 +2,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { supabaseServer } from '@/lib/supabaseServer';
 
-export default async function PropertyDetail({ params }: { params: { id: string } }) {
-  const id = Number(params.id);
+export default async function PropertyDetail(props: { params: Promise<{ id: string }> }) {
+  const resolved = await props.params;
+  const id = Number(resolved.id);
 
   const { data: property, error } = await supabaseServer
     .from('properties')
@@ -11,7 +12,7 @@ export default async function PropertyDetail({ params }: { params: { id: string 
     .eq('id', id)
     .single();
 
-  console.log('Fetched property:', property);
+  console.log('Fetched property:', property, 'Error:', error);
 
 
   if (error || !property) {
