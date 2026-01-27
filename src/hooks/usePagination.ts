@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-
+import { supabaseBrowser } from '@/lib/supabaseBrowser';
 interface PaginationOptions {
   pageSize?: number;
   minPrice?: number;
@@ -38,9 +38,46 @@ export function usePagination(options: PaginationOptions = {}) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const reset = () => {
+    setItems([])
+    setPage(1)
+    setHasMore(true)
+    loadPage(1)
+  }
 
   const pageSize = options.pageSize || 10;
+  const loadPage = async (pageNum: number) => {
+    setIsLoading(true)
+    setError(null)
 
+    try {
+      const { data, error } = await supabaseBrowser
+        .from('properties')
+        .select('*')
+        .range((pageNum - 1) * pageSize, pageNum * pageSize - 1)
+        .match({
+          ...(options.minPrice && { price: { gte: options.minPrice } }),
+          ...(options.maxPrice && { price: { lte: options.maxPrice } }),
+          ...(options.bedrooms && { bedrooms: options.bedrooms }),
+          ...(options.area && { area: options.area }),
+          ...(options.search && { title: options.search }),
+        })
+
+      if (error) throw error
+
+      if (pageNum === 1) {
+        setItems(data)
+      } else {
+        setItems((prev) => [...prev, ...data])
+      }
+
+      setHasMore(data.length === pageSize)
+    } catch (err: any) {
+      setError(err.message || '加载失败')
+    } finally {
+      setIsLoading(false)
+    }
+  }
   // 重置并加载第一页
   useEffect(() => {
     const fetchPage = async (pageNumber: number) => {
@@ -125,5 +162,5 @@ export function usePagination(options: PaginationOptions = {}) {
     }
   }, [page, isLoading, hasMore, fetchPageForMore]);
 
-  return { items, isLoading, hasMore, error, loadMore, page };
+  return { items, isLoading, hasMore, error, loadMore, page, reset };
 }

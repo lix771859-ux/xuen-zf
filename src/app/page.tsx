@@ -12,9 +12,11 @@ import { usePagination } from '@/hooks/usePagination';
 import { useI18n } from '@/i18n/context';
 import { useSupabaseUser } from '@/hooks/useSupabaseUser';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
+import { useRefreshStore  } from '@/store/useRefreshStore';
 
 export default function Home() {
   const { t } = useI18n();
+  const { shouldRefresh,clearRefresh } = useRefreshStore()
   const [activeTab, setActiveTab] = useState('search');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -26,7 +28,7 @@ export default function Home() {
   });
 
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
-  const { items, isLoading, hasMore, loadMore } = usePagination({
+  const { items, isLoading, hasMore, loadMore, reset } = usePagination({
     pageSize: 6,
     minPrice: filters.minPrice,
     maxPrice: filters.maxPrice,
@@ -37,9 +39,13 @@ export default function Home() {
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
-
   // 无限滚动逻辑
   useEffect(() => {
+    if (shouldRefresh) {
+      reset()        // ⭐ 清空 items，重新加载第一页
+      clearRefresh() // ⭐ 清除标记
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore && !isLoading) {
@@ -54,7 +60,7 @@ export default function Home() {
     }
 
     return () => observer.disconnect();
-  }, [hasMore, isLoading, loadMore]);
+  }, [hasMore, isLoading, loadMore, shouldRefresh, clearRefresh]);
 
   // 获取收藏的房产
   const favoriteProperties = items.filter((p) => favorites.has(p.id));

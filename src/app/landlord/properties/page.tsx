@@ -1,11 +1,10 @@
 'use client';
 
-'use client';
-
 import { useEffect, useState } from 'react';
 import { useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
+import { useRefreshStore  } from '@/store/useRefreshStore';
 
 // 页面初始未登录直接跳转到登录页（放到 useEffect）
 // 必须在组件内
@@ -175,12 +174,8 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       }
       setMessage('发布成功');
       setForm({ title: '', price: 0, image: null });
+      useRefreshStore.getState().markShouldRefresh()
       router.push('/');
-      // 新增后刷新列表
-      // fetch(`/api/properties?landlord_id=${userId}&page=1&pageSize=20`)
-      //   .then((r) => r.json())
-      //   .then((res) => setProperties(res.data ?? []))
-      //   .catch(() => {});
     } catch (err: any) {
       setMessage(err.message || '发布失败');
     } finally {
