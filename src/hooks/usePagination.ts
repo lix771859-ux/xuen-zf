@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
+import { useRefreshStore  } from '@/store/useRefreshStore';
 interface PaginationOptions {
   pageSize?: number;
   minPrice?: number;
@@ -38,6 +39,7 @@ export function usePagination(options: PaginationOptions = {}) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { shouldRefresh,clearRefresh } = useRefreshStore()
   const reset = () => {
     setItems([])
     setPage(1)
@@ -80,6 +82,11 @@ export function usePagination(options: PaginationOptions = {}) {
   }
   // 重置并加载第一页
   useEffect(() => {
+  //   if (shouldRefresh) {
+  //   reset()
+  //   clearRefresh()
+  // }
+
     const fetchPage = async (pageNumber: number) => {
       setIsLoading(true);
       setError(null);
