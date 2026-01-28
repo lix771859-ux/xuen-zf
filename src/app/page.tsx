@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
+import { useRefreshStore } from '@/store/useRefreshStore';
 import SearchBar from '@/components/SearchBar';
 import PropertyCard from '@/components/PropertyCard';
 import BottomNav from '@/components/BottomNav';
@@ -9,25 +10,55 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { MapPreview } from '@/components/MapPreview';
 import { useFavorites } from '@/hooks/useFavorites';
 import { usePagination } from '@/hooks/usePagination';
+import { useHomeStore } from '@/store/useHomeStore';
 import { useI18n } from '@/i18n/context';
 import { useSupabaseUser } from '@/hooks/useSupabaseUser';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
 
 export default function Home() {
+  const { shouldRefresh, markShouldRefresh, clearRefresh } = useRefreshStore();
   const { t } = useI18n();
   // const { shouldRefresh,clearRefresh } = useRefreshStore()
-  const [activeTab, setActiveTab] = useState('search');
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filters, setFilters] = useState<FilterState>({
-    minPrice: 0,
-    maxPrice: 150000,
-    bedrooms: null,
-    area: '',
-  });
+  const {
+    filters, setFilters,
+    searchQuery, setSearchQuery,
+    activeTab, setActiveTab,
+    isFilterOpen, setIsFilterOpen,
+    items, setItems,
+    page, setPage,
+    hasMore, setHasMore,
+    scrollY, setScrollY,
+    // reset: homeReset
+  } = useHomeStore();
+  // 进入详情页前保存滚动高度
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener('pagehide', handleBeforeUnload);
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('pagehide', handleBeforeUnload);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [setScrollY]);
+
+  // 返回首页时自动恢复滚动高度
+  useEffect(() => {
+    if (scrollY > 0) {
+      window.scrollTo({ top: scrollY, behavior: 'auto' });
+    }
+  }, []);
 
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
-  const { items, isLoading, hasMore, loadMore } = usePagination({
+  const {
+    items: pagedItems,
+    isLoading,
+    hasMore: pagedHasMore,
+    loadMore,
+    reset,
+    page: pagedPage
+  } = usePagination({
     pageSize: 6,
     minPrice: filters.minPrice,
     maxPrice: filters.maxPrice,
@@ -36,14 +67,25 @@ export default function Home() {
     search: searchQuery,
   });
 
+  // 同步分页数据到 zustand
+  useEffect(() => {
+    setItems(pagedItems);
+  }, [pagedItems, setItems]);
+  useEffect(() => {
+    setHasMore(pagedHasMore);
+  }, [pagedHasMore, setHasMore]);
+  useEffect(() => {
+    setPage(pagedPage);
+  }, [pagedPage, setPage]);
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  // 无限滚动逻辑
+  // 无限滚动逻辑 + 新增后刷新
   useEffect(() => {
-    // if (shouldRefresh) {
-    //   reset()        // ⭐ 清空 items，重新加载第一页
-    //   clearRefresh() // ⭐ 清除标记
-    // }
+    if (shouldRefresh) {
+      reset();        // 清空 items，重新加载第一页
+      clearRefresh(); // 清除标记
+    }
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -59,7 +101,7 @@ export default function Home() {
     }
 
     return () => observer.disconnect();
-  }, [hasMore, isLoading, loadMore]);
+  }, [hasMore, isLoading, loadMore, shouldRefresh, reset, clearRefresh]);
 
   // 获取收藏的房产
   const favoriteProperties = items.filter((p) => favorites.has(p.id));

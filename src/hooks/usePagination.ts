@@ -1,4 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useHomeStore } from '@/store/useHomeStore';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
 // import { useRefreshStore  } from '@/store/useRefreshStore';
 interface PaginationOptions {
@@ -75,13 +77,37 @@ export function usePagination(options: PaginationOptions = {}) {
     }
   }
   // 重置并加载第一页
+  // 全局缓存依赖响应式
+  const itemsCache = useHomeStore((s) => s.items);
+  const pageCache = useHomeStore((s) => s.page);
+  const hasMoreCache = useHomeStore((s) => s.hasMore);
+  const setLastDepsStr = useHomeStore((s) => s.setLastDepsStr);
+  const fromDetailBack = useHomeStore((s) => s.fromDetailBack);
+  const setFromDetailBack = useHomeStore((s) => s.setFromDetailBack);
   useEffect(() => {
-  //   if (shouldRefresh) {
-  //   reset()
-  //   clearRefresh()
-  // }
+    const deps = {
+      minPrice: options.minPrice,
+      maxPrice: options.maxPrice,
+      bedrooms: options.bedrooms,
+      area: options.area,
+      search: options.search,
+    };
+    const depsStr = JSON.stringify(deps);
+    // 只在从详情页返回且有缓存时用缓存
+    if (
+      fromDetailBack &&
+      itemsCache && itemsCache.length > 0
+    ) {
+      setItems(itemsCache);
+      setPage(pageCache || 1);
+      setHasMore(hasMoreCache ?? true);
+      setFromDetailBack(false);
+      return;
+    }
+    setLastDepsStr && setLastDepsStr(depsStr);
 
     const fetchPage = async (pageNumber: number) => {
+      console.log(111111111111111111)
       setIsLoading(true);
       setError(null);
 
@@ -99,14 +125,11 @@ export function usePagination(options: PaginationOptions = {}) {
         });
 
         const url = `/api/properties?${params}`;
-        console.log('Fetching properties from:', url);
         const response = await fetch(url);
         const result: PaginationResponse = await response.json();
-        console.log('API response:', result);
 
         if (pageNumber === 1) {
           setItems(result.data);
-          console.log('Set items:', result.data);
         } else {
           setItems((prev) => [...prev, ...result.data]);
         }
@@ -114,15 +137,13 @@ export function usePagination(options: PaginationOptions = {}) {
         setHasMore(pageNumber < result.totalPages);
         setPage(pageNumber);
       } catch (err) {
-        console.error('Fetch error:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch');
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchPage(1);
-  }, [pageSize, options.minPrice, options.maxPrice, options.bedrooms, options.area, options.search]);
+  }, [pageSize, options.minPrice, options.maxPrice, options.bedrooms, options.area, options.search, fromDetailBack, itemsCache, pageCache, hasMoreCache]);
 
   const fetchPageForMore = useCallback(
     async (pageNumber: number) => {
@@ -163,5 +184,9 @@ export function usePagination(options: PaginationOptions = {}) {
     }
   }, [page, isLoading, hasMore, fetchPageForMore]);
 
-  return { items, isLoading, hasMore, error, loadMore, page };
+  // 重置分页到第一页
+  const reset = () => {
+    setPage(1);
+  };
+  return { items, isLoading, hasMore, error, loadMore, page, reset };
 }

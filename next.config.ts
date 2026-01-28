@@ -1,13 +1,12 @@
-const nextConfig = {
-  experimental: {
-    dynamicIO: false,
-  },
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'cbtfmicezymjvrrupnwx.supabase.co',
-        pathname: '/storage/v1/object/public/**',
+        pathname: '/**',
       },
       {
         protocol: 'https',

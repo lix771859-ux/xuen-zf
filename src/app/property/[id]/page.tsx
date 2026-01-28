@@ -1,4 +1,5 @@
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useHomeStore } from '@/store/useHomeStore';
 import Image from 'next/image';
 import { supabaseServer } from '@/lib/supabaseServer';
 
@@ -12,9 +13,6 @@ export default async function PropertyDetail(props: { params: Promise<{ id: stri
     .eq('id', id)
     .single();
 
-  console.log('Fetched property:', property, 'Error:', error);
-
-
   if (error || !property) {
     return (
       <div className="min-h-screen flex items-center justify-center text-gray-500">
@@ -23,30 +21,44 @@ export default async function PropertyDetail(props: { params: Promise<{ id: stri
     );
   }
 
+  // 客户端hook
+  function ClientBackBtn() {
+    const router = useRouter();
+    const setFromDetailBack = useHomeStore((s) => s.setFromDetailBack);
+    return (
+      <button
+        className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
+        onClick={() => {
+          setFromDetailBack(true);
+          router.back();
+        }}
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        <span className="text-sm font-medium">返回</span>
+      </button>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white pb-10">
       {/* 返回按钮 */}
       <div className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center">
-          <Link href="/" className="flex items-center gap-2 text-blue-600 hover:text-blue-700">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            <span className="text-sm font-medium">返回</span>
-          </Link>
+          <ClientBackBtn />
         </div>
       </div>
 
       <div className="max-w-md mx-auto">
         {/* 图片展示 */}
         <div className="relative bg-black h-64 overflow-hidden mb-4">
-          <Image
+          <img
             src={property.images?.[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&h=600&fit=crop'}
             alt={property.title}
             width={800}
             height={600}
             className="w-full h-full object-cover"
-            priority
           />
         </div>
 
