@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useHomeStore } from '@/store/useHomeStore';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
 // import { useRefreshStore  } from '@/store/useRefreshStore';
