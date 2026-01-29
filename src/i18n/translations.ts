@@ -84,7 +84,7 @@ export const translations = {
     
     // Search
     searchPlaceholder: '搜索城市或地址...',
-    filterPrice: '价格',
+    filterPrice: '筛选',
     filterBedrooms: '卧室',
     filterArea: '地区',
     noProperties: '未找到符合条件的房产',
