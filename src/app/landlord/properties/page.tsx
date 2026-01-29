@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
+import { mutate } from 'swr'
 
 // 页面初始未登录直接跳转到登录页（放到 useEffect）
 // 必须在组件内
@@ -177,6 +178,8 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       setForm({ title: '', price: 0, image: null });
       router.push('/');
       // 新增后刷新列表
+      await mutate('/api/properties?page=1&pageSize=6');
+
       fetch(`/api/properties?landlord_id=${userId}&page=1&pageSize=20`)
         .then((r) => r.json())
         .then((res) => setProperties(res.data ?? []))

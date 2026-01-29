@@ -1,3 +1,5 @@
+import { NextResponse } from 'next/server';
+import { supabaseServer } from '@/lib/supabaseServer';
 // 删除房源
 export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -55,8 +57,6 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: '无效的请求体' }, { status: 400 });
   }
 }
-import { NextResponse } from 'next/server';
-import { supabaseServer } from '@/lib/supabaseServer';
 
 // Flushing, Queens, NY Properties
 const allProperties = [

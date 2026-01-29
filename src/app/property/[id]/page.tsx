@@ -2,13 +2,14 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { supabaseServer } from '@/lib/supabaseServer';
 
-export default async function PropertyDetail({ params }: { params: { id: string } }) {
-  const id = Number(params.id);
+export default async function PropertyDetail(props: { params: Promise<{ id: string }> }) {
+  const resolved = await props.params;
+  const id = resolved.id;
 
   const { data: property, error } = await supabaseServer
     .from('properties')
     .select('*')
-    .eq('id', id)
+    .eq('id', +id)
     .single();
 
   console.log('Fetched property:', property);
