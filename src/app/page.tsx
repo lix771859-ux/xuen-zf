@@ -12,7 +12,7 @@ import { usePagination } from '@/hooks/usePagination';
 import { useI18n } from '@/i18n/context';
 import { useSupabaseUser } from '@/hooks/useSupabaseUser';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
-
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
 
@@ -72,6 +72,24 @@ export default function Home() {
   const [isDragging, setIsDragging] = useState(false);
   const startYRef = useRef(0);
   const startSheetYRef = useRef(0);
+  const [addBtnText, setAddBtnText] = useState(t('newRent'));
+  const router = useRouter();
+    const [userId, setUserId] = useState<string | null>(null);
+    useEffect(() => {
+      supabaseBrowser.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
+    }, []);
+  const handleAddClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    if (!userId) {
+      setAddBtnText(t('pleaseLogin'));
+      setTimeout(() => {
+        setAddBtnText(t('newRent'));
+        router.push('/auth');
+      }, 500);
+    } else {
+      router.push('/landlord/properties');
+    }
+  };
 
   const handleLogout = async () => {
     setSigningOut(true);
@@ -176,28 +194,31 @@ export default function Home() {
                 {/* 筛选标签 */}
                 <div className="px-4 py-3 flex gap-2 overflow-x-auto justify-between items-center">
                   <div className="flex gap-2 overflow-x-auto">
-                    <button className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-medium whitespace-nowrap">
-                      {t('allBtn')}
-                    </button>
-                    <button
-                      onClick={() => setIsFilterOpen(true)}
-                      className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
-                    >
-                      {t('filterPrice')}
-                    </button>
-                    <button
-                      onClick={() => setIsFilterOpen(true)}
-                      className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
-                    >
-                      {t('filterBedrooms')}
-                    </button>
-                    <button
-                      onClick={() => setIsFilterOpen(true)}
-                      className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
-                    >
-                      {t('filterArea')}
-                    </button>
+                      <button onClick={() => {
+                        setFilters(prev => ({
+                          ...prev,
+                          minPrice: 0,
+                          maxPrice: 150000,
+                          bedrooms: null,
+                          area: '',
+                        }));
+                      }} className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-medium whitespace-nowrap">
+                        {t('allBtn')}
+                      </button>
+                      <button
+                        onClick={() => setIsFilterOpen(true)}
+                        className="px-4 py-1.5 bg-white text-gray-700 border border-gray-300 rounded-full text-sm font-medium whitespace-nowrap hover:bg-gray-50"
+                      >
+                        {t('filterPrice')}
+                      </button>
                   </div>
+                  <a
+                    href="/landlord/properties"
+                    onClick={handleAddClick}
+                    className="px-4 py-1.5 border bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-medium rounded-full hover:shadow-lg hover:from-blue-700 hover:to-blue-600 transition-all whitespace-nowrap"
+                  >
+                    {addBtnText}
+                  </a>
                 </div>
 
                 {/* 房产列表 */}

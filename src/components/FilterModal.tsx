@@ -128,7 +128,19 @@ export default function FilterModal({ isOpen, onClose, onApply, initialFilters }
         <div className="flex gap-3 px-4 py-4 border-t border-gray-200">
           <button
             onClick={() => {
-              setFilters(initialFilters);
+              setFilters(prev => ({
+                ...prev,
+                minPrice: 0,
+                maxPrice: 150000,
+                bedrooms: null,
+                area: '',
+              }));
+              onApply({
+                minPrice: 0,
+                maxPrice: 150000,
+                bedrooms: null,
+                area: '',
+              });
               onClose();
             }}
             className="flex-1 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
