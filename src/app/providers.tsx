@@ -17,6 +17,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
       value={{
         revalidateOnFocus: false,
         revalidateOnReconnect: false,
+        revalidateOnMount: false,
+        revalidateIfStale: false,
         dedupingInterval: 2000,
       }}
     >
