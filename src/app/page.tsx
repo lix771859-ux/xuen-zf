@@ -12,31 +12,31 @@ import { usePagination } from '@/hooks/usePagination';
 import { useI18n } from '@/i18n/context';
 import { useSupabaseUser } from '@/hooks/useSupabaseUser';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
-// import useSWR from 'swr';
+import useSWR from 'swr';
 import type { PropertyResponse } from '@/lib/types'
 
 
 export default function Home() {
-  //  useEffect(() => {
-  //   if ('serviceWorker' in navigator) {
-  //     window.addEventListener('load', () => {
-  //       navigator.serviceWorker
-  //         .register('/sw.js')
-  //         .then(reg => {
-  //           console.log('Service Worker registered:', reg)
-  //         })
-  //         .catch(err => {
-  //           console.error('Service Worker registration failed:', err)
-  //         })
-  //     })
-  //   }
-  // }, [])
+   useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker
+          .register('/sw.js')
+          .then(reg => {
+            console.log('Service Worker registered:', reg)
+          })
+          .catch(err => {
+            console.error('Service Worker registration failed:', err)
+          })
+      })
+    }
+  }, [])
 
-  // const fetcher = (url: string) => fetch(url).then(res => res.json())
-  // const { data, mutate } = useSWR<PropertyResponse>('/api/properties?page=1&pageSize=6', fetcher, {
-  //   revalidateOnFocus: false,
-  //   revalidateOnReconnect: false,
-  // })
+  const fetcher = (url: string) => fetch(url).then(res => res.json())
+  const { data, mutate } = useSWR<PropertyResponse>('/api/properties?page=1&pageSize=6', fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  })
 
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState('search');
