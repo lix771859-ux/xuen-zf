@@ -1,7 +1,5 @@
 'use client';
 
-'use client';
-
 import { useEffect, useState } from 'react';
 import { useRef } from 'react';
 import { useRouter } from 'next/navigation';
@@ -175,15 +173,15 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         throw new Error(json.error || '发布失败');
       }
       setMessage('发布成功');
-      setForm({ title: '', price: 0, image: null });
+      setForm({ title: '', price: 0, image: null });s
       router.push('/');
       // 新增后刷新列表
-      await mutate('/api/properties?page=1&pageSize=6');
+      // await mutate('/api/properties?page=1&pageSize=6');
 
-      fetch(`/api/properties?landlord_id=${userId}&page=1&pageSize=20`)
-        .then((r) => r.json())
-        .then((res) => setProperties(res.data ?? []))
-        .catch(() => {});
+      // fetch(`/api/properties?landlord_id=${userId}&page=1&pageSize=20`)
+      //   .then((r) => r.json())
+      //   .then((res) => setProperties(res.data ?? []))
+      //   .catch(() => {});
     } catch (err: any) {
       setMessage(err.message || '发布失败');
     } finally {
