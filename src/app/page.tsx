@@ -181,7 +181,7 @@ export default function Home() {
 
             {/* 可上滑的房产列表 */}
             <div
-              className="absolute inset-x-0 bottom-0 bg-white rounded-t-3xl shadow-2xl pointer-events-auto flex flex-col"
+              className="absolute inset-x-0 bottom-0 bg-white  shadow-2xl pointer-events-auto flex flex-col"
               style={{
                 height: '100vh',
                 top: `${sheetY}px`,
