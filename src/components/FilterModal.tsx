@@ -141,7 +141,7 @@ export default function FilterModal({ isOpen, onClose, onApply, initialFilters }
                 bedrooms: null,
                 area: '',
               });
-              onClose();
+              // onClose();
             }}
             className="flex-1 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
           >
