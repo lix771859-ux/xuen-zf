@@ -173,7 +173,7 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         throw new Error(json.error || '发布失败');
       }
       setMessage('发布成功');
-      setForm({ title: '', price: 0, image: null });s
+      setForm({ title: '', price: 0, image: null });
       router.push('/');
       // 新增后刷新列表
       // await mutate('/api/properties?page=1&pageSize=6');
