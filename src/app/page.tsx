@@ -1,7 +1,6 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
-import { useRefreshStore } from '@/store/useRefreshStore';
+import { useState, useRef, useEffect } from 'react';
 import SearchBar from '@/components/SearchBar';
 import PropertyCard from '@/components/PropertyCard';
 import BottomNav from '@/components/BottomNav';
@@ -10,42 +9,48 @@ import { LanguageSwitcher } from '@/components/LanguageSwitcher';
 import { MapPreview } from '@/components/MapPreview';
 import { useFavorites } from '@/hooks/useFavorites';
 import { usePagination } from '@/hooks/usePagination';
-import { useHomeStore } from '@/store/useHomeStore';
 import { useI18n } from '@/i18n/context';
 import { useSupabaseUser } from '@/hooks/useSupabaseUser';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
+import useSWR from 'swr';
+import type { PropertyResponse } from '@/lib/types'
+
 
 export default function Home() {
+   useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker
+          .register('/sw.js')
+          .then(reg => {
+            console.log('Service Worker registered:', reg)
+          })
+          .catch(err => {
+            console.error('Service Worker registration failed:', err)
+          })
+      })
+    }
+  }, [])
+
+  const fetcher = (url: string) => fetch(url).then(res => res.json())
+  const { data, mutate } = useSWR<PropertyResponse>('/api/properties?page=1&pageSize=6', fetcher, {
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  })
+
   const { t } = useI18n();
-  // 本地 state 替代全局 store
-  const [filters, setFilters] = useState({ minPrice: undefined, maxPrice: undefined, bedrooms: undefined, area: '', });
-  const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('search');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [scrollY, setScrollY] = useState(0);
-  // 进入详情页前保存滚动高度
-  // 仅记录滚动高度，不做自动恢复
-  useEffect(() => {
-    const handleBeforeUnload = () => {
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener('pagehide', handleBeforeUnload);
-    window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => {
-      window.removeEventListener('pagehide', handleBeforeUnload);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, []);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filters, setFilters] = useState<FilterState>({
+    minPrice: 0,
+    maxPrice: 150000,
+    bedrooms: null,
+    area: '',
+  });
 
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
-  const {
-    items: pagedItems,
-    isLoading,
-    hasMore: pagedHasMore,
-    loadMore,
-    reset,
-    page: pagedPage
-  } = usePagination({
+  const { items, isLoading, hasMore, loadMore } = usePagination({
     pageSize: 6,
     minPrice: filters.minPrice,
     maxPrice: filters.maxPrice,
@@ -54,16 +59,14 @@ export default function Home() {
     search: searchQuery,
   });
 
-  // 直接用 pagedItems、pagedHasMore、pagedPage 渲染页面
-
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
-  // 无限滚动逻辑 + 新增后刷新
+
+  // 无限滚动逻辑
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        // 只有有更多数据且当前 items 不为 0 时才触发 loadMore，防止 0 条数据时死循环
-        if (entries[0].isIntersecting && pagedHasMore && !isLoading && pagedItems.length > 0) {
+        if (entries[0].isIntersecting && hasMore && !isLoading) {
           loadMore();
         }
       },
@@ -75,10 +78,10 @@ export default function Home() {
     }
 
     return () => observer.disconnect();
-  }, [pagedHasMore, isLoading, loadMore, pagedItems.length]);
+  }, [hasMore, isLoading, loadMore]);
 
   // 获取收藏的房产
-  const favoriteProperties = pagedItems.filter((p) => favorites.has(p.id));
+  const favoriteProperties = items.filter((p) => favorites.has(p.id));
 
   const handleFilterApply = (newFilters: FilterState) => {
     setFilters(newFilters);
@@ -222,11 +225,11 @@ export default function Home() {
                 {/* 房产列表 */}
                 <div className="w-full px-4 py-2">
                   <p className="text-sm text-gray-600 mb-4">
-                    {t('foundProperties', { count: pagedItems.length })}
+                    {t('foundProperties', { count: items.length })}
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    {pagedItems.length > 0 ? (
-                      pagedItems.map((property, index) => (
+                    {items.length > 0 ? (
+                      items.map((property, index) => (
                         <div key={`${property.id}-${index}`}>
                           <PropertyCard
                             property={property}
@@ -251,7 +254,7 @@ export default function Home() {
                         <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-200"></div>
                       </div>
                     )}
-                    {!pagedHasMore && pagedItems.length > 0 && (
+                    {!hasMore && items.length > 0 && (
                       <p className="text-gray-500 text-sm">{t('noMoreProperties')}</p>
                     )}
                   </div>
