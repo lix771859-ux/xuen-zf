@@ -30,7 +30,7 @@ export default function FilterModal({ isOpen, onClose, onApply, initialFilters }
 
   return (
     <div className="fixed inset-0 bg-black/40 z-50 animate-in fade-in">
-      <div className="fixed bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl max-w-md mx-auto animate-in slide-in-from-bottom">
+      <div className="fixed bottom-0 left-0 right-0 my-14 bg-white rounded-t-2xl shadow-2xl max-w-md mx-auto animate-in slide-in-from-bottom">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">{t('filterTitle')}</h2>
