@@ -17,26 +17,14 @@ import type { PropertyResponse } from '@/lib/types'
 
 
 export default function Home() {
-   useEffect(() => {
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker
-          .register('/sw.js')
-          .then(reg => {
-            console.log('Service Worker registered:', reg)
-          })
-          .catch(err => {
-            console.error('Service Worker registration failed:', err)
-          })
-      })
-    }
-  }, [])
+  
 
   const fetcher = (url: string) => fetch(url).then(res => res.json())
-  const { data, mutate } = useSWR<PropertyResponse>('/api/properties?page=1&pageSize=6', fetcher, {
-    revalidateOnFocus: false,
-    revalidateOnReconnect: false,
-  })
+
+  const { data, mutate } = useSWR<PropertyResponse>(
+    '/api/properties?page=1&pageSize=6',
+    fetcher
+  )
 
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState('search');
