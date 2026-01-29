@@ -215,7 +215,7 @@ export default function Home() {
                   <a
                     href="/landlord/properties"
                     onClick={handleAddClick}
-                    className="px-4 py-1.5 border bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-medium rounded-full hover:shadow-lg hover:from-blue-700 hover:to-blue-600 transition-all whitespace-nowrap"
+                    className="px-4 py-1.5 border bg-blue-600 text-white text-sm font-medium rounded-full hover:shadow-lg hover:from-blue-700 hover:to-blue-600 transition-all whitespace-nowrap"
                   >
                     {addBtnText}
                   </a>
