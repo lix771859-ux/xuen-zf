@@ -12,7 +12,7 @@ export const translations = {
     
     // Search
     searchPlaceholder: 'Search city or address...',
-    filterPrice: 'Price',
+    filterPrice: 'Filters',
     filterBedrooms: 'Bedrooms',
     filterArea: 'Area',
     noProperties: 'No properties found',
