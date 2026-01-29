@@ -19,14 +19,15 @@ interface PropertyCardProps {
   property: Property;
   isFavorite: boolean;
   onToggleFavorite: (id: number) => void;
+  onClickCard: () => void;
 }
 
-export default function PropertyCard({ property, isFavorite, onToggleFavorite }: PropertyCardProps) {
+export default function PropertyCard({ property, isFavorite, onToggleFavorite, onClickCard }: PropertyCardProps) {
   const { t } = useI18n();
 
   return (
-    <a href={`/property/${property.id}`} className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-      <div className="relative">
+    <a onClick={() => {onClickCard()}} className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+      <div className="relative" >
         <img
           src={property.image}
           alt={property.title}

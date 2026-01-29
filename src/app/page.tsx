@@ -13,6 +13,7 @@ import { useI18n } from '@/i18n/context';
 import { useSupabaseUser } from '@/hooks/useSupabaseUser';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
 import { useRouter } from 'next/navigation';
+import { useRefreshStore } from '@/store/useRefreshStore';
 
 export default function Home() {
 
@@ -26,7 +27,11 @@ export default function Home() {
     bedrooms: null,
     area: '',
   });
-
+  const setOpenDetail = useRefreshStore((state) => state.setOpenDetail)
+  const openDetail = useRefreshStore((state) => state.openDetail)
+  const clickCard = () => {
+    setOpenDetail(true);
+  }
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const { items, isLoading, hasMore, loadMore } = usePagination({
     pageSize: 6,
@@ -234,6 +239,7 @@ export default function Home() {
                             property={property}
                             isFavorite={isFavorite(property.id)}
                             onToggleFavorite={toggleFavorite}
+                            onClickCard={clickCard}
                           />
                         </div>
                       ))
@@ -278,6 +284,7 @@ export default function Home() {
                         property={property}
                         isFavorite={true}
                         onToggleFavorite={toggleFavorite}
+                        onClickCard={clickCard}
                       />
                     ))}
                   </div>
@@ -370,6 +377,20 @@ export default function Home() {
         onApply={handleFilterApply}
         initialFilters={filters}
       />
+      {openDetail && (
+        <div className="fixed inset-0 bg-white z-50 flex items-center justify-center text-black border">
+        {/* 关闭按钮 */}
+        <button
+          onClick={() => setOpenDetail(false)}
+          className="absolute top-4 right-4 text-2xl font-bold text-gray-600 hover:text-black"
+        >
+          ×
+        </button>
+
+        11111111111
+      </div>
+      )}
+
     </div>
   );
 }
