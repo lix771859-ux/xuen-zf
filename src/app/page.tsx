@@ -16,21 +16,15 @@ import { useSupabaseUser } from '@/hooks/useSupabaseUser';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
 
 export default function Home() {
-  const { shouldRefresh, markShouldRefresh, clearRefresh } = useRefreshStore();
   const { t } = useI18n();
-  // const { shouldRefresh,clearRefresh } = useRefreshStore()
-  const {
-    filters, setFilters,
-    searchQuery, setSearchQuery,
-    activeTab, setActiveTab,
-    isFilterOpen, setIsFilterOpen,
-    items, setItems,
-    page, setPage,
-    hasMore, setHasMore,
-    scrollY, setScrollY,
-    // reset: homeReset
-  } = useHomeStore();
+  // 本地 state 替代全局 store
+  const [filters, setFilters] = useState({ minPrice: undefined, maxPrice: undefined, bedrooms: undefined, area: '', });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('search');
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
   // 进入详情页前保存滚动高度
+  // 仅记录滚动高度，不做自动恢复
   useEffect(() => {
     const handleBeforeUnload = () => {
       setScrollY(window.scrollY);
@@ -41,13 +35,6 @@ export default function Home() {
       window.removeEventListener('pagehide', handleBeforeUnload);
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [setScrollY]);
-
-  // 返回首页时自动恢复滚动高度
-  useEffect(() => {
-    if (scrollY > 0) {
-      window.scrollTo({ top: scrollY, behavior: 'auto' });
-    }
   }, []);
 
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
@@ -67,29 +54,16 @@ export default function Home() {
     search: searchQuery,
   });
 
-  // 同步分页数据到 zustand
-  useEffect(() => {
-    setItems(pagedItems);
-  }, [pagedItems, setItems]);
-  useEffect(() => {
-    setHasMore(pagedHasMore);
-  }, [pagedHasMore, setHasMore]);
-  useEffect(() => {
-    setPage(pagedPage);
-  }, [pagedPage, setPage]);
+  // 直接用 pagedItems、pagedHasMore、pagedPage 渲染页面
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   // 无限滚动逻辑 + 新增后刷新
   useEffect(() => {
-    if (shouldRefresh) {
-      reset();        // 清空 items，重新加载第一页
-      clearRefresh(); // 清除标记
-    }
-
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasMore && !isLoading) {
+        // 只有有更多数据且当前 items 不为 0 时才触发 loadMore，防止 0 条数据时死循环
+        if (entries[0].isIntersecting && pagedHasMore && !isLoading && pagedItems.length > 0) {
           loadMore();
         }
       },
@@ -101,10 +75,10 @@ export default function Home() {
     }
 
     return () => observer.disconnect();
-  }, [hasMore, isLoading, loadMore, shouldRefresh, reset, clearRefresh]);
+  }, [pagedHasMore, isLoading, loadMore, pagedItems.length]);
 
   // 获取收藏的房产
-  const favoriteProperties = items.filter((p) => favorites.has(p.id));
+  const favoriteProperties = pagedItems.filter((p) => favorites.has(p.id));
 
   const handleFilterApply = (newFilters: FilterState) => {
     setFilters(newFilters);
@@ -248,11 +222,11 @@ export default function Home() {
                 {/* 房产列表 */}
                 <div className="w-full px-4 py-2">
                   <p className="text-sm text-gray-600 mb-4">
-                    {t('foundProperties', { count: items.length })}
+                    {t('foundProperties', { count: pagedItems.length })}
                   </p>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    {items.length > 0 ? (
-                      items.map((property, index) => (
+                    {pagedItems.length > 0 ? (
+                      pagedItems.map((property, index) => (
                         <div key={`${property.id}-${index}`}>
                           <PropertyCard
                             property={property}
@@ -277,7 +251,7 @@ export default function Home() {
                         <div className="w-2 h-2 bg-blue-600 rounded-full animate-bounce delay-200"></div>
                       </div>
                     )}
-                    {!hasMore && items.length > 0 && (
+                    {!pagedHasMore && pagedItems.length > 0 && (
                       <p className="text-gray-500 text-sm">{t('noMoreProperties')}</p>
                     )}
                   </div>

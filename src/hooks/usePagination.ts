@@ -1,5 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
-import { useHomeStore } from '@/store/useHomeStore';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
 // import { useRefreshStore  } from '@/store/useRefreshStore';
 interface PaginationOptions {
@@ -40,79 +39,18 @@ export function usePagination(options: PaginationOptions = {}) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  // const { shouldRefresh,clearRefresh } = useRefreshStore()
 
   const pageSize = options.pageSize || 10;
-  const loadPage = async (pageNum: number) => {
-    setIsLoading(true)
-    setError(null)
 
-    try {
-      const { data, error } = await supabaseBrowser
-        .from('properties')
-        .select('*')
-        .range((pageNum - 1) * pageSize, pageNum * pageSize - 1)
-        .match({
-          ...(options.minPrice && { price: { gte: options.minPrice } }),
-          ...(options.maxPrice && { price: { lte: options.maxPrice } }),
-          ...(options.bedrooms && { bedrooms: options.bedrooms }),
-          ...(options.area && { area: options.area }),
-          ...(options.search && { title: options.search }),
-        })
-
-      if (error) throw error
-
-      if (pageNum === 1) {
-        setItems(data)
-      } else {
-        setItems((prev) => [...prev, ...data])
-      }
-
-      setHasMore(data.length === pageSize)
-    } catch (err: any) {
-      setError(err.message || '加载失败')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-  // 重置并加载第一页
-  // 全局缓存依赖响应式
-  const itemsCache = useHomeStore((s) => s.items);
-  const pageCache = useHomeStore((s) => s.page);
-  const hasMoreCache = useHomeStore((s) => s.hasMore);
-  const setLastDepsStr = useHomeStore((s) => s.setLastDepsStr);
-  const fromDetailBack = useHomeStore((s) => s.fromDetailBack);
-  const setFromDetailBack = useHomeStore((s) => s.setFromDetailBack);
+  // 依赖变化时加载第一页
   useEffect(() => {
-    const deps = {
-      minPrice: options.minPrice,
-      maxPrice: options.maxPrice,
-      bedrooms: options.bedrooms,
-      area: options.area,
-      search: options.search,
-    };
-    const depsStr = JSON.stringify(deps);
-    // 只在从详情页返回且有缓存时用缓存
-    if (
-      fromDetailBack &&
-      itemsCache && itemsCache.length > 0
-    ) {
-      setItems(itemsCache);
-      setPage(pageCache || 1);
-      setHasMore(hasMoreCache ?? true);
-      setFromDetailBack(false);
-      return;
-    }
-    setLastDepsStr && setLastDepsStr(depsStr);
-
-    const fetchPage = async (pageNumber: number) => {
-      console.log(111111111111111111)
+    let ignore = false;
+    const fetchPage = async () => {
       setIsLoading(true);
       setError(null);
-
       try {
         const params = new URLSearchParams({
-          page: String(pageNumber),
+          page: '1',
           pageSize: String(pageSize),
           minPrice: String(options.minPrice || 0),
           maxPrice: String(options.maxPrice || 999999),
@@ -122,33 +60,29 @@ export function usePagination(options: PaginationOptions = {}) {
           ...(options.area && { area: options.area }),
           ...(options.search && { search: options.search }),
         });
-
-        const url = `/api/properties?${params}`;
-        const response = await fetch(url);
+        const response = await fetch(`/api/properties?${params}`);
         const result: PaginationResponse = await response.json();
-
-        if (pageNumber === 1) {
+        if (!ignore) {
           setItems(result.data);
-        } else {
-          setItems((prev) => [...prev, ...result.data]);
+          setHasMore(result.data.length === pageSize && result.data.length > 0);
+          setPage(1);
         }
-
-        setHasMore(pageNumber < result.totalPages);
-        setPage(pageNumber);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch');
+        if (!ignore) setError(err instanceof Error ? err.message : 'Failed to fetch');
       } finally {
-        setIsLoading(false);
+        if (!ignore) setIsLoading(false);
       }
     };
-    fetchPage(1);
-  }, [pageSize, options.minPrice, options.maxPrice, options.bedrooms, options.area, options.search, fromDetailBack, itemsCache, pageCache, hasMoreCache]);
+    fetchPage();
+    return () => {
+      ignore = true;
+    };
+  }, [pageSize, options.minPrice, options.maxPrice, options.bedrooms, options.area, options.search]);
 
   const fetchPageForMore = useCallback(
     async (pageNumber: number) => {
       setIsLoading(true);
       setError(null);
-
       try {
         const params = new URLSearchParams({
           page: String(pageNumber),
@@ -161,10 +95,8 @@ export function usePagination(options: PaginationOptions = {}) {
           ...(options.area && { area: options.area }),
           ...(options.search && { search: options.search }),
         });
-
         const response = await fetch(`/api/properties?${params}`);
         const result: PaginationResponse = await response.json();
-
         setItems((prev) => [...prev, ...result.data]);
         setHasMore(pageNumber < result.totalPages);
         setPage(pageNumber);
@@ -187,5 +119,6 @@ export function usePagination(options: PaginationOptions = {}) {
   const reset = () => {
     setPage(1);
   };
+
   return { items, isLoading, hasMore, error, loadMore, page, reset };
 }
