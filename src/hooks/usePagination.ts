@@ -1,6 +1,5 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
-import { supabaseBrowser } from '@/lib/supabaseBrowser';
-// import { useRefreshStore  } from '@/store/useRefreshStore';
+import { useState, useCallback, useEffect } from 'react';
+
 interface PaginationOptions {
   pageSize?: number;
   minPrice?: number;
@@ -42,47 +41,12 @@ export function usePagination(options: PaginationOptions = {}) {
 
   const pageSize = options.pageSize || 10;
 
-  // 依赖变化时加载第一页
+  // 重置并加载第一页
   useEffect(() => {
-    let ignore = false;
-    const fetchPage = async () => {
+    const fetchPage = async (pageNumber: number) => {
       setIsLoading(true);
       setError(null);
-      try {
-        const params = new URLSearchParams({
-          page: '1',
-          pageSize: String(pageSize),
-          minPrice: String(options.minPrice || 0),
-          maxPrice: String(options.maxPrice || 999999),
-          ...(options.bedrooms !== null && options.bedrooms !== undefined && {
-            bedrooms: String(options.bedrooms),
-          }),
-          ...(options.area && { area: options.area }),
-          ...(options.search && { search: options.search }),
-        });
-        const response = await fetch(`/api/properties?${params}`);
-        const result: PaginationResponse = await response.json();
-        if (!ignore) {
-          setItems(result.data);
-          setHasMore(result.data.length === pageSize && result.data.length > 0);
-          setPage(1);
-        }
-      } catch (err) {
-        if (!ignore) setError(err instanceof Error ? err.message : 'Failed to fetch');
-      } finally {
-        if (!ignore) setIsLoading(false);
-      }
-    };
-    fetchPage();
-    return () => {
-      ignore = true;
-    };
-  }, [pageSize, options.minPrice, options.maxPrice, options.bedrooms, options.area, options.search]);
 
-  const fetchPageForMore = useCallback(
-    async (pageNumber: number) => {
-      setIsLoading(true);
-      setError(null);
       try {
         const params = new URLSearchParams({
           page: String(pageNumber),
@@ -95,8 +59,54 @@ export function usePagination(options: PaginationOptions = {}) {
           ...(options.area && { area: options.area }),
           ...(options.search && { search: options.search }),
         });
+
+        const url = `/api/properties?${params}`;
+        console.log('Fetching properties from:', url);
+        const response = await fetch(url);
+        const result: PaginationResponse = await response.json();
+        console.log('API response:', result);
+
+        if (pageNumber === 1) {
+          setItems(result.data);
+          console.log('Set items:', result.data);
+        } else {
+          setItems((prev) => [...prev, ...result.data]);
+        }
+
+        setHasMore(pageNumber < result.totalPages);
+        setPage(pageNumber);
+      } catch (err) {
+        console.error('Fetch error:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchPage(1);
+  }, [pageSize, options.minPrice, options.maxPrice, options.bedrooms, options.area, options.search]);
+
+  const fetchPageForMore = useCallback(
+    async (pageNumber: number) => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const params = new URLSearchParams({
+          page: String(pageNumber),
+          pageSize: String(pageSize),
+          minPrice: String(options.minPrice || 0),
+          maxPrice: String(options.maxPrice || 999999),
+          ...(options.bedrooms !== null && options.bedrooms !== undefined && {
+            bedrooms: String(options.bedrooms),
+          }),
+          ...(options.area && { area: options.area }),
+          ...(options.search && { search: options.search }),
+        });
+
         const response = await fetch(`/api/properties?${params}`);
         const result: PaginationResponse = await response.json();
+
         setItems((prev) => [...prev, ...result.data]);
         setHasMore(pageNumber < result.totalPages);
         setPage(pageNumber);
@@ -115,10 +125,5 @@ export function usePagination(options: PaginationOptions = {}) {
     }
   }, [page, isLoading, hasMore, fetchPageForMore]);
 
-  // 重置分页到第一页
-  const reset = () => {
-    setPage(1);
-  };
-
-  return { items, isLoading, hasMore, error, loadMore, page, reset };
+  return { items, isLoading, hasMore, error, loadMore, page };
 }
