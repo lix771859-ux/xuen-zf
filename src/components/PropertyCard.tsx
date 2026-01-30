@@ -36,6 +36,7 @@ export default function PropertyCard({ property, isFavorite, onToggleFavorite, o
         <button
           onClick={(e) => {
             e.preventDefault();
+            e.stopPropagation();
             onToggleFavorite(property.id);
           }}
           className="absolute top-2 right-2 p-1.5 bg-white rounded-full shadow-md hover:bg-gray-50"
