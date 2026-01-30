@@ -30,7 +30,8 @@ type DetailData = {
     rating: number;
     reviews: number;
     responseTime: string;
-  }
+  };
+  images: string[];
 }
 
 type DetailSheetProps = {
