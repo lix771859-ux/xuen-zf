@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { X } from "lucide-react"
 import { useParams } from "next/navigation"
 import useSWR from 'swr'
+import { SheetHeader, SheetTitle } from "@/components/ui/sheet"
 
 const fetcher = (url: string) => fetch(url).then(res => res.json())
 
@@ -51,6 +52,10 @@ export function DetailSheet({ open, onClose, id }: DetailSheetProps) {
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
+       <SheetHeader>
+        <SheetTitle>{data.title}</SheetTitle>
+      </SheetHeader>
+
       <SheetContent
         side="right"
         className="w-screen max-w-none h-screen p-0 overflow-y-auto"
