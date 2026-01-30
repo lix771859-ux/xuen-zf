@@ -31,7 +31,7 @@ export default function PropertyCard({ property, isFavorite, onToggleFavorite, o
         <img
           src={property.image}
           alt={property.title}
-          className="w-full h-48 object-cover"
+          className="w-full h-48 object-cover min-w-[280px] max-w-[400px] "
         />
         <button
           onClick={(e) => {

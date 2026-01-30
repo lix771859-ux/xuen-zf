@@ -247,24 +247,24 @@ export default function Home() {
                   <p className="text-sm text-gray-600 mb-4">
                     {t('foundProperties', { count: items.length })}
                   </p>
-                  <div style={{ display: 'flex', flexWrap: 'wrap',justifyContent:'space-between', gap: '0.75rem',width: '100%' }}>
-                    {items.length > 0 ? (
-                      items.map((property, index) => (
-                        <div key={`${property.id}-${index}`} className="flex-auto">
-                          <PropertyCard
-                            property={property}
-                            isFavorite={isFavorite(property.id)}
-                            onToggleFavorite={toggleFavorite}
-                            onClickCard={() => clickCard(property.id)}
-                          />
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-8">
-                        <p className="text-gray-500">{t('noProperties')}</p>
-                      </div>
-                    )}
-                  </div>
+                 <div className="flex flex-wrap gap-4">
+  {items.length > 0 ? (
+    items.map((property, index) => (
+      <div key={`${property.id}-${index}`} className="flex-1 ">
+        <PropertyCard
+          property={property}
+          isFavorite={isFavorite(property.id)}
+          onToggleFavorite={toggleFavorite}
+          onClickCard={() => clickCard(property.id)}
+        />
+      </div>
+    ))
+  ) : (
+    <div className="text-center py-8 w-full">
+      <p className="text-gray-500">{t('noProperties')}</p>
+    </div>
+  )}
+</div>
 
                   {/* 加载更多指示器 */}
                   <div ref={loadMoreRef} className="py-8 text-center">
