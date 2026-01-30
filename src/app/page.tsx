@@ -34,18 +34,19 @@ export default function Home() {
   rating: number;
   reviews: number;
 }
-  const [pro, setPro] = useState<DetailData | null>(null);
   const [filters, setFilters] = useState<FilterState>({
     minPrice: 0,
     maxPrice: 150000,
     bedrooms: null,
     area: '',
   });
+  const id = useRefreshStore((state) => state.id);
+  const setid = useRefreshStore((state) => state.setId);
   const setOpenDetail = useRefreshStore((state) => state.setOpenDetail)
   const openDetail = useRefreshStore((state) => state.openDetail)
-  const clickCard = (property: DetailData) => {
+  const clickCard = (id: number) => {
     setOpenDetail(true);
-    setPro(property);
+    setid(id);
   }
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const { items, isLoading, hasMore, loadMore } = usePagination({
@@ -392,7 +393,7 @@ export default function Home() {
         onApply={handleFilterApply}
         initialFilters={filters}
       />
-      {openDetail && pro && <DetailSheet open={openDetail} onClose={() => setOpenDetail(false)} data={pro} />}
+      {openDetail && id !== 0 && <DetailSheet open={openDetail} onClose={() => setOpenDetail(false)} id={id} />}
 
     </div>
   );
