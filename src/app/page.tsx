@@ -14,6 +14,7 @@ import { useSupabaseUser } from '@/hooks/useSupabaseUser';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
 import { useRouter } from 'next/navigation';
 import { useRefreshStore } from '@/store/useRefreshStore';
+import { DetailSheet } from "@/components/ui/deSheet"
 
 export default function Home() {
 
@@ -21,6 +22,19 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState('search');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  type DetailData = {
+  id: number;
+  title: string;
+  price: number;
+  address: string;
+  bedrooms: number;
+  bathrooms: number;
+  sqft: number;
+  image: string;
+  rating: number;
+  reviews: number;
+}
+  const [pro, setPro] = useState<DetailData | null>(null);
   const [filters, setFilters] = useState<FilterState>({
     minPrice: 0,
     maxPrice: 150000,
@@ -29,8 +43,9 @@ export default function Home() {
   });
   const setOpenDetail = useRefreshStore((state) => state.setOpenDetail)
   const openDetail = useRefreshStore((state) => state.openDetail)
-  const clickCard = () => {
+  const clickCard = (property: DetailData) => {
     setOpenDetail(true);
+    setPro(property);
   }
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const { items, isLoading, hasMore, loadMore } = usePagination({
@@ -239,7 +254,7 @@ export default function Home() {
                             property={property}
                             isFavorite={isFavorite(property.id)}
                             onToggleFavorite={toggleFavorite}
-                            onClickCard={clickCard}
+                            onClickCard={() => clickCard(property.id)}
                           />
                         </div>
                       ))
@@ -284,7 +299,7 @@ export default function Home() {
                         property={property}
                         isFavorite={true}
                         onToggleFavorite={toggleFavorite}
-                        onClickCard={clickCard}
+                        onClickCard={() => clickCard(property.id)}
                       />
                     ))}
                   </div>
@@ -377,19 +392,7 @@ export default function Home() {
         onApply={handleFilterApply}
         initialFilters={filters}
       />
-      {openDetail && (
-        <div className="fixed inset-0 bg-white z-50 flex items-center justify-center text-black border">
-        {/* 关闭按钮 */}
-        <button
-          onClick={() => setOpenDetail(false)}
-          className="absolute top-4 right-4 text-2xl font-bold text-gray-600 hover:text-black"
-        >
-          ×
-        </button>
-
-        11111111111
-      </div>
-      )}
+      {openDetail && pro && <DetailSheet open={openDetail} onClose={() => setOpenDetail(false)} data={pro} />}
 
     </div>
   );
