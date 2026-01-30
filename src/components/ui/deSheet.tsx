@@ -50,11 +50,11 @@ export function DetailSheet({ open, onClose, id }: DetailSheetProps) {
   if (isLoading || !data) return <div>加载中...</div>
 
   return (
-    // <Sheet open={open} onOpenChange={onClose}>
-    //   <SheetContent
-    //     side="right"
-    //     className="w-screen max-w-none h-screen p-0 overflow-y-auto"
-    //   >
+    <Sheet open={open} onOpenChange={onClose}>
+      <SheetContent
+        side="right"
+        className="w-screen max-w-none h-screen p-0 overflow-y-auto"
+      >
         <div className="min-h-screen bg-white pb-10">
           <div className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center">
@@ -132,7 +132,7 @@ export function DetailSheet({ open, onClose, id }: DetailSheetProps) {
         </div>
       </div>
         </div>
-    //   </SheetContent>
-    // </Sheet>
+      </SheetContent>
+    </Sheet>
   )
 }
