@@ -248,23 +248,23 @@ export default function Home() {
                     {t('foundProperties', { count: items.length })}
                   </p>
                  <div className="flex flex-wrap gap-4">
-  {items.length > 0 ? (
-    items.map((property, index) => (
-      <div key={`${property.id}-${index}`} className="flex-1 ">
-        <PropertyCard
-          property={property}
-          isFavorite={isFavorite(property.id)}
-          onToggleFavorite={toggleFavorite}
-          onClickCard={() => clickCard(property.id)}
-        />
-      </div>
-    ))
-  ) : (
-    <div className="text-center py-8 w-full">
-      <p className="text-gray-500">{t('noProperties')}</p>
-    </div>
-  )}
-</div>
+                    {items.length > 0 ? (
+                      items.map((property, index) => (
+                        <div key={`${property.id}-${index}`} className="flex-1 ">
+                          <PropertyCard
+                            property={property}
+                            isFavorite={isFavorite(property.id)}
+                            onToggleFavorite={toggleFavorite}
+                            onClickCard={() => clickCard(property.id)}
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 w-full">
+                        <p className="text-gray-500">{t('noProperties')}</p>
+                      </div>
+                    )}
+                  </div>
 
                   {/* 加载更多指示器 */}
                   <div ref={loadMoreRef} className="py-8 text-center">
