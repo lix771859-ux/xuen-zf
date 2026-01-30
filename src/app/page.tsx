@@ -247,10 +247,10 @@ export default function Home() {
                   <p className="text-sm text-gray-600 mb-4">
                     {t('foundProperties', { count: items.length })}
                   </p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap',justifyContent:'space-between', gap: '0.75rem',width: '100%' }}>
                     {items.length > 0 ? (
                       items.map((property, index) => (
-                        <div key={`${property.id}-${index}`}>
+                        <div key={`${property.id}-${index}`} className="flex-auto">
                           <PropertyCard
                             property={property}
                             isFavorite={isFavorite(property.id)}
