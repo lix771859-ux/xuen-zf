@@ -29,6 +29,10 @@ interface HomeState {
   fromDetailBack: boolean;
   setFromDetailBack: (v: boolean) => void;
   reset: () => void;
+  isLoadingStore: boolean;
+  setIsLoading: (isLoadingStore: boolean) => void;
+  error: string | null;
+  setError: (error: string | null) => void;
 }
 
 const initialFilters: FilterState = {
@@ -39,6 +43,10 @@ const initialFilters: FilterState = {
 };
 
 export const useHomeStore = create<HomeState>((set) => ({
+  isLoadingStore: false,
+  setIsLoading: (isLoadingStore: boolean) => set({ isLoadingStore }),
+  error: null,
+  setError: (error: string | null) => set({ error }),
   filters: initialFilters,
   setFilters: (filters) => set({ filters }),
   searchQuery: '',

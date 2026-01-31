@@ -15,7 +15,10 @@ import { supabaseBrowser } from '@/lib/supabaseBrowser';
 import { useRouter } from 'next/navigation';
 import { useRefreshStore } from '@/store/useRefreshStore';
 import { DetailSheet } from "@/components/ui/deSheet"
+import { useHomeStore } from '@/store/useHomeStore';
+// import useSWR from 'swr'
 
+// const fetcher = (url: string) => fetch(url).then(res => res.json())
 export default function Home() {
 
   const { t } = useI18n();
@@ -48,6 +51,23 @@ export default function Home() {
     setOpenDetail(true);
     setid(id);
   }
+  const scrollY = useHomeStore((state) => state.scrollY);
+  const setScrollY = useHomeStore((state) => state.setScrollY);
+
+  // 记录滚动条位置
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [setScrollY]);
+
+  // 恢复滚动条位置（如需要）
+  useEffect(() => {
+    window.scrollTo(0, scrollY)
+  }, []); // 只在组件挂载时恢复
+
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const { items, isLoading, hasMore, loadMore } = usePagination({
     pageSize: 6,
@@ -255,7 +275,7 @@ export default function Home() {
                             property={property}
                             isFavorite={isFavorite(property.id)}
                             onToggleFavorite={toggleFavorite}
-                            onClickCard={() => clickCard(property.id)}
+                            // onClickCard={() => clickCard(property.id)}
                           />
                         </div>
                       ))
@@ -393,7 +413,6 @@ export default function Home() {
         onApply={handleFilterApply}
         initialFilters={filters}
       />
-      {openDetail && id !== 0 && <DetailSheet open={openDetail} onClose={() => setOpenDetail(false)} id={id} />}
 
     </div>
   );
