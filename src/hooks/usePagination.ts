@@ -156,7 +156,7 @@ export function usePagination(options: PaginationOptions = {}) {
   //   [pageSize, options.minPrice, options.maxPrice, options.bedrooms, options.area, options.search]
   // );
 
-  // const loadMore = useCallback(() => {
+  // const loadMore = useCallback(() => { //保存函数引用 防止不必要的重渲染 子组件判断props变化来确定是否重渲染
   //   if (!isLoading && hasMore) {
   //     fetchPageForMore(page + 1);
   //   }
