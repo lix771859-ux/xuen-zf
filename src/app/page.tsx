@@ -20,7 +20,7 @@ import { useHomeStore } from '@/store/useHomeStore';
 
 // const fetcher = (url: string) => fetch(url).then(res => res.json())
 export default function Home() {
-
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState('search');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -56,16 +56,22 @@ export default function Home() {
 
   // 记录滚动条位置
   useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
     const handleScroll = () => {
-      setScrollY(window.scrollY);
+      console.log('scrollY', container.scrollTop);
+      setScrollY(container.scrollTop);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
   }, [setScrollY]);
 
   // 恢复滚动条位置（如需要）
   useEffect(() => {
-    window.scrollTo(0, scrollY)
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    console.log('resumesscrollY', container.scrollTop);
+    container.scrollTo(0, scrollY)
   }, []); // 只在组件挂载时恢复
 
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
@@ -78,7 +84,6 @@ export default function Home() {
     search: searchQuery,
   });
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // 无限滚动逻辑
@@ -231,7 +236,7 @@ export default function Home() {
               }}
             >
               {/* 滚动内容 */}
-              <div className="flex-1 overflow-y-auto pb-20 md:pb-40">
+              <div ref={scrollContainerRef} className="flex-1 overflow-y-auto pb-20 md:pb-40">
                 {/* 筛选标签 */}
                 <div className="px-4 py-3 flex gap-2 overflow-x-auto justify-between items-center">
                   <div className="flex gap-2 overflow-x-auto">
