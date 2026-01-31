@@ -320,7 +320,7 @@ export default function Home() {
                         property={property}
                         isFavorite={true}
                         onToggleFavorite={toggleFavorite}
-                        onClickCard={() => clickCard(property.id)}
+                        // onClickCard={() => clickCard(property.id)}
                       />
                     ))}
                   </div>
