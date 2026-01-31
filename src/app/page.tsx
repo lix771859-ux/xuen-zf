@@ -74,6 +74,12 @@ export default function Home() {
     container.scrollTo(0, scrollY)
   }, []); // 只在组件挂载时恢复
 
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [searchQuery, filters]);
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const { items, isLoading, hasMore, loadMore } = usePagination({
     pageSize: 6,

@@ -1,5 +1,5 @@
 'use client';
-
+import { useRouter } from 'next/navigation';
 import { useI18n } from '@/i18n/context';
 
 interface Property {
@@ -23,9 +23,12 @@ interface PropertyCardProps {
 
 export default function PropertyCard({ property, isFavorite, onToggleFavorite }: PropertyCardProps) {
   const { t } = useI18n();
-
+  const router = useRouter();
+  const handleCardClick = () => {
+    router.push(`/property/${property.id}`, { scroll: false });
+  }
   return (
-    <a href={`/property/${property.id}`} className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+    <div onClick={handleCardClick} className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
       <div className="relative" >
         <img
           src={property.image}
@@ -103,6 +106,6 @@ export default function PropertyCard({ property, isFavorite, onToggleFavorite }:
           <span className="text-xs text-gray-500">({property.reviews} {t('reviews')})</span>
         </div>
       </div>
-    </a>
+    </div>
   );
 }
