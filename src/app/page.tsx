@@ -90,11 +90,11 @@ export default function Home() {
   }, [])
   const { items, isLoading, hasMore, loadMore,page } = usePagination({
     pageSize: 6,
-    minPrice: filters.minPrice || filtersPage.minPrice,
-    maxPrice: filters.maxPrice || filtersPage.maxPrice,
-    bedrooms: filters.bedrooms || filtersPage.bedrooms,
-    area: filters.area || filtersPage.area || undefined,
-    search: searchQuery || searchQueryPage,
+    minPrice: filters.minPrice ,
+    maxPrice: filters.maxPrice ,
+    bedrooms: filters.bedrooms ,
+    area: filters.area ,
+    search: searchQuery ,
   });
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -253,13 +253,12 @@ export default function Home() {
                 <div className="px-4 py-3 flex gap-2 overflow-x-auto justify-between items-center">
                   <div className="flex gap-2 overflow-x-auto">
                       <button onClick={() => {
-                        setFiltersPage(prev => ({
-                          ...prev,
+                        setFilters({
                           minPrice: 0,
                           maxPrice: 150000,
                           bedrooms: null,
                           area: '',
-                        }));
+                        });
                       }} className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-medium whitespace-nowrap">
                         {t('allBtn')}
                       </button>
