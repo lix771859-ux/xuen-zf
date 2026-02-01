@@ -291,7 +291,7 @@ export default function Home() {
                             property={property}
                             isFavorite={isFavorite(property.id)}
                             onToggleFavorite={toggleFavorite}
-                            onClickCard={() => clickCard()}
+                            onClickCard={clickCard}
                           />
                         </div>
                       ))
@@ -336,7 +336,7 @@ export default function Home() {
                         property={property}
                         isFavorite={true}
                         onToggleFavorite={toggleFavorite}
-                        // onClickCard={() => clickCard(property.id)}
+                        onClickCard={clickCard}
                       />
                     ))}
                   </div>
