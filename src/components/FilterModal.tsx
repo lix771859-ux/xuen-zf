@@ -33,7 +33,7 @@ export default function FilterModal({ isOpen, onClose, onApply, initialFilters }
 
   const handleApply = () => {
     setFilters(filters);
-    onApply(filters);
+    // onApply(filters);
     onClose();
   };
 
@@ -141,12 +141,6 @@ export default function FilterModal({ isOpen, onClose, onApply, initialFilters }
                 maxPrice: 15000,
                 bedrooms: null,
                 area: '',});
-              onApply({
-                minPrice: 0,
-                maxPrice: 15000,
-                bedrooms: null,
-                area: '',
-              });
               // onClose();
             }}
             className="flex-1 py-3 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors"
