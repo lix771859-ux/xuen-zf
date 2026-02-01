@@ -84,6 +84,7 @@ export default function Home() {
   //   // setSearchQueryPage(searchQuery);
   //   // setFiltersPage(filters);
   // }
+  
   useEffect(() =>{
     setFromDetailBack(false);
   }, [])
@@ -222,8 +223,8 @@ export default function Home() {
       {/* 搜索栏（完全独立，不在 overflow 容器内） */}
       {activeTab === 'search' && (
         <SearchBar
-          value={searchQueryPage}
-          onChange={setSearchQueryPage}
+          value={searchQuery}
+          onChange={setSearchQuery}
         />
       )}
 
