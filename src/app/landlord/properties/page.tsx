@@ -318,7 +318,7 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                                   <input
                                     id="edit-property-image-upload"
                                     type="file"
-                                    accept="image/*"
+                                    accept="image/*,video/*"
                                     onChange={handleEditImageChange}
                                     className="absolute inset-0 opacity-0 cursor-pointer"
                                     style={{ width: '100%', height: '100%' }}
