@@ -51,14 +51,11 @@ export default function Home() {
   const setScrollY = useHomeStore((state) => state.setScrollY);
   const searchQuery = useHomeStore(state => state.searchQuery);
   const filters = useHomeStore(state => state.filters);
-  const fromDetailBack = useHomeStore(state => state.fromDetailBack);
-  const setFromDetailBack = useHomeStore(state => state.setFromDetailBack);
+  // const fromDetailBack = useHomeStore(state => state.fromDetailBack);
+  // const setFromDetailBack = useHomeStore(state => state.setFromDetailBack);
+  const { setFromDetailBack } = useHomeStore.getState();
   const setSearchQuery = useHomeStore(state => state.setSearchQuery);
   const setFilters = useHomeStore(state => state.setFilters);
-  const clickCard = () => {
-    setFromDetailBack(true);
-    // setid(id);
-  }
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -79,18 +76,24 @@ export default function Home() {
   }, []); // 只在组件挂载时恢复
 
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
-  if(fromDetailBack) {
-    setFromDetailBack(false);
-    setSearchQueryPage(searchQuery);
-    setFiltersPage(filters);
+  const clickCard = () => {
+    setFromDetailBack(true);
+    // setid(id);
   }
-    const { items, isLoading, hasMore, loadMore,page } = usePagination({
+  // if ( useHomeStore.getState().fromDetailBack) {
+  //   // setSearchQueryPage(searchQuery);
+  //   // setFiltersPage(filters);
+  // }
+  useEffect(() =>{
+    setFromDetailBack(false);
+  }, [])
+  const { items, isLoading, hasMore, loadMore,page } = usePagination({
     pageSize: 6,
-    minPrice: filtersPage.minPrice,
-    maxPrice: filtersPage.maxPrice,
-    bedrooms: filtersPage.bedrooms,
-    area: filtersPage.area || undefined,
-    search: searchQueryPage,
+    minPrice: filters.minPrice || filtersPage.minPrice,
+    maxPrice: filters.maxPrice || filtersPage.maxPrice,
+    bedrooms: filters.bedrooms || filtersPage.bedrooms,
+    area: filters.area || filtersPage.area || undefined,
+    search: searchQuery || searchQueryPage,
   });
 
   const loadMoreRef = useRef<HTMLDivElement>(null);

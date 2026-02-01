@@ -26,8 +26,8 @@ export default function PropertyCard({ property, isFavorite, onToggleFavorite, o
   const { t } = useI18n();
   const router = useRouter();
   const handleCardClick = () => {
-    router.push(`/property/${property.id}`, { scroll: false });
     onClickCard();
+    router.push(`/property/${property.id}`, { scroll: false });
   }
   return (
     <div onClick={handleCardClick} className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
