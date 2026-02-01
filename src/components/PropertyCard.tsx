@@ -19,15 +19,15 @@ interface PropertyCardProps {
   property: Property;
   isFavorite: boolean;
   onToggleFavorite: (id: number) => void;
-  clickCard: () => void;
+  onClickCard: () => void;
 }
 
-export default function PropertyCard({ property, isFavorite, onToggleFavorite, clickCard }: PropertyCardProps) {
+export default function PropertyCard({ property, isFavorite, onToggleFavorite, onClickCard }: PropertyCardProps) {
   const { t } = useI18n();
   const router = useRouter();
   const handleCardClick = () => {
     router.push(`/property/${property.id}`, { scroll: false });
-    clickCard();
+    onClickCard();
   }
   return (
     <div onClick={handleCardClick} className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
