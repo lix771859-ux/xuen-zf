@@ -47,10 +47,6 @@ export default function Home() {
   const setid = useRefreshStore((state) => state.setId);
   const setOpenDetail = useRefreshStore((state) => state.setOpenDetail)
   const openDetail = useRefreshStore((state) => state.openDetail)
-  const clickCard = () => {
-    setFromDetailBack(true);
-    // setid(id);
-  }
   const scrollY = useHomeStore((state) => state.scrollY);
   const setScrollY = useHomeStore((state) => state.setScrollY);
   const searchQuery = useHomeStore(state => state.searchQuery);
@@ -59,6 +55,10 @@ export default function Home() {
   const setFromDetailBack = useHomeStore(state => state.setFromDetailBack);
   const setSearchQuery = useHomeStore(state => state.setSearchQuery);
   const setFilters = useHomeStore(state => state.setFilters);
+  const clickCard = () => {
+    setFromDetailBack(true);
+    // setid(id);
+  }
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
