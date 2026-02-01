@@ -6,7 +6,7 @@ import { supabaseServer } from '@/lib/supabaseServer';
 export default async function PropertyDetail(props: { params: Promise<{ id: string }> }) {
   const resolved = await props.params;
   const id = Number(resolved.id);
-
+  
   const { data: property, error } = await supabaseServer
     .from('properties')
     .select('*')

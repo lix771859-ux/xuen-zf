@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
 
 export interface FilterState {
   minPrice: number;
@@ -42,39 +43,57 @@ const initialFilters: FilterState = {
   area: '',
 };
 
-export const useHomeStore = create<HomeState>((set) => ({
-  isLoadingStore: false,
-  setIsLoading: (isLoadingStore: boolean) => set({ isLoadingStore }),
-  error: null,
-  setError: (error: string | null) => set({ error }),
-  filters: initialFilters,
-  setFilters: (filters) => set({ filters }),
-  searchQuery: '',
-  setSearchQuery: (searchQuery) => set({ searchQuery }),
-  items: [],
-  setItems: (items) => set({ items }),
-  page: 1,
-  setPage: (page) => set({ page }),
-  hasMore: true,
-  setHasMore: (hasMore) => set({ hasMore }),
-  isFilterOpen: false,
-  setIsFilterOpen: (isFilterOpen) => set({ isFilterOpen }),
-  activeTab: 'search',
-  setActiveTab: (activeTab) => set({ activeTab }),
-  scrollY: 0,
-  setScrollY: (scrollY) => set({ scrollY }),
-  lastDepsStr: undefined,
-  setLastDepsStr: (s) => set({ lastDepsStr: s }),
-  fromDetailBack: false,
-  setFromDetailBack: (v) => set({ fromDetailBack: v }),
-  reset: () => set({
-    filters: initialFilters,
-    searchQuery: '',
-    items: [],
-    page: 1,
-    hasMore: true,
-    isFilterOpen: false,
-    activeTab: 'search',
-    scrollY: 0,
-  }),
-}));
+export const useHomeStore = create<HomeState>()(
+  devtools(
+    (set) => ({
+      isLoadingStore: false,
+      setIsLoading: (isLoadingStore: boolean) => set({ isLoadingStore }),
+
+      error: null,
+      setError: (error: string | null) => set({ error }),
+
+      filters: initialFilters,
+      setFilters: (filters) => set({ filters }),
+
+      searchQuery: '',
+      setSearchQuery: (searchQuery) => set({ searchQuery }),
+
+      items: [],
+      setItems: (items) => set({ items }),
+
+      page: 1,
+      setPage: (page) => set({ page }),
+
+      hasMore: true,
+      setHasMore: (hasMore) => set({ hasMore }),
+
+      isFilterOpen: false,
+      setIsFilterOpen: (isFilterOpen) => set({ isFilterOpen }),
+
+      activeTab: 'search',
+      setActiveTab: (activeTab) => set({ activeTab }),
+
+      scrollY: 0,
+      setScrollY: (scrollY) => set({ scrollY }),
+
+      lastDepsStr: undefined,
+      setLastDepsStr: (s) => set({ lastDepsStr: s }),
+
+      fromDetailBack: false,
+      setFromDetailBack: (v) => set({ fromDetailBack: v }),
+
+      reset: () =>
+        set({
+          filters: initialFilters,
+          searchQuery: '',
+          items: [],
+          page: 1,
+          hasMore: true,
+          isFilterOpen: false,
+          activeTab: 'search',
+          scrollY: 0,
+        }),
+    }),
+    { name: 'HomeStore' }
+  )
+);

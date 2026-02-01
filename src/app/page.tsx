@@ -47,9 +47,9 @@ export default function Home() {
   const setid = useRefreshStore((state) => state.setId);
   const setOpenDetail = useRefreshStore((state) => state.setOpenDetail)
   const openDetail = useRefreshStore((state) => state.openDetail)
-  const clickCard = (id: number) => {
-    setOpenDetail(true);
-    setid(id);
+  const clickCard = () => {
+    setFromDetailBack(true);
+    // setid(id);
   }
   const scrollY = useHomeStore((state) => state.scrollY);
   const setScrollY = useHomeStore((state) => state.setScrollY);
@@ -59,15 +59,6 @@ export default function Home() {
   const setFromDetailBack = useHomeStore(state => state.setFromDetailBack);
   const setSearchQuery = useHomeStore(state => state.setSearchQuery);
   const setFilters = useHomeStore(state => state.setFilters);
-  useEffect(() => {
-    if(fromDetailBack) {
-      setFromDetailBack(false);
-      setSearchQueryPage(searchQuery);
-      setFiltersPage(filters);
-      return;
-    }
-  }, [fromDetailBack, setFromDetailBack]);
-  // 记录滚动条位置
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -88,7 +79,12 @@ export default function Home() {
   }, []); // 只在组件挂载时恢复
 
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
-  const { items, isLoading, hasMore, loadMore } = usePagination({
+  if(fromDetailBack) {
+    setFromDetailBack(false);
+    setSearchQueryPage(searchQuery);
+    setFiltersPage(filters);
+  }
+    const { items, isLoading, hasMore, loadMore,page } = usePagination({
     pageSize: 6,
     minPrice: filtersPage.minPrice,
     maxPrice: filtersPage.maxPrice,
@@ -292,7 +288,7 @@ export default function Home() {
                             property={property}
                             isFavorite={isFavorite(property.id)}
                             onToggleFavorite={toggleFavorite}
-                            // onClickCard={() => clickCard(property.id)}
+                            onClickCard={() => clickCard(property.id)}
                           />
                         </div>
                       ))
