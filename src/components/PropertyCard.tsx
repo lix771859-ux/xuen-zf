@@ -28,7 +28,7 @@ export default function PropertyCard({ property, isFavorite, onToggleFavorite }:
     router.push(`/property/${property.id}`, { scroll: false });
   }
   return (
-    <div onClick={handleCardClick} className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+    <div onClick={() => router.push(`/property/${property.id}`)} className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
       <div className="relative" >
         <img
           src={property.image}

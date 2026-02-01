@@ -4,14 +4,15 @@ import { useI18n } from '@/i18n/context';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
-
+import { useHomeStore } from '@/store/useHomeStore';
 interface SearchBarProps {
   value: string;
   onChange: (value: string) => void;
-  onFilterClick: () => void;
+  // onFilterClick: (value: string) => void;
 }
 
-export default function SearchBar({ value, onChange, onFilterClick }: SearchBarProps) {
+export default function SearchBar({ value, onChange }: SearchBarProps) {
+  const setSearchQuery = useHomeStore(state => state.setSearchQuery);
   const { t } = useI18n();
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
@@ -43,12 +44,18 @@ export default function SearchBar({ value, onChange, onFilterClick }: SearchBarP
               type="text"
               placeholder={t('searchPlaceholder')}
               value={value}
-              onChange={(e) => onChange(e.target.value)}
+              onChange={(e) => {
+                onChange(e.target.value);
+                setSearchQuery(e.target.value);
+              }}
               className="w-full px-4 py-2.5 pr-20 bg-gray-100 border border-gray-300 rounded-lg text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
             />
             {value && (
               <button
-                onClick={() => onChange('')}
+                onClick={() => {
+                  onChange('');
+                  setSearchQuery('');
+                }}
                 className="absolute right-10 top-2.5 w-5 h-5 text-gray-400 hover:text-gray-600 transition-colors"
                 aria-label="Clear search"
               >

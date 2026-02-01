@@ -24,7 +24,7 @@ export default function Home() {
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState('search');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQueryPage, setSearchQueryPage] = useState('');
   type DetailData = {
   id: number;
   title: string;
@@ -37,7 +37,7 @@ export default function Home() {
   rating: number;
   reviews: number;
 }
-  const [filters, setFilters] = useState<FilterState>({
+  const [filtersPage, setFiltersPage] = useState<FilterState>({
     minPrice: 0,
     maxPrice: 150000,
     bedrooms: null,
@@ -53,7 +53,20 @@ export default function Home() {
   }
   const scrollY = useHomeStore((state) => state.scrollY);
   const setScrollY = useHomeStore((state) => state.setScrollY);
-
+  const searchQuery = useHomeStore(state => state.searchQuery);
+  const filters = useHomeStore(state => state.filters);
+  const fromDetailBack = useHomeStore(state => state.fromDetailBack);
+  const setFromDetailBack = useHomeStore(state => state.setFromDetailBack);
+  const setSearchQuery = useHomeStore(state => state.setSearchQuery);
+  const setFilters = useHomeStore(state => state.setFilters);
+  useEffect(() => {
+    if(fromDetailBack) {
+      setFromDetailBack(false);
+      setSearchQueryPage(searchQuery);
+      setFiltersPage(filters);
+      return;
+    }
+  }, [fromDetailBack, setFromDetailBack]);
   // 记录滚动条位置
   useEffect(() => {
     const container = scrollContainerRef.current;
@@ -74,20 +87,14 @@ export default function Home() {
     container.scrollTo(0, scrollY)
   }, []); // 只在组件挂载时恢复
 
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (container) {
-      container.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }, [searchQuery, filters]);
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const { items, isLoading, hasMore, loadMore } = usePagination({
     pageSize: 6,
-    minPrice: filters.minPrice,
-    maxPrice: filters.maxPrice,
-    bedrooms: filters.bedrooms,
-    area: filters.area || undefined,
-    search: searchQuery,
+    minPrice: filtersPage.minPrice,
+    maxPrice: filtersPage.maxPrice,
+    bedrooms: filtersPage.bedrooms,
+    area: filtersPage.area || undefined,
+    search: searchQueryPage,
   });
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -114,7 +121,7 @@ export default function Home() {
   const favoriteProperties = items.filter((p) => favorites.has(p.id));
 
   const handleFilterApply = (newFilters: FilterState) => {
-    setFilters(newFilters);
+    setFiltersPage(newFilters);
   };
 
   // Auth state
@@ -216,9 +223,8 @@ export default function Home() {
       {/* 搜索栏（完全独立，不在 overflow 容器内） */}
       {activeTab === 'search' && (
         <SearchBar
-          value={searchQuery}
-          onChange={setSearchQuery}
-          onFilterClick={() => setIsFilterOpen(true)}
+          value={searchQueryPage}
+          onChange={setSearchQueryPage}
         />
       )}
 
@@ -247,7 +253,7 @@ export default function Home() {
                 <div className="px-4 py-3 flex gap-2 overflow-x-auto justify-between items-center">
                   <div className="flex gap-2 overflow-x-auto">
                       <button onClick={() => {
-                        setFilters(prev => ({
+                        setFiltersPage(prev => ({
                           ...prev,
                           minPrice: 0,
                           maxPrice: 150000,
@@ -422,7 +428,7 @@ export default function Home() {
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
         onApply={handleFilterApply}
-        initialFilters={filters}
+        initialFilters={filtersPage}
       />
 
     </div>

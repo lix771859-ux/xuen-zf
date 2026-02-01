@@ -43,16 +43,35 @@ export function usePagination(options: PaginationOptions = {}) {
   const page = useHomeStore(state => state.page);
   const items = useHomeStore(state => state.items);
   const hasMore = useHomeStore(state => state.hasMore);
+  const searchQuery = useHomeStore(state => state.searchQuery);
+  const filters = useHomeStore(state => state.filters);
+  const fromDetailBack = useHomeStore(state => state.fromDetailBack);
+  const setFromDetailBack = useHomeStore(state => state.setFromDetailBack);
+  const setSearchQuery = useHomeStore(state => state.setSearchQuery);
+  const setFilters = useHomeStore(state => state.setFilters);
   const setItems = useHomeStore(state => state.setItems);
   const setPage = useHomeStore(state => state.setPage);
   const setHasMore = useHomeStore(state => state.setHasMore);
   const setIsLoading = useHomeStore(state => state.setIsLoading);
   const setError = useHomeStore(state => state.setError);
+  // useEffect(() => {
+  //   if(fromDetailBack) {
+  //     setFromDetailBack(false);
+  //     return;
+  //   }
+  //   setSearchQuery(options.search || '');
+  //   setFilters({
+  //     minPrice: options.minPrice || 0,
+  //     maxPrice: options.maxPrice || 999999,
+  //     bedrooms: options.bedrooms || null,
+  //     area: options.area || '',
+  //   });
+  // }, [options.search, options.minPrice, options.maxPrice, options.bedrooms, options.area, setSearchQuery, setFilters]);
 
-  const pageSize = options.pageSize || 10;
+  // const pageSize = options.pageSize || 10;
       const params = new URLSearchParams({
           page: String(page),
-          pageSize: String(pageSize),
+          pageSize: String(6),
           minPrice: String(options.minPrice || 0),
           maxPrice: String(options.maxPrice || 999999),
           ...(options.bedrooms !== null && options.bedrooms !== undefined && {

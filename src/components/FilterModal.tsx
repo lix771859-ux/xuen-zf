@@ -2,11 +2,11 @@
 
 import React from 'react';
 import { useI18n } from '@/i18n/context';
-
+import { useHomeStore } from '@/store/useHomeStore';
 interface FilterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onApply: (filters: FilterState) => void;
+  onApply: (filtersPage: FilterState) => void;
   initialFilters: FilterState;
 }
 
@@ -18,13 +18,19 @@ export interface FilterState {
 }
 
 export default function FilterModal({ isOpen, onClose, onApply, initialFilters }: FilterModalProps) {
-  const [filters, setFilters] = React.useState<FilterState>(initialFilters);
+  const [filtersPage, setFiltersPage] = React.useState<FilterState>(initialFilters);
   const { t } = useI18n();
-
+  const searchQuery = useHomeStore(state => state.searchQuery);
+  const filters = useHomeStore(state => state.filters);
+  const fromDetailBack = useHomeStore(state => state.fromDetailBack);
+  const setFromDetailBack = useHomeStore(state => state.setFromDetailBack);
+  const setSearchQuery = useHomeStore(state => state.setSearchQuery);
+  const setFilters = useHomeStore(state => state.setFilters);
   if (!isOpen) return null;
 
   const handleApply = () => {
-    onApply(filters);
+    setFilters(filtersPage);
+    onApply(filtersPage);
     onClose();
   };
 
@@ -51,29 +57,29 @@ export default function FilterModal({ isOpen, onClose, onApply, initialFilters }
             <h3 className="font-semibold text-gray-900 mb-3">{t('priceRange')}</h3>
             <div className="space-y-3">
               <div>
-                <label className="text-sm text-gray-600">{t('minPrice')} ${filters.minPrice}</label>
+                <label className="text-sm text-gray-600">{t('minPrice')} ${filtersPage.minPrice}</label>
                 <input
                   type="range"
                   min="1000"
                   max="15000"
                   step="500"
-                  value={filters.minPrice}
+                  value={filtersPage.minPrice}
                   onChange={(e) =>
-                    setFilters({ ...filters, minPrice: parseInt(e.target.value) })
+                    setFiltersPage({ ...filtersPage, minPrice: parseInt(e.target.value) })
                   }
                   className="w-full"
                 />
               </div>
               <div>
-                <label className="text-sm text-gray-600">{t('maxPrice')} ${filters.maxPrice}</label>
+                <label className="text-sm text-gray-600">{t('maxPrice')} ${filtersPage.maxPrice}</label>
                 <input
                   type="range"
                   min="1000"
                   max="15000"
                   step="500"
-                  value={filters.maxPrice}
+                  value={filtersPage.maxPrice}
                   onChange={(e) =>
-                    setFilters({ ...filters, maxPrice: parseInt(e.target.value) })
+                    setFiltersPage({ ...filtersPage, maxPrice: parseInt(e.target.value) })
                   }
                   className="w-full"
                 />
@@ -89,13 +95,13 @@ export default function FilterModal({ isOpen, onClose, onApply, initialFilters }
                 <button
                   key={num}
                   onClick={() =>
-                    setFilters({
-                      ...filters,
-                      bedrooms: filters.bedrooms === num ? null : num as number,
+                    setFiltersPage({
+                      ...filtersPage,
+                      bedrooms: filtersPage.bedrooms === num ? null : num as number,
                     })
                   }
                   className={`flex-1 py-2 rounded-lg border-2 font-medium transition-colors ${
-                    filters.bedrooms === num
+                    filtersPage.bedrooms === num
                       ? 'border-blue-600 bg-blue-50 text-blue-600'
                       : 'border-gray-300 text-gray-700 hover:border-gray-400'
                   }`}
@@ -110,8 +116,8 @@ export default function FilterModal({ isOpen, onClose, onApply, initialFilters }
           <div>
             <h3 className="font-semibold text-gray-900 mb-3">{t('areaSelect')}</h3>
             <select
-              value={filters.area}
-              onChange={(e) => setFilters({ ...filters, area: e.target.value })}
+              value={filtersPage.area}
+              onChange={(e) => setFiltersPage({ ...filtersPage, area: e.target.value })}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All</option>
@@ -128,16 +134,20 @@ export default function FilterModal({ isOpen, onClose, onApply, initialFilters }
         <div className="flex gap-3 px-4 py-4 border-t border-gray-200">
           <button
             onClick={() => {
-              setFilters(prev => ({
+              setFilters({minPrice: 0,
+                maxPrice: 15000,
+                bedrooms: null,
+                area: '',});
+              setFiltersPage(prev => ({
                 ...prev,
                 minPrice: 0,
-                maxPrice: 150000,
+                maxPrice: 15000,
                 bedrooms: null,
                 area: '',
               }));
               onApply({
                 minPrice: 0,
-                maxPrice: 150000,
+                maxPrice: 15000,
                 bedrooms: null,
                 area: '',
               });
