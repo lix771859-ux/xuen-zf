@@ -45,7 +45,7 @@ export function usePagination(options: PaginationOptions = {}) {
     const handler = (event: PageTransitionEvent) => {
       if (event.persisted) {
         mutate(
-          (key: string) => key.startsWith('/api/properties'),
+          key => typeof key === 'string' && key.startsWith('/api/properties'),
           undefined,
           { revalidate: true }
         );
