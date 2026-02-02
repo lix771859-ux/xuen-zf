@@ -203,15 +203,11 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       setForm({ title: '', price: 0, image: null, video: null });
       // 新增后首页刷新
       // useRefreshStore.getState().markShouldRefresh();
-      mutate((key) => {
-        if (typeof key === 'string') {
-          return key.startsWith('/api/properties');
-        }
-        if (Array.isArray(key)) {
-          return key[0] === '/api/properties';
-        }
-        return false;
-      });
+      await mutate(
+        (key) => Array.isArray(key) && key[0] === '/api/properties',
+        undefined,
+        { revalidate: true }
+      );
       router.push('/');
     } catch (err: any) {
       setMessage(err.message || '发布失败');
