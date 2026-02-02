@@ -10,9 +10,10 @@ interface Property {
   bedrooms: number;
   bathrooms: number;
   sqft: number;
-  image: string;
+  image?: string | null;
   rating: number;
   reviews: number;
+  video?: string | null;
 }
 
 interface PropertyCardProps {
@@ -32,11 +33,20 @@ export default function PropertyCard({ property, isFavorite, onToggleFavorite, o
   return (
     <div onClick={handleCardClick} className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
       <div className="relative" >
-        <img
-          src={property.image}
-          alt={property.title}
-          className="w-full h-48 object-cover min-w-[280px] max-w-[400px] "
-        />
+        {property.video ? (
+          <video
+            src={property.video || undefined}
+            controls
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <img
+            src={property.image || undefined}
+            alt={property.title}
+            className="w-full h-full object-cover"
+          />
+        )}
+
         <button
           onClick={(e) => {
             e.preventDefault();

@@ -16,6 +16,7 @@ interface PropertyForm {
   price: number;
   address?: string;
   image?: string | null;
+  video?: string | null;
 }
 
 export default function LandlordPropertiesPage() {
@@ -64,12 +65,32 @@ export default function LandlordPropertiesPage() {
   const handleEditImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
+
     const file = files[0];
-    const reader = new FileReader();
-    reader.onload = () => {
-      setEditForm((prev) => prev ? { ...prev, image: reader.result as string } : prev);
-    };
-    reader.readAsDataURL(file);
+
+    // ⭐ 1. 判断文件类型
+    if (file.type.startsWith("image/")) {
+      // 图片：继续用你原来的 FileReader 预览逻辑
+      const reader = new FileReader();
+      reader.onload = () => {
+        setEditForm((prev) =>
+          prev ? { ...prev, image: reader.result as string, video: undefined } : prev
+        );
+      };
+      reader.readAsDataURL(file);
+
+    } else if (file.type.startsWith("video/")) {
+      // ⭐ 2. 视频：不能用 FileReader 读成 base64（太大）
+      // 直接生成一个本地预览 URL
+      const videoUrl = URL.createObjectURL(file);
+
+      setEditForm((prev) =>
+        prev ? { ...prev, video: videoUrl, image: undefined } : prev
+      );
+
+      // ⭐ 3. 上传视频（你可以按你的逻辑上传）
+      // await uploadVideo(file);
+    }
   };
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,32 +146,36 @@ export default function LandlordPropertiesPage() {
 const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
   const files = e.target.files;
   if (!files || files.length === 0) return;
-  const file = files[0];
 
-  // 生成唯一文件名
+  const file = files[0];
   const fileExt = file.name.split('.').pop();
   const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-  const filePath = `property-images/${fileName}`;
 
-  // 上传到 Supabase Storage
+  // ⭐ 根据文件类型决定上传路径
+  const folder = file.type.startsWith("video/") ? "videos" : "images";
+  const filePath = `${folder}/${fileName}`;
+
+  // 上传到 Supabase
   const { data, error } = await supabaseBrowser.storage
-    .from('property-images') // 你的 bucket 名称
+    .from("property-images")
     .upload(filePath, file);
 
   if (error) {
-    alert('图片上传失败');
+    alert("上传失败");
     return;
   }
 
-  // 获取图片公开 URL
+  // 获取公开 URL
   const { data: publicUrlData } = supabaseBrowser.storage
-    .from('property-images')
+    .from("property-images")
     .getPublicUrl(filePath);
 
-  setForm((prev) => ({
+  // ⭐ 根据文件类型更新不同字段
+  setForm(prev => ({
     ...prev,
-    image:publicUrlData.publicUrl
-  }))
+    image: file.type.startsWith("image/") ? publicUrlData.publicUrl : undefined,
+    video: file.type.startsWith("video/") ? publicUrlData.publicUrl : undefined,
+  }));
 };
 // ...existing code...
 
@@ -164,7 +189,8 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
-          images: form.image ? [form.image] : [],
+          images: form.image ? [form.image] : [form.video],
+          // videos: form.video ? [form.video] : [],
           landlord_id: userId,
         }),
       });
@@ -173,7 +199,7 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         throw new Error(json.error || '发布失败');
       }
       setMessage('发布成功');
-      setForm({ title: '', price: 0, image: null });
+      setForm({ title: '', price: 0, image: null, video: null });
       // 新增后首页刷新
       useRefreshStore.getState().markShouldRefresh();
       router.push('/');
@@ -240,19 +266,31 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
               <div className="mt-2">
                 <label htmlFor="property-image-upload">
                   <div className="w-28 h-28 bg-gray-100 rounded-lg border flex items-center justify-center overflow-hidden cursor-pointer relative">
-                    {form.image ? (
-                      <img src={form.image} alt="预览" className="object-cover w-full h-full" />
-                    ) : (
-                      <span className="text-4xl text-gray-400 select-none">+</span>
-                    )}
-                    <input
-                      id="property-image-upload"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageChange}
-                      className="absolute inset-0 opacity-0 cursor-pointer"
-                      style={{ width: '100%', height: '100%' }}
-                    />
+                     {form.video ? (
+                                    <video
+                                      src={form.video}
+                                      controls
+                                      className="object-cover w-full h-full"
+                                    />
+                                  ) : form.image ? (
+                                    <img
+                                      src={form.image}
+                                      alt="预览"
+                                      className="object-cover w-full h-full"
+                                    />
+                                  ) : (
+                                    <span className="text-4xl text-gray-400 select-none">+</span>
+                                  )}
+
+
+                                  <input
+                                    id="edit-property-image-upload"
+                                    type="file"
+                                    accept="image/*,video/*"
+                                    onChange={handleImageChange}
+                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                    style={{ width: '100%', height: '100%' }}
+                                  />
                   </div>
                 </label>
               </div>
@@ -310,11 +348,23 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
                             <div className="mt-2">
                               <label htmlFor="edit-property-image-upload">
                                 <div className="w-28 h-28 bg-gray-100 rounded-lg border flex items-center justify-center overflow-hidden cursor-pointer relative">
-                                  {editForm.image ? (
-                                    <img src={editForm.image} alt="预览" className="object-cover w-full h-full" />
+                                  {editForm.video ? (
+                                    <video
+                                      src={editForm.video}
+                                      controls
+                                      className="object-cover w-full h-full"
+                                    />
+                                  ) : editForm.image ? (
+                                    <img
+                                      src={editForm.image}
+                                      alt="预览"
+                                      className="object-cover w-full h-full"
+                                    />
                                   ) : (
                                     <span className="text-4xl text-gray-400 select-none">+</span>
                                   )}
+
+
                                   <input
                                     id="edit-property-image-upload"
                                     type="file"
