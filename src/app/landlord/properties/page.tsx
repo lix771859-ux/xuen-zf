@@ -201,7 +201,7 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       setMessage('发布成功');
       setForm({ title: '', price: 0, image: null, video: null });
       // 新增后首页刷新
-      useRefreshStore.getState().markShouldRefresh();
+      // useRefreshStore.getState().markShouldRefresh();
       router.push('/');
     } catch (err: any) {
       setMessage(err.message || '发布失败');
