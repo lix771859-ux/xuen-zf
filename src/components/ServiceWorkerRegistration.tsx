@@ -5,6 +5,7 @@ import { mutate } from 'swr';
 
 export function ServiceWorkerRegistration() {
   useEffect(() => {
+    alert('注册页面恢复监听器');
     const handler = (event: PageTransitionEvent) => {
       if (event.persisted) {
         alert('页面从缓存中恢复，正在刷新数据...');
