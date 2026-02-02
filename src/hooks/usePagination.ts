@@ -70,7 +70,7 @@ export function usePagination(options: PaginationOptions = {}) {
   // }, [options.search, options.minPrice, options.maxPrice, options.bedrooms, options.area, setSearchQuery, setFilters]);
 
   // const pageSize = options.pageSize || 10;
-      const { data, mutate, isLoading } = useSWR<PaginationResponse>(() => {
+      const { data, isLoading } = useSWR<PaginationResponse>(() => {
         if (!page) return null; // 避免 undefined 请求
 
         const params = new URLSearchParams({
@@ -87,7 +87,7 @@ export function usePagination(options: PaginationOptions = {}) {
 
         return `/api/properties?${params.toString()}`;
       }, fetcher);
-      
+
       useEffect(() => {
         if (!data) return;
         if (page === 1) {
