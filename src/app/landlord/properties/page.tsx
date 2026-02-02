@@ -203,12 +203,8 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       setForm({ title: '', price: 0, image: null, video: null });
       // 新增后首页刷新
       // useRefreshStore.getState().markShouldRefresh();
-      // mutate('/api/properties?page=1&pageSize=6&minPrice=1000&maxPrice=15000')
-      fetch(`/api/properties?page=1&pageSize=6&minPrice=1000&maxPrice=15000`)
-      .then((r) => r.json())
-      .then((res) => setProperties(res.data ?? []))
-      .catch(() => {});
-      
+      mutate('/api/properties?page=1&pageSize=6&minPrice=1000&maxPrice=15000')
+
       router.push('/');
     } catch (err: any) {
       setMessage(err.message || '发布失败');
