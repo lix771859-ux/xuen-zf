@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback,useMemo, useEffect } from 'react';
 import useSWR from 'swr'
 import {useHomeStore} from '@/store/useHomeStore'
 import { useRefreshStore } from '@/store/useRefreshStore';
@@ -70,23 +70,22 @@ export function usePagination(options: PaginationOptions = {}) {
   // }, [options.search, options.minPrice, options.maxPrice, options.bedrooms, options.area, setSearchQuery, setFilters]);
 
   // const pageSize = options.pageSize || 10;
-      const { data, isLoading } = useSWR<PaginationResponse>(() => {
-        if (!page) return null; // 避免 undefined 请求
+    const stableParams = useMemo(() => {
+      return {
+        page,
+        pageSize: 6,
+        minPrice: options.minPrice ?? 0,
+        maxPrice: options.maxPrice ?? 999999,
+        bedrooms: options.bedrooms ?? null,
+        area: options.area ?? null,
+        search: options.search ?? null,
+      };
+    }, [page, options]);
 
-        const params = new URLSearchParams({
-          page: String(page),
-          pageSize: "6",
-          minPrice: String(options.minPrice ?? 0),
-          maxPrice: String(options.maxPrice ?? 999999),
-          ...(options.bedrooms != null && {
-            bedrooms: String(options.bedrooms),
-          }),
-          ...(options.area && { area: options.area }),
-          ...(options.search && { search: options.search }),
-        });
-
-        return `/api/properties?${params.toString()}`;
-      }, fetcher);
+      const { data, isLoading } = useSWR<PaginationResponse>(
+        ['/api/properties', stableParams],
+        fetcher
+      );
 
       useEffect(() => {
         if (!data) return;
