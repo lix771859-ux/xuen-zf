@@ -5,19 +5,6 @@ import { mutate } from 'swr';
 
 export function ServiceWorkerRegistration() {
   useEffect(() => {
-    alert('注册页面恢复监听器');
-    const handler = (event: PageTransitionEvent) => {
-      if (event.persisted) {
-        alert('页面从缓存中恢复，正在刷新数据...');
-        mutate(() => true); // 刷新所有 SWR key
-      }
-    };
-
-    window.addEventListener("pageshow", handler);
-    return () => window.removeEventListener("pageshow", handler);
-  }, []);
-
-  useEffect(() => {
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').then(
         (registration) => {
