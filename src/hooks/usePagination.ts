@@ -75,17 +75,26 @@ export function usePagination(options: PaginationOptions = {}) {
         page,
         pageSize: 6,
         minPrice: options.minPrice ?? 0,
-        maxPrice: options.maxPrice ?? 999999,
+        maxPrice: options.maxPrice ?? 9999999,
         bedrooms: options.bedrooms ?? null,
         area: options.area ?? null,
         search: options.search ?? null,
       };
     }, [page, options]);
 
-      const { data, isLoading } = useSWR<PaginationResponse>(
-        ['/api/properties', stableParams],
-        fetcher
-      );
+    const queryString = useMemo(() => {
+      const p = new URLSearchParams();
+      Object.entries(stableParams).forEach(([k, v]) => {
+        if (v !== null && v !== undefined) p.set(k, String(v));
+      });
+      return p.toString();
+    }, [stableParams]);
+
+    const { data, isLoading } = useSWR<PaginationResponse>(
+      `/api/properties?${queryString}`,
+      fetcher
+    );
+
 
       useEffect(() => {
         if (!data) return;

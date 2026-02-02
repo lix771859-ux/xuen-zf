@@ -204,7 +204,7 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       // 新增后首页刷新
       // useRefreshStore.getState().markShouldRefresh();
       await mutate(
-        (key) => Array.isArray(key) && key[0] === '/api/properties',
+        (key) => typeof key === 'string' && key.startsWith('/api/properties'),
         undefined,
         { revalidate: true }
       );
