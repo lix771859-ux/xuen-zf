@@ -2,6 +2,8 @@ import { useState, useCallback,useMemo, useEffect } from 'react';
 import useSWR from 'swr'
 import {useHomeStore} from '@/store/useHomeStore'
 import { useRefreshStore } from '@/store/useRefreshStore';
+import { mutate } from 'swr'
+
 
 const fetcher = (url: string) => fetch(url).then(res => res.json())
 interface PaginationOptions {
@@ -39,6 +41,20 @@ interface PaginationResponse {
 }
 
 export function usePagination(options: PaginationOptions = {}) {
+   useEffect(() => {
+    const handler = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        mutate(
+          (key: string) => key.startsWith('/api/properties'),
+          undefined,
+          { revalidate: true }
+        );
+
+      }
+    };
+    window.addEventListener('pageshow', handler);
+    return () => window.removeEventListener('pageshow', handler);
+  }, []);
   const isLoadingStore = useHomeStore(state => state.isLoadingStore);
   const error = useHomeStore(state => state.error);
   const page = useHomeStore(state => state.page);
@@ -94,6 +110,7 @@ export function usePagination(options: PaginationOptions = {}) {
       `/api/properties?${queryString}`,
       fetcher
     );
+
 
 
       useEffect(() => {
