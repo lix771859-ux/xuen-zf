@@ -86,30 +86,22 @@ export function usePagination(options: PaginationOptions = {}) {
   // }, [options.search, options.minPrice, options.maxPrice, options.bedrooms, options.area, setSearchQuery, setFilters]);
 
   // const pageSize = options.pageSize || 10;
-    const stableParams = useMemo(() => {
-      return {
-        page,
-        pageSize: 6,
-        minPrice: options.minPrice ?? 0,
-        maxPrice: options.maxPrice ?? 9999999,
-        bedrooms: options.bedrooms ?? null,
-        area: options.area ?? null,
-        search: options.search ?? null,
-      };
-    }, [page, options]);
+  const params = new URLSearchParams({
+    page: String(page),
+    pageSize: "6",
+    minPrice: String(options.minPrice ?? 0),
+    maxPrice: String(options.maxPrice ?? 9999999),
+  });
 
-    const queryString = useMemo(() => {
-      const p = new URLSearchParams();
-      Object.entries(stableParams).forEach(([k, v]) => {
-        if (v !== null && v !== undefined) p.set(k, String(v));
-      });
-      return p.toString();
-    }, [stableParams]);
+  if (options.bedrooms != null) params.set("bedrooms", String(options.bedrooms));
+  if (options.area) params.set("area", options.area);
+  if (options.search) params.set("search", options.search);
 
-    const { data, isLoading } = useSWR<PaginationResponse>(
-      `/api/properties?${queryString}`,
-      fetcher
-    );
+  const { data, isLoading } = useSWR(
+    `/api/properties?${params.toString()}`,
+    fetcher
+  );
+
 
 
 
