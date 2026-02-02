@@ -22,9 +22,9 @@ self.addEventListener('fetch', event => {
     return;
   }
   // 跳过 API 请求，不缓存
-  // if (event.request.url.includes('/api/')) {
-  //   return;
-  // }
+  if (event.request.url.includes('/api/')) {
+    return;
+  }
 
   // 跳过首页 HTML，不缓存
   // if (event.request.mode === 'navigate' && event.request.url.endsWith('/')) {
