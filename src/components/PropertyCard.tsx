@@ -37,13 +37,13 @@ export default function PropertyCard({ property, isFavorite, onToggleFavorite, o
           <video
             src={property.video || undefined}
             controls
-            className="w-full h-full object-cover"
+            className="w-full h-48 object-cover min-w-[280px] max-w-[400px]"
           />
         ) : (
           <img
             src={property.image || undefined}
             alt={property.title}
-            className="w-full h-full object-cover"
+            className="w-full h-48 object-cover min-w-[280px] max-w-[400px]"
           />
         )}
 
