@@ -78,7 +78,6 @@ export default function Home() {
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const clickCard = () => {
     setFromDetailBack(true);
-    // setid(id);
   }
   // if ( useHomeStore.getState().fromDetailBack) {
   //   // setSearchQueryPage(searchQuery);

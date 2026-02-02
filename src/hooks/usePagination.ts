@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import useSWR from 'swr'
 import {useHomeStore} from '@/store/useHomeStore'
+import { useRefreshStore } from '@/store/useRefreshStore';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json())
 interface PaginationOptions {
@@ -80,11 +81,15 @@ export function usePagination(options: PaginationOptions = {}) {
           ...(options.area && { area: options.area }),
           ...(options.search && { search: options.search }),
         });
-        const { data, isLoading } = useSWR<PaginationResponse>(
+        const { data, mutate, isLoading } = useSWR<PaginationResponse>(
         `/api/properties?${params}`,
           fetcher
         )
       useEffect(() => {
+        if(useRefreshStore.getState().shouldRefresh){
+            mutate();
+            useRefreshStore.getState().clearRefresh();
+          }
         if (!data) return;
         if (page === 1) {
           setItems(data.data);
