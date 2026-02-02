@@ -203,7 +203,7 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       setForm({ title: '', price: 0, image: null, video: null });
       // 新增后首页刷新
       // useRefreshStore.getState().markShouldRefresh();
-      mutate('/api/properties?page=1&pageSize=6&minPrice=0&maxPrice=150000');
+      mutate((key) => typeof key === 'string' && key.startsWith('/api/properties'));
       router.push('/');
     } catch (err: any) {
       setMessage(err.message || '发布失败');
