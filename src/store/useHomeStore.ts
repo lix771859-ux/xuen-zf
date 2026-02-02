@@ -38,7 +38,7 @@ interface HomeState {
 
 const initialFilters: FilterState = {
   minPrice: 0,
-  maxPrice: 150000,
+  maxPrice: 15000,
   bedrooms: null,
   area: '',
 };

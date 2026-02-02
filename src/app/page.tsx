@@ -39,7 +39,7 @@ export default function Home() {
 }
   const [filtersPage, setFiltersPage] = useState<FilterState>({
     minPrice: 0,
-    maxPrice: 150000,
+    maxPrice: 15000,
     bedrooms: null,
     area: '',
   });
@@ -254,7 +254,7 @@ export default function Home() {
                       <button onClick={() => {
                         setFilters({
                           minPrice: 0,
-                          maxPrice: 150000,
+                          maxPrice: 15000,
                           bedrooms: null,
                           area: '',
                         });
