@@ -86,10 +86,6 @@ export function usePagination(options: PaginationOptions = {}) {
           fetcher
         )
       useEffect(() => {
-        if(useRefreshStore.getState().shouldRefresh){
-            mutate();
-            useRefreshStore.getState().clearRefresh();
-          }
         if (!data) return;
         if (page === 1) {
           setItems(data.data);

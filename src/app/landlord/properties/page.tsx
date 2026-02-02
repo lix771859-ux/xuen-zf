@@ -5,6 +5,7 @@ import { useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
 import {useRefreshStore } from '@/store/useRefreshStore';
+import { mutate } from 'swr';
 
 // 页面初始未登录直接跳转到登录页（放到 useEffect）
 // 必须在组件内
@@ -201,7 +202,8 @@ const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
       setMessage('发布成功');
       setForm({ title: '', price: 0, image: null, video: null });
       // 新增后首页刷新
-      useRefreshStore.getState().markShouldRefresh();
+      // useRefreshStore.getState().markShouldRefresh();
+      mutate('/api/properties?page=1&pageSize=6');
       router.push('/');
     } catch (err: any) {
       setMessage(err.message || '发布失败');
