@@ -131,9 +131,20 @@ export default function ContactLandlord({ landlordId, propertyTitle }: ContactLa
           </button>
         </div>
       ) : (
-        <div className="px-4 py-3">
-          {/* 消息列表（向上延伸） */}
-          <div className="max-h-60 overflow-y-auto space-y-2 mb-3">
+        <div className="fixed inset-0 z-50 bg-white flex flex-col">
+          {/* 顶部栏 */}
+          <div className="h-14 px-4 border-b border-gray-200 flex items-center justify-between">
+            <span className="font-semibold text-gray-900">与房东对话</span>
+            <button
+              onClick={() => setIsExpanded(false)}
+              className="text-blue-600 text-sm font-medium"
+            >
+              关闭
+            </button>
+          </div>
+
+          {/* 消息列表（全屏可滚动） */}
+          <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2">
             {messages.length > 0 ? (
               messages.map((msg, index) => {
                 const isMine = msg.sender_id === currentUserId;
@@ -157,7 +168,7 @@ export default function ContactLandlord({ landlordId, propertyTitle }: ContactLa
           </div>
 
           {/* 输入框 */}
-          <div className="flex items-center gap-2">
+          <div className="px-4 py-3 border-t border-gray-200 flex items-center gap-2">
             <input
               type="text"
               value={message}
