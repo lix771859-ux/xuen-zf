@@ -21,6 +21,7 @@ export default function ContactLandlord({ landlordId, propertyTitle }: ContactLa
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [isExpanded, setIsExpanded] = useState(false);
   const router = useRouter();
 
   // 加载消息和订阅实时更新
@@ -67,13 +68,26 @@ export default function ContactLandlord({ landlordId, propertyTitle }: ContactLa
     init();
   }, [landlordId]);
 
+  const handleContactClick = async () => {
+    const { data } = await supabaseBrowser.auth.getUser();
+    if (!data.user?.id) {
+      const ok = window.confirm('请先登录后再联系房东');
+      if (!ok) return;
+      router.push('/auth');
+      return;
+    }
+    setCurrentUserId(data.user.id);
+    setIsExpanded(true);
+  };
+
   const handleSend = async () => {
     if (!message.trim()) return;
 
     // 检查是否登录
     const { data } = await supabaseBrowser.auth.getUser();
     if (!data.user?.id) {
-      alert('请先登录后再发送消息');
+      const ok = window.confirm('请先登录后再发送消息');
+      if (!ok) return;
       router.push('/auth');
       return;
     }
@@ -106,36 +120,64 @@ export default function ContactLandlord({ landlordId, propertyTitle }: ContactLa
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 w-full h-16 bg-white border-t border-gray-200 shadow-lg flex items-center px-4 gap-2 z-40">
-      {/* 显示最后一条消息或提示 */}
-      <div className="flex-1 min-w-0">
-        {messages.length > 0 ? (
-          <div className="text-sm">
-            <p className="text-gray-600 truncate">{messages[messages.length - 1].text}</p>
+    <div className="fixed bottom-0 left-0 right-0 w-full bg-white border-t border-gray-200 shadow-lg z-40">
+      {!isExpanded ? (
+        <div className="h-16 flex items-center px-4">
+          <button
+            onClick={handleContactClick}
+            className="w-full bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition text-sm"
+          >
+            联系房东
+          </button>
+        </div>
+      ) : (
+        <div className="px-4 py-3">
+          {/* 消息列表（向上延伸） */}
+          <div className="max-h-60 overflow-y-auto space-y-2 mb-3">
+            {messages.length > 0 ? (
+              messages.map((msg, index) => {
+                const isMine = msg.sender_id === currentUserId;
+                return (
+                  <div key={msg.id ?? `${msg.created_at}-${index}`} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
+                    <div
+                      className={
+                        isMine
+                          ? 'bg-blue-600 text-white px-3 py-2 rounded-2xl text-sm max-w-[75%]'
+                          : 'bg-gray-100 text-gray-900 px-3 py-2 rounded-2xl text-sm max-w-[75%]'
+                      }
+                    >
+                      {msg.text}
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-sm text-gray-400">还没有消息，开始联系房东吧</p>
+            )}
           </div>
-        ) : (
-          <p className="text-sm text-gray-400">点击输入框与房东沟通</p>
-        )}
-      </div>
 
-      {/* 输入框 */}
-      <input
-        type="text"
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        onKeyPress={(e) => {
-          if (e.key === 'Enter') handleSend();
-        }}
-        placeholder="输入消息..."
-        className="flex-1 px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-      />
-      <button
-        onClick={handleSend}
-        disabled={sending || !message.trim()}
-        className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition text-sm disabled:opacity-60 whitespace-nowrap"
-      >
-        发送
-      </button>
+          {/* 输入框 */}
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') handleSend();
+              }}
+              placeholder="输入消息..."
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+            />
+            <button
+              onClick={handleSend}
+              disabled={sending || !message.trim()}
+              className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition text-sm disabled:opacity-60 whitespace-nowrap"
+            >
+              发送
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

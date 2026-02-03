@@ -190,7 +190,8 @@ export default function Home() {
   const handleAddClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     if (!userId) {
-      alert('请先登录后再发布房源');
+      const ok = window.confirm('请先登录后再发布房源');
+      if (!ok) return;
       setTimeout(() => {
         router.push('/auth');
       }, 500);
