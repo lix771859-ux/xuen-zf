@@ -146,9 +146,12 @@ export default function ContactLandlord({ landlordId, propertyTitle }: ContactLa
             <span className="font-semibold text-gray-900">与房东对话</span>
             <button
               onClick={() => setIsExpanded(false)}
-              className="text-blue-600 text-sm font-medium"
+              className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 flex items-center justify-center transition-all duration-200"
+              aria-label="关闭"
             >
-              关闭
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
 
