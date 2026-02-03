@@ -232,9 +232,9 @@ export default function LandlordPropertiesPage() {
                           images: prev.images?.filter((_, i) => i !== idx) || []
                         }));
                       }}
-                      className="absolute top-1 right-1 px-2 py-0.5 text-xs bg-red-500 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center bg-black/50 text-white rounded-full hover:bg-black/70 transition"
                     >
-                      删除
+                      ✕
                     </button>
                   </div>
                 ))}
