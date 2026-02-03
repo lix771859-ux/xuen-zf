@@ -155,7 +155,15 @@ export default function MyPropertiesPage() {
         <div className="text-center py-12">
           <p className="text-gray-500 mb-4">暂无房源</p>
           <button
-            onClick={() => router.push('/landlord/properties')}
+            onClick={async () => {
+              const { data } = await supabaseBrowser.auth.getUser();
+              if (!data.user?.id) {
+                alert('请先登录后再发布房源');
+                router.push('/auth');
+                return;
+              }
+              router.push('/landlord/properties');
+            }}
             className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
             发布新房源

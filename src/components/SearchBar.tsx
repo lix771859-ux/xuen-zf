@@ -24,9 +24,9 @@ export default function SearchBar({ value, onChange }: SearchBarProps) {
   const handleAddClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     if (!userId) {
-      setAddBtnText(t('pleaseLogin'));
+      // setAddBtnText(t('pleaseLogin'));
       setTimeout(() => {
-        setAddBtnText(t('newRent'));
+        // setAddBtnText(t('newRent'));
         router.push('/auth');
       }, 500);
     } else {

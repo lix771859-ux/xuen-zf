@@ -475,32 +475,33 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* 房源卡片 - 显示在消息上面 */}
-                    {(firstMsg as any).property_title && (
-                      <div className="bg-gray-50 p-4 border-b border-gray-200">
-                        <div className="bg-white rounded-lg p-4 shadow-sm">
-                          <p className="text-xs text-gray-500 mb-2">关于房源</p>
-                          <div className="flex gap-3">
-                            <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
-                              <img 
-                                src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&h=200&fit=crop" 
-                                alt="房源" 
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-gray-900 truncate">
-                                {(firstMsg as any).property_title}
-                              </p>
-                              <p className="text-sm text-gray-500 mt-1">点击查看详情</p>
+                    {/* 消息列表 - 房源卡片在里面 */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                      {/* 房源卡片 - 作为第一条内容 */}
+                      {(firstMsg as any).property_title && (
+                        <div className="mb-4">
+                          <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                            <p className="text-xs text-gray-500 mb-2">关于房源</p>
+                            <div className="flex gap-3">
+                              <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
+                                <img 
+                                  src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&h=200&fit=crop" 
+                                  alt="房源" 
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold text-gray-900 truncate">
+                                  {(firstMsg as any).property_title}
+                                </p>
+                                <p className="text-sm text-gray-500 mt-1">点击查看详情</p>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {/* 消息列表 */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                      {/* 消息气泡 */}
                       {selectedConversation.messages.map((msg, idx) => {
                         const isOwn = msg.sender_id === currentUserId;
                         return (
