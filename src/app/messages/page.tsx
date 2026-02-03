@@ -40,6 +40,10 @@ export default function Messages() {
         .or(`recipient_id.eq.${data.user.id},sender_id.eq.${data.user.id}`)
         .order('created_at', { ascending: true });
 
+      console.log('当前用户ID:', data.user.id);
+      console.log('查询到的消息:', messages);
+      console.log('查询错误:', error);
+
       if (error) {
         console.error('加载消息失败:', error);
         setLoading(false);
