@@ -71,7 +71,10 @@ export default function ContactLandlord({ landlordId, propertyTitle }: ContactLa
 
   useEffect(() => {
     if (!isExpanded) return;
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    // 延迟滚动确保 DOM 已更新
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
   }, [messages, isExpanded]);
 
   const handleContactClick = async () => {

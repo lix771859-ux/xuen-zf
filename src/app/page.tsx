@@ -31,6 +31,10 @@ interface Conversation {
   avatar: string;
   messages: MessageType[];
 }
+
+type MessageInputState = {
+  [key: string]: string;
+};
 export default function Home() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { t } = useI18n();
@@ -40,6 +44,8 @@ export default function Home() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string>('');
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [messageInputs, setMessageInputs] = useState<MessageInputState>({});
+  const [sendingMessageId, setSendingMessageId] = useState<string | null>(null);
   type DetailData = {
   id: number;
   title: string;
@@ -133,6 +139,33 @@ export default function Home() {
     }));
 
     setConversations(convList);
+  };
+
+  const handleSendMessage = async () => {
+    if (!selectedConversationId || !messageInputs[selectedConversationId]?.trim()) return;
+
+    setSendingMessageId(selectedConversationId);
+    try {
+      const { error } = await supabaseBrowser
+        .from('messages')
+        .insert([{
+          sender_id: currentUserId,
+          recipient_id: selectedConversationId,
+          text: messageInputs[selectedConversationId],
+          created_at: new Date().toISOString(),
+        }]);
+
+      if (!error) {
+        setMessageInputs((prev) => ({
+          ...prev,
+          [selectedConversationId]: '',
+        }));
+      }
+    } catch (err) {
+      console.error('发送失败:', err);
+    } finally {
+      setSendingMessageId(null);
+    }
   };
 
   useEffect(() =>{
@@ -524,6 +557,30 @@ export default function Home() {
                           </div>
                         );
                       })}
+                    </div>
+
+                    {/* 输入框 */}
+                    <div className="px-4 py-3 border-t border-gray-200 flex items-center gap-2 bg-white">
+                      <input
+                        type="text"
+                        value={messageInputs[selectedConversationId] || ''}
+                        onChange={(e) => setMessageInputs((prev) => ({
+                          ...prev,
+                          [selectedConversationId]: e.target.value,
+                        }))}
+                        onKeyPress={(e) => {
+                          if (e.key === 'Enter') handleSendMessage();
+                        }}
+                        placeholder="输入消息..."
+                        className="flex-1 px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+                      />
+                      <button
+                        onClick={handleSendMessage}
+                        disabled={sendingMessageId === selectedConversationId || !messageInputs[selectedConversationId]?.trim()}
+                        className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition text-sm disabled:opacity-60 whitespace-nowrap"
+                      >
+                        发送
+                      </button>
                     </div>
                   </div>
                 );
