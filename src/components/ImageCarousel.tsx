@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 interface ImageCarouselProps {
   images: string[];
@@ -11,6 +11,8 @@ interface ImageCarouselProps {
 export default function ImageCarousel({ images, title = '', className = '' }: ImageCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [autoPlay, setAutoPlay] = useState(true);
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
 
   // 自动轮播
   useEffect(() => {
@@ -48,8 +50,35 @@ export default function ImageCarousel({ images, title = '', className = '' }: Im
     setAutoPlay(false);
   };
 
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    touchEndX.current = null;
+    touchStartX.current = e.touches[0]?.clientX ?? null;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    touchEndX.current = e.touches[0]?.clientX ?? null;
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStartX.current === null || touchEndX.current === null) return;
+    const diff = touchStartX.current - touchEndX.current;
+    if (Math.abs(diff) < 50) return;
+    if (diff > 0) {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    } else {
+      setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+    }
+    setAutoPlay(false);
+  };
+
   return (
-    <div className={`relative ${className}`} style={{ aspectRatio: '16/9' }}>
+    <div
+      className={`relative ${className}`}
+      style={{ aspectRatio: '16/9' }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* 主图片 */}
       <img
         src={images[currentIndex]}
@@ -67,7 +96,7 @@ export default function ImageCarousel({ images, title = '', className = '' }: Im
               e.preventDefault();
               goToPrevious(e);
             }}
-            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors z-10"
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors z-10 hidden md:flex"
             aria-label="上一张"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,7 +110,7 @@ export default function ImageCarousel({ images, title = '', className = '' }: Im
               e.preventDefault();
               goToNext(e);
             }}
-            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors z-10"
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition-colors z-10 hidden md:flex"
             aria-label="下一张"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,8 +124,8 @@ export default function ImageCarousel({ images, title = '', className = '' }: Im
             {currentIndex + 1} / {images.length}
           </div>
 
-          {/* 底部小圆圈指示器 */}
-          {/* <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+          {/* 移动端小圆点指示器 */}
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10 md:hidden">
             {images.map((_, index) => (
               <button
                 key={index}
@@ -113,7 +142,7 @@ export default function ImageCarousel({ images, title = '', className = '' }: Im
                 aria-label={`跳转到第 ${index + 1} 张图片`}
               />
             ))}
-          </div> */}
+          </div>
         </>
       )}
     </div>
