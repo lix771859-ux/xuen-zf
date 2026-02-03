@@ -138,7 +138,7 @@ export default function MyPropertiesPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4 space-y-6 relative bg-white min-h-screen">
+    <div className="max-w-4xl mx-auto p-4 space-y-4 relative bg-white min-h-screen">
       {/* 返回按钮 */}
       <button
         onClick={() => router.back()}
@@ -150,7 +150,6 @@ export default function MyPropertiesPage() {
         返回
       </button>
 
-      <h1 className="text-3xl font-bold text-gray-800">我的房源</h1>
 
       {properties.length === 0 ? (
         <div className="text-center py-12">
@@ -165,36 +164,38 @@ export default function MyPropertiesPage() {
       ) : (
         <div className="grid md:grid-cols-2 gap-6">
           {properties.map((p) => (
-            <div key={p.id} className="rounded-lg p-4 bg-white shadow-sm hover:shadow-md transition">
-              {/* 房源图片轮播 */}
-              {p.images && p.images.length > 0 ? (
-                <ImageCarousel images={p.images} className="w-full h-48 mb-4 rounded-lg" />
-              ) : (
-                <div className="w-full h-48 bg-gray-200 rounded-lg mb-4 flex items-center justify-center">
-                  <span className="text-gray-400">暂无图片</span>
-                </div>
-              )}
+            <div key={p.id} className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+              <div className="relative">
+                {/* 房源图片轮播 */}
+                {p.images && p.images.length > 0 ? (
+                  <ImageCarousel images={p.images} className="w-full h-48 object-cover" />
+                ) : (
+                  <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
+                    <span className="text-gray-400">暂无图片</span>
+                  </div>
+                )}
 
-              <div className="space-y-2">
-                <h3 className="font-semibold text-lg text-gray-900">{p.title}</h3>
-                <p className="text-2xl font-bold text-blue-600">¥{Number(p.price)}</p>
-                {p.address && <p className="text-sm text-gray-600">{p.address}</p>}
-                {p.description && <p className="text-sm text-gray-600">{p.description}</p>}
+                <div className="absolute top-2 right-2 flex gap-2">
+                  <button
+                    className="px-2.5 py-1.5 text-md bg-white/90 text-gray-900 rounded-md shadow-sm hover:bg-white transition"
+                    onClick={() => openEdit(p)}
+                  >
+                    编辑
+                  </button>
+                  <button
+                    className="px-2.5 py-1.5 text-md bg-white/90 text-red-600 rounded-md shadow-sm hover:bg-white transition"
+                    onClick={() => handleDelete(p.id)}
+                  >
+                    删除
+                  </button>
+                </div>
               </div>
 
-              <div className="flex gap-2 mt-4">
-                <button
-                  className="flex-1 px-3 py-2 bg-yellow-100 text-yellow-700 rounded hover:bg-yellow-200 transition"
-                  onClick={() => openEdit(p)}
-                >
-                  编辑
-                </button>
-                <button
-                  className="flex-1 px-3 py-2 bg-red-100 text-red-700 rounded hover:bg-red-200 transition"
-                  onClick={() => handleDelete(p.id)}
-                >
-                  删除
-                </button>
+              <div className="flex items-center gap-2 p-3 space-y-2">
+                <h3 className="font-semibold text-lg text-gray-900">{p.title}</h3>
+                <p className="text-2xl text-lg text-blue-600">¥{Number(p.price)}</p>
+                {p.address && <p className="text-lg text-gray-600">{p.address}</p>}
+                {p.description && <p className="text-lg text-gray-600">{p.description}</p>}
               </div>
             </div>
           ))}
