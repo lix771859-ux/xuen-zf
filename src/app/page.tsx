@@ -235,6 +235,13 @@ export default function Home() {
     }
   };
 
+  // 当切换到消息标签时加载会话列表
+  useEffect(() => {
+    if (activeTab === 'messages') {
+      loadConversations();
+    }
+  }, [activeTab]);
+
   useEffect(() =>{
     setFromDetailBack(false);
   }, [])
