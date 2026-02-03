@@ -12,7 +12,7 @@ import { usePagination } from '@/hooks/usePagination';
 import { useI18n } from '@/i18n/context';
 import { useSupabaseUser } from '@/hooks/useSupabaseUser';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import ContactLandlord from '@/components/ContactLandlord';
 import { useRefreshStore } from '@/store/useRefreshStore';
 import { DetailSheet } from "@/components/ui/deSheet"
@@ -37,6 +37,7 @@ type MessageInputState = {
   [key: string]: string;
 };
 export default function Home() {
+  const searchParams = useSearchParams();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState('search');
@@ -48,6 +49,7 @@ export default function Home() {
   const [messageInputs, setMessageInputs] = useState<MessageInputState>({});
   const [sendingMessageId, setSendingMessageId] = useState<string | null>(null);
   const [contactInfo, setContactInfo] = useState<{ landlordId: string; title: string } | null>(null);
+  const [selectedPropertyTitle, setSelectedPropertyTitle] = useState<string | null>(null);
   type DetailData = {
   id: number;
   title: string;
@@ -89,6 +91,23 @@ export default function Home() {
     container.addEventListener('scroll', handleScroll);
     return () => container.removeEventListener('scroll', handleScroll);
   }, [setScrollY]);
+
+  // 根据 URL 查询参数初始化 tab 和当前会话（用于详情页跳转）
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    const peer = searchParams.get('peer');
+    const title = searchParams.get('title');
+
+    if (tab === 'messages') {
+      setActiveTab('messages');
+    }
+    if (peer) {
+      setSelectedConversationId(peer);
+      if (title) {
+        setSelectedPropertyTitle(title);
+      }
+    }
+  }, [searchParams]);
 
   // 恢复滚动条位置（如需要）
   useEffect(() => {
@@ -143,6 +162,15 @@ export default function Home() {
     }));
 
     setConversations(convList);
+
+    // 根据会话中第一条消息的房源标题，预填当前选中会话的房源信息
+    if (selectedConversationId) {
+      const current = convList.find((c) => c.id === selectedConversationId);
+      const firstMsg: any = current?.messages[0];
+      if (firstMsg?.property_title) {
+        setSelectedPropertyTitle(firstMsg.property_title);
+      }
+    }
 
     // 如果当前没有选中的会话，则默认选中最新一条，方便直接看到最新消息和输入框
     if (!selectedConversationId && convList.length > 0) {
@@ -219,6 +247,7 @@ export default function Home() {
             sender_id: currentUserId,
             recipient_id: selectedConversationId,
             text: messageInputs[selectedConversationId],
+            property_title: selectedPropertyTitle,
             created_at: new Date().toISOString(),
           },
         ])
@@ -227,15 +256,29 @@ export default function Home() {
       if (!error) {
         const newMsg = (inserted && inserted[0]) as MessageType & { recipient_id?: string };
 
-        // 本地立即更新当前会话
+        // 本地立即更新当前会话；若不存在则创建新会话
         if (newMsg) {
-          setConversations((prev) =>
-            prev.map((c) =>
-              c.id === selectedConversationId
-                ? { ...c, messages: [...c.messages, newMsg] }
-                : c
-            )
-          );
+          setConversations((prev) => {
+            const existing = prev.find((c) => c.id === selectedConversationId);
+            if (existing) {
+              return prev.map((c) =>
+                c.id === selectedConversationId
+                  ? { ...c, messages: [...c.messages, newMsg] }
+                  : c
+              );
+            }
+
+            return [
+              ...prev,
+              {
+                id: selectedConversationId,
+                name: `用户 ${selectedConversationId.substring(0, 6)}`,
+                avatar:
+                  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+                messages: [newMsg],
+              },
+            ];
+          });
         }
 
         setMessageInputs((prev) => ({
@@ -553,7 +596,11 @@ export default function Home() {
                     return (
                       <div
                         key={conversation.id}
-                        onClick={() => setSelectedConversationId(conversation.id)}
+                        onClick={() => {
+                          setSelectedConversationId(conversation.id);
+                          const firstMsg: any = conversation.messages[0];
+                          setSelectedPropertyTitle(firstMsg?.property_title ?? null);
+                        }}
                         className="bg-white rounded-lg p-4 flex items-start gap-3 hover:bg-gray-50 cursor-pointer"
                       >
                         <img
@@ -580,8 +627,14 @@ export default function Home() {
             ) : (
               // 消息详情视图
               (() => {
-                const selectedConversation = conversations.find(c => c.id === selectedConversationId);
-                if (!selectedConversation) return null;
+                const selectedConversation =
+                  conversations.find((c) => c.id === selectedConversationId) || {
+                    id: selectedConversationId,
+                    name: `用户 ${selectedConversationId?.substring(0, 6)}`,
+                    avatar:
+                      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+                    messages: [] as MessageType[],
+                  };
                 
                 // 获取第一条消息，通常包含房源信息
                 const firstMsg = selectedConversation.messages[0];
@@ -611,7 +664,7 @@ export default function Home() {
                     {/* 消息列表 - 房源卡片在里面 */}
                     <div className="flex-1 overflow-y-auto p-4 space-y-3">
                       {/* 房源卡片 - 作为第一条内容 */}
-                      {(firstMsg as any).property_title && (
+                      {(firstMsg as any)?.property_title && (
                         <div className="mb-4">
                           <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
                             <p className="text-xs text-gray-500 mb-2">关于房源</p>
@@ -625,7 +678,7 @@ export default function Home() {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="font-semibold text-gray-900 truncate">
-                                  {(firstMsg as any).property_title}
+                                  {(firstMsg as any)?.property_title}
                                 </p>
                                 <p className="text-sm text-gray-500 mt-1">点击查看详情</p>
                               </div>

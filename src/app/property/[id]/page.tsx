@@ -110,8 +110,12 @@ export default async function PropertyDetail(props: { params: Promise<{ id: stri
             </div>
           )}
 
-          {/* 联系房东 */}
-          <ContactLandlord landlordId={property.landlord_id} propertyTitle={property.title} />
+          {/* 联系房东：跳到首页 Messages 对应对话 */}
+          <ContactLandlord
+            landlordId={property.landlord_id}
+            propertyTitle={property.title}
+            redirectToMessages
+          />
         </div>
       </div>
     </div>

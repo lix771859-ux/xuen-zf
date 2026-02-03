@@ -9,6 +9,7 @@ interface ContactLandlordProps {
   propertyTitle: string;
   initialExpanded?: boolean;
   onClose?: () => void;
+  redirectToMessages?: boolean;
 }
 
 interface MessageType {
@@ -18,7 +19,7 @@ interface MessageType {
   created_at: string;
 }
 
-export default function ContactLandlord({ landlordId, propertyTitle, initialExpanded = false, onClose }: ContactLandlordProps) {
+export default function ContactLandlord({ landlordId, propertyTitle, initialExpanded = false, onClose, redirectToMessages = false }: ContactLandlordProps) {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
@@ -95,6 +96,11 @@ export default function ContactLandlord({ landlordId, propertyTitle, initialExpa
       return;
     }
     setCurrentUserId(data.user.id);
+    if (redirectToMessages) {
+      // 从详情页跳到首页 Messages 对应的会话
+      router.push(`/?tab=messages&peer=${landlordId}&title=${encodeURIComponent(propertyTitle)}`);
+      return;
+    }
     setIsExpanded(true);
   };
 
