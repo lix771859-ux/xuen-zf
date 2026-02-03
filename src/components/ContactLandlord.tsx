@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
 import { useRouter } from 'next/navigation';
 
@@ -22,6 +22,7 @@ export default function ContactLandlord({ landlordId, propertyTitle }: ContactLa
   const [sending, setSending] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>('');
   const [isExpanded, setIsExpanded] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
 
   // 加载消息和订阅实时更新
@@ -67,6 +68,11 @@ export default function ContactLandlord({ landlordId, propertyTitle }: ContactLa
 
     init();
   }, [landlordId]);
+
+  useEffect(() => {
+    if (!isExpanded) return;
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isExpanded]);
 
   const handleContactClick = async () => {
     const { data } = await supabaseBrowser.auth.getUser();
@@ -165,6 +171,7 @@ export default function ContactLandlord({ landlordId, propertyTitle }: ContactLa
             ) : (
               <p className="text-sm text-gray-400">还没有消息，开始联系房东吧</p>
             )}
+            <div ref={messagesEndRef} />
           </div>
 
           {/* 输入框 */}
