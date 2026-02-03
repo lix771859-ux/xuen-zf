@@ -91,7 +91,7 @@ export default function ImageCarousel({ images, title = '', className = '' }: Im
 
           {/* 顶部计数器 */}
           <div onClick={(e) => {e.stopPropagation();}}
- className="absolute bottom-3 right-2  bg-black/50 text-white px-3 py-1 rounded-full text-sm z-10">
+ className="absolute bottom-2 right-2  bg-black/50 text-white px-3 py-1 rounded-full text-sm z-10">
             {currentIndex + 1} / {images.length}
           </div>
 
