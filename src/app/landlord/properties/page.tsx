@@ -204,8 +204,8 @@ export default function LandlordPropertiesPage() {
               <label className="block text-sm font-medium mb-1 text-gray-800">图片上传</label>
               <div className="mt-2 flex flex-wrap gap-3">
                 {/* 上传按钮 */}
-                <label htmlFor="property-image-upload" className="inline-block">
-                  <div className="w-full h-20 border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
+                <label htmlFor="property-image-upload" >
+                  <div className="w-full h-40 border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
                     <div className="text-4xl text-gray-400 mb-2">+</div>
                     <div className="text-sm text-gray-600">点击上传</div>
                   </div>
