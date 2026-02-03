@@ -13,6 +13,7 @@ import { useI18n } from '@/i18n/context';
 import { useSupabaseUser } from '@/hooks/useSupabaseUser';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
 import { useRouter } from 'next/navigation';
+import ContactLandlord from '@/components/ContactLandlord';
 import { useRefreshStore } from '@/store/useRefreshStore';
 import { DetailSheet } from "@/components/ui/deSheet"
 import { useHomeStore } from '@/store/useHomeStore';
@@ -46,6 +47,7 @@ export default function Home() {
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [messageInputs, setMessageInputs] = useState<MessageInputState>({});
   const [sendingMessageId, setSendingMessageId] = useState<string | null>(null);
+  const [contactInfo, setContactInfo] = useState<{ landlordId: string; title: string } | null>(null);
   type DetailData = {
   id: number;
   title: string;
@@ -100,15 +102,17 @@ export default function Home() {
   const clickCard = () => {
     setFromDetailBack(true);
   }
-  // if ( useHomeStore.getState().fromDetailBack) {
-  //   // setSearchQueryPage(searchQuery);
-  //   // setFiltersPage(filters);
-  // }
-  useEffect(() => {
-    if (activeTab === 'messages') {
-      loadConversations();
+  const handleMessageFromCard = async (landlordId: string, propertyTitle: string) => {
+    const { data } = await supabaseBrowser.auth.getUser();
+    if (!data.user?.id) {
+      const ok = window.confirm('请先登录后再联系房东');
+      if (!ok) return;
+      router.push('/auth');
+      return;
     }
-  }, [activeTab]);
+
+    setContactInfo({ landlordId, title: propertyTitle });
+  };
 
   const loadConversations = async () => {
     const { data } = await supabaseBrowser.auth.getUser();
@@ -375,6 +379,7 @@ export default function Home() {
                             isFavorite={isFavorite(property.id)}
                             onToggleFavorite={toggleFavorite}
                             onClickCard={clickCard}
+                            onMessage={handleMessageFromCard}
                           />
                         </div>
                       ))
@@ -649,6 +654,16 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {/* 列表快捷联系房东对话框 */}
+      {contactInfo && (
+        <ContactLandlord
+          landlordId={contactInfo.landlordId}
+          propertyTitle={contactInfo.title}
+          initialExpanded
+          onClose={() => setContactInfo(null)}
+        />
+      )}
 
       {/* 底部导航栏 */}
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />

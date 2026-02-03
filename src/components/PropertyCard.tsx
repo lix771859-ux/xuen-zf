@@ -16,6 +16,7 @@ interface Property {
   rating: number;
   reviews: number;
   video?: string | null;
+  landlord_id?: string;
 }
 
 interface PropertyCardProps {
@@ -23,14 +24,23 @@ interface PropertyCardProps {
   isFavorite: boolean;
   onToggleFavorite: (id: number) => void;
   onClickCard: () => void;
+  onMessage?: (landlordId: string, propertyTitle: string) => void;
 }
 
-export default function PropertyCard({ property, isFavorite, onToggleFavorite, onClickCard }: PropertyCardProps) {
+export default function PropertyCard({ property, isFavorite, onToggleFavorite, onClickCard, onMessage }: PropertyCardProps) {
   const { t } = useI18n();
   const router = useRouter();
   const handleCardClick = () => {
     onClickCard();
     router.push(`/property/${property.id}`, { scroll: false });
+  }
+  
+  const handleMessageClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onMessage && property.landlord_id) {
+      onMessage(property.landlord_id, property.title);
+    }
   }
   return (
     <div onClick={handleCardClick} className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
@@ -72,6 +82,19 @@ export default function PropertyCard({ property, isFavorite, onToggleFavorite, o
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
           </svg>
         </button>
+
+        {/* 消息按钮 */}
+        {property.landlord_id && (
+          <button
+            onClick={handleMessageClick}
+            className="absolute bottom-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors"
+            aria-label="发送消息"
+          >
+            <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M20.447 20.452h-1.554v-5.569c0-1.331-.475-2.236-1.986-2.236-.96 0-1.526.646-1.773 1.27-.091.223-.114.535-.114.848v5.687h-1.554s.02-9.224 0-10.183h1.554v1.443c-.009.014-.021.033-.032.046h.032v-.046c.45-.692 1.246-1.688 3.034-1.688 2.216 0 3.878 1.449 3.878 4.565v5.863zM5.337 6.433c-.505 0-.835-.336-.835-.759 0-.429.34-.759.859-.759.52 0 .834.33.859.759 0 .423-.335.759-.883.759zm.722 14.019H4.61v-10.183h1.45v10.183zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.225 0z" />
+            </svg>
+          </button>
+        )}
       </div>
 
       <div className="p-3">

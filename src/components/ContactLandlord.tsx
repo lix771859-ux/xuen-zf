@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation';
 interface ContactLandlordProps {
   landlordId: string;
   propertyTitle: string;
+  initialExpanded?: boolean;
+  onClose?: () => void;
 }
 
 interface MessageType {
@@ -16,12 +18,12 @@ interface MessageType {
   created_at: string;
 }
 
-export default function ContactLandlord({ landlordId, propertyTitle }: ContactLandlordProps) {
+export default function ContactLandlord({ landlordId, propertyTitle, initialExpanded = false, onClose }: ContactLandlordProps) {
   const [messages, setMessages] = useState<MessageType[]>([]);
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>('');
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(initialExpanded);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
 
@@ -89,6 +91,11 @@ export default function ContactLandlord({ landlordId, propertyTitle }: ContactLa
     setIsExpanded(true);
   };
 
+  const handleClose = () => {
+    setIsExpanded(false);
+    if (onClose) onClose();
+  };
+
   const handleSend = async () => {
     if (!message.trim()) return;
 
@@ -128,6 +135,11 @@ export default function ContactLandlord({ landlordId, propertyTitle }: ContactLa
     }
   };
 
+  // 如果是首页列表快捷入口，关闭后直接不渲染
+  if (!isExpanded && onClose) {
+    return null;
+  }
+
   return (
     <div className="fixed bottom-0 left-0 right-0 w-full bg-white border-t border-gray-200 shadow-lg z-40">
       {!isExpanded ? (
@@ -145,7 +157,7 @@ export default function ContactLandlord({ landlordId, propertyTitle }: ContactLa
           <div className="h-14 px-4 border-b border-gray-200 flex items-center justify-between">
             <span className="font-semibold text-gray-900">与房东对话</span>
             <button
-              onClick={() => setIsExpanded(false)}
+              onClick={handleClose}
               className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-600 hover:text-gray-900 flex items-center justify-center transition-all duration-200"
               aria-label="关闭"
             >
