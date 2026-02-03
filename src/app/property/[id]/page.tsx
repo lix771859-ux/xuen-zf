@@ -2,6 +2,7 @@ import { useHomeStore } from '@/store/useHomeStore';
 import Image from 'next/image';
 import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabaseServer';
+import ImageCarousel from '@/components/ImageCarousel';
 
 export default async function PropertyDetail(props: { params: Promise<{ id: string }> }) {
   const resolved = await props.params;
@@ -37,16 +38,24 @@ export default async function PropertyDetail(props: { params: Promise<{ id: stri
       </div>
 
       <div className="max-w-md mx-auto">
-        {/* 图片展示 */}
-        <div className="relative bg-black h-64 overflow-hidden mb-4">
-          <img
-            src={property.images?.[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&h=600&fit=crop'}
-            alt={property.title}
-            width={800}
-            height={600}
-            className="w-full h-full object-cover"
+        {/* 图片轮播展示 */}
+        {property.images && property.images.length > 0 ? (
+          <ImageCarousel 
+            images={property.images} 
+            title={property.title}
+            className="w-full h-64 bg-black mb-4"
           />
-        </div>
+        ) : (
+          <div className="relative bg-black h-64 overflow-hidden mb-4">
+            <img
+              src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&h=600&fit=crop"
+              alt={property.title}
+              width={800}
+              height={600}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
 
         {/* 房产信息 */}
         <div className="bg-white px-4 py-4 border-b border-gray-200">

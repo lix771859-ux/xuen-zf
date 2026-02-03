@@ -218,6 +218,7 @@ export async function GET(request: Request) {
       bathrooms: prop.bathrooms ?? 0,
       sqft: prop.sqft ?? 0,
       image: prop.images?.[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&h=600&fit=crop',
+      images: prop.images || [], // 添加完整的 images 数组
       rating: 4.5,
       reviews: 0,
       area: prop.area || '',
@@ -232,6 +233,17 @@ export async function GET(request: Request) {
       totalPages: Math.ceil((count ?? 0) / pageSize),
     });
   } catch (err) {
+    // 如果指定了landlordId，直接返回空而不使用fallback
+    if (landlordId) {
+      return NextResponse.json({
+        data: [],
+        total: 0,
+        page,
+        pageSize,
+        totalPages: 0,
+      });
+    }
+
     // 回退到内置示例数据，保证页面可用
     let filtered = allProperties.filter((property) => {
       if (

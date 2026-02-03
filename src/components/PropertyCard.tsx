@@ -1,6 +1,7 @@
 'use client';
 import { useRouter } from 'next/navigation';
 import { useI18n } from '@/i18n/context';
+import ImageCarousel from './ImageCarousel';
 
 interface Property {
   id: number;
@@ -11,6 +12,7 @@ interface Property {
   bathrooms: number;
   sqft: number;
   image?: string | null;
+  images?: string[];
   rating: number;
   reviews: number;
   video?: string | null;
@@ -32,18 +34,24 @@ export default function PropertyCard({ property, isFavorite, onToggleFavorite, o
   }
   return (
     <div onClick={handleCardClick} className="block bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-      <div className="relative" >
-        {property.video ? (
+      <div className="relative">
+        {property.images && property.images.length > 0 ? (
+          <ImageCarousel 
+            images={property.images} 
+            title={property.title}
+            className="w-full h-48 object-cover"
+          />
+        ) : property.video ? (
           <video
             src={property.video || undefined}
             controls
-            className="w-full h-48 object-cover min-w-[280px] max-w-[400px]"
+            className="w-full h-48 object-cover"
           />
         ) : (
           <img
             src={property.image || undefined}
             alt={property.title}
-            className="w-full h-48 object-cover min-w-[280px] max-w-[400px]"
+            className="w-full h-48 object-cover"
           />
         )}
 
