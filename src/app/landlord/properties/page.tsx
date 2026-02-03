@@ -202,11 +202,12 @@ export default function LandlordPropertiesPage() {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1 text-gray-800">图片上传</label>
-              <div className="mt-2">
-                <label htmlFor="property-image-upload">
-                  <div className="w-1/4 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
+              <div className="mt-2 flex flex-wrap gap-3">
+                {/* 上传按钮 */}
+                <label htmlFor="property-image-upload" className="inline-block">
+                  <div className="w-40 h-40 border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
                     <div className="text-4xl text-gray-400 mb-2">+</div>
-                    <div className="text-sm text-gray-600">点击选择图片（可多选）</div>
+                    <div className="text-sm text-gray-600">点击上传</div>
                   </div>
                   <input
                     id="property-image-upload"
@@ -217,32 +218,27 @@ export default function LandlordPropertiesPage() {
                     className="hidden"
                   />
                 </label>
-              </div>
-              
-              {/* 已上传图片预览 */}
-              {form.images && form.images.length > 0 && (
-                <div className="mt-4 border-2 border-gray-300 rounded-lg overflow-hidden">
-                  <ImageCarousel images={form.images} className="w-full h-48" />
-                  <div className="flex flex-wrap gap-2 p-3 bg-gray-50">
-                    {form.images.map((img, idx) => (
-                      <button
-                        type="button"
-                        key={idx}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setForm(prev => ({
-                            ...prev,
-                            images: prev.images?.filter((_, i) => i !== idx) || []
-                          }));
-                        }}
-                        className="text-xs px-2 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200"
-                      >
-                        删除第{idx + 1}张
-                      </button>
-                    ))}
+                
+                {/* 已上传图片预览 */}
+                {form.images && form.images.length > 0 && form.images.map((img, idx) => (
+                  <div key={idx} className="relative w-40 h-40 border-2 border-gray-300 rounded-lg overflow-hidden group">
+                    <img src={img} alt={`图片${idx + 1}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setForm(prev => ({
+                          ...prev,
+                          images: prev.images?.filter((_, i) => i !== idx) || []
+                        }));
+                      }}
+                      className="absolute top-1 right-1 px-2 py-0.5 text-xs bg-red-500 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      删除
+                    </button>
                   </div>
-                </div>
-              )}
+                ))}
+              </div>
             </div>
             {message && <p className="text-sm text-blue-600">{message}</p>}
             <div className="flex gap-2">
