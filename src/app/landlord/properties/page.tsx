@@ -204,7 +204,7 @@ export default function LandlordPropertiesPage() {
               <label className="block text-sm font-medium mb-1 text-gray-800">图片上传</label>
               <div className="mt-2">
                 <label htmlFor="property-image-upload">
-                  <div className="w-full border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
+                  <div className="w-1/4 border-2 border-dashed border-gray-300 rounded-lg p-4 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
                     <div className="text-4xl text-gray-400 mb-2">+</div>
                     <div className="text-sm text-gray-600">点击选择图片（可多选）</div>
                   </div>
