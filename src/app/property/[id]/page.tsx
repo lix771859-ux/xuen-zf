@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { supabaseServer } from '@/lib/supabaseServer';
 import ImageCarousel from '@/components/ImageCarousel';
+import ContactLandlord from '@/components/ContactLandlord';
 
 export default async function PropertyDetail(props: { params: Promise<{ id: string }> }) {
   const resolved = await props.params;
@@ -93,7 +94,7 @@ export default async function PropertyDetail(props: { params: Promise<{ id: stri
           </div>
 
           {property.landlord && (
-            <div className="flex items-center gap-3 mt-4">
+            <div className="flex items-center gap-3 mt-4 mb-4">
               <img
                 src={property.landlord.avatar}
                 alt={property.landlord.name}
@@ -108,6 +109,9 @@ export default async function PropertyDetail(props: { params: Promise<{ id: stri
               </div>
             </div>
           )}
+
+          {/* 联系房东 */}
+          <ContactLandlord landlordId={property.landlord_id} propertyTitle={property.title} />
         </div>
       </div>
     </div>

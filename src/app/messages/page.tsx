@@ -1,109 +1,172 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabaseBrowser } from '@/lib/supabaseBrowser';
 
-interface Message {
-  id: number;
-  sender: 'user' | 'landlord';
+interface MessageType {
+  id?: number;
+  sender_id: string;
+  recipient_id?: string;
   text: string;
-  timestamp: string;
-  avatar: string;
+  created_at: string;
 }
 
 interface Conversation {
-  id: number;
+  id: string;
   name: string;
   avatar: string;
-  lastMessage: string;
-  unread: number;
-  messages: Message[];
+  messages: MessageType[];
 }
 
-const initialConversations: Conversation[] = [
-  {
-    id: 1,
-    name: '房东 - 张先生',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
-    lastMessage: '好的，我们周末见面看房',
-    unread: 2,
-    messages: [
-      {
-        id: 1,
-        sender: 'landlord',
-        text: '你好，有什么可以帮助你的吗？',
-        timestamp: '10:30',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
-      },
-      {
-        id: 2,
-        sender: 'user',
-        text: '你好，我想了解一下这个房子的租赁情况',
-        timestamp: '10:35',
-        avatar: 'https://images.unsplash.com/photo-1517849845537-1d51a20414de?w=100&h=100&fit=crop',
-      },
-      {
-        id: 3,
-        sender: 'landlord',
-        text: '好的，我们可以周末看房',
-        timestamp: '10:40',
-        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
-      },
-    ],
-  },
-  {
-    id: 2,
-    name: '房东 - 李女士',
-    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
-    lastMessage: '房子已经租出去了',
-    unread: 0,
-    messages: [
-      {
-        id: 1,
-        sender: 'landlord',
-        text: '房子已经租出去了，感谢你的咨询',
-        timestamp: '昨天',
-        avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
-      },
-    ],
-  },
-];
-
 export default function Messages() {
-  const [conversations, setConversations] = useState<Conversation[]>(initialConversations);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [inputMessage, setInputMessage] = useState('');
+  const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [loading, setLoading] = useState(true);
+
+  // 获取当前用户和消息
+  useEffect(() => {
+    const init = async () => {
+      const { data } = await supabaseBrowser.auth.getUser();
+      if (!data.user?.id) return;
+
+      setCurrentUserId(data.user.id);
+
+      // 加载初始消息
+      const { data: messages, error } = await supabaseBrowser
+        .from('messages')
+        .select('*')
+        .or(`recipient_id.eq.${data.user.id},sender_id.eq.${data.user.id}`)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('加载消息失败:', error);
+        setLoading(false);
+        return;
+      }
+
+      // 按发送者或接收者分组
+      const conversationMap: { [key: string]: MessageType[] } = {};
+      messages?.forEach((msg: any) => {
+        const otherId = msg.sender_id === data.user.id ? msg.recipient_id : msg.sender_id;
+        if (!conversationMap[otherId]) {
+          conversationMap[otherId] = [];
+        }
+        conversationMap[otherId].push(msg);
+      });
+
+      // 转换为对话列表
+      const convList = Object.entries(conversationMap).map(([userId, msgs]) => ({
+        id: userId,
+        name: `用户 ${userId.substring(0, 6)}`,
+        avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+        messages: msgs,
+      }));
+
+      setConversations(convList);
+      setLoading(false);
+
+      // 订阅实时消息更新
+      const subscription = supabaseBrowser
+        .channel(`messages:user:${data.user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'messages',
+            filter: `or(recipient_id.eq.${data.user.id},sender_id.eq.${data.user.id})`,
+          },
+          (payload: any) => {
+            const newMsg = payload.new;
+            const otherId = newMsg.sender_id === data.user.id ? newMsg.recipient_id : newMsg.sender_id;
+
+            setConversations((prevConvs) => {
+              const updatedConvs = prevConvs.map((conv) => {
+                if (conv.id === otherId) {
+                  return {
+                    ...conv,
+                    messages: [...conv.messages, newMsg],
+                  };
+                }
+                return conv;
+              });
+
+              // 如果不存在该对话，创建新的
+              if (!updatedConvs.find((c) => c.id === otherId)) {
+                updatedConvs.push({
+                  id: otherId,
+                  name: `用户 ${otherId.substring(0, 6)}`,
+                  avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+                  messages: [newMsg],
+                });
+              }
+
+              return updatedConvs;
+            });
+          }
+        )
+        .subscribe();
+
+      return () => {
+        subscription.unsubscribe();
+      };
+    };
+
+    init();
+  }, []);
 
   const selectedConversation = conversations.find((c) => c.id === selectedId);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputMessage.trim() || !selectedConversation) return;
 
-    const updatedConversations = conversations.map((conv) => {
-      if (conv.id === selectedId) {
-        return {
-          ...conv,
-          lastMessage: inputMessage,
-          messages: [
-            ...conv.messages,
-            {
-              id: conv.messages.length + 1,
-              sender: 'user' as const,
-              text: inputMessage,
-              timestamp: new Date().toLocaleTimeString('zh-CN', {
-                hour: '2-digit',
-                minute: '2-digit',
-              }),
-              avatar: 'https://images.unsplash.com/photo-1517849845537-1d51a20414de?w=100&h=100&fit=crop',
-            },
-          ],
-        };
-      }
-      return conv;
-    });
+    try {
+      const { error } = await supabaseBrowser
+        .from('messages')
+        .insert([
+          {
+            sender_id: currentUserId,
+            recipient_id: selectedId,
+            text: inputMessage,
+            created_at: new Date().toISOString(),
+          }
+        ]);
 
-    setConversations(updatedConversations);
-    setInputMessage('');
+      if (error) {
+        console.error('发送失败:', error);
+        return;
+      }
+
+      // 更新本地消息
+      setConversations(conversations.map(conv => {
+        if (conv.id === selectedId) {
+          return {
+            ...conv,
+            messages: [...conv.messages, {
+              text: inputMessage,
+              sender_id: currentUserId,
+              created_at: new Date().toISOString(),
+            }]
+          };
+        }
+        return conv;
+      }));
+
+      setInputMessage('');
+    } catch (err) {
+      console.error('错误:', err);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center text-gray-500">
+        加载中...
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen flex flex-col bg-gray-50">
@@ -127,36 +190,32 @@ export default function Messages() {
             </div>
           ) : (
             <div className="divide-y divide-gray-200">
-              {conversations.map((conversation) => (
-                <button
-                  key={conversation.id}
-                  onClick={() => setSelectedId(conversation.id)}
-                  className="w-full p-4 hover:bg-gray-50 transition-colors text-left"
-                >
-                  <div className="flex items-start gap-3">
-                    <img
-                      src={conversation.avatar}
-                      alt={conversation.name}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
+              {conversations.map((conversation) => {
+                const lastMsg = conversation.messages[conversation.messages.length - 1];
+                return (
+                  <button
+                    key={conversation.id}
+                    onClick={() => setSelectedId(conversation.id)}
+                    className="w-full p-4 hover:bg-gray-50 transition-colors text-left"
+                  >
+                    <div className="flex items-start gap-3">
+                      <img
+                        src={conversation.avatar}
+                        alt={conversation.name}
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                      <div className="flex-1 min-w-0">
                         <p className="font-semibold text-gray-900 truncate">
                           {conversation.name}
                         </p>
-                        {conversation.unread > 0 && (
-                          <span className="bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded-full">
-                            {conversation.unread}
-                          </span>
-                        )}
+                        <p className="text-sm text-gray-500 truncate">
+                          {lastMsg?.text || '没有消息'}
+                        </p>
                       </div>
-                      <p className="text-sm text-gray-500 truncate">
-                        {conversation.lastMessage}
-                      </p>
                     </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
@@ -179,47 +238,40 @@ export default function Messages() {
                   {selectedConversation.name}
                 </p>
               </div>
-              <button className="text-gray-400 hover:text-gray-600">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                </svg>
-              </button>
+              <div className="w-6" />
             </div>
 
             {/* 消息列表 */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {selectedConversation.messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex gap-3 ${
-                    message.sender === 'user' ? 'flex-row-reverse' : ''
-                  }`}
-                >
-                  <img
-                    src={message.avatar}
-                    alt=""
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
+              {selectedConversation.messages.map((message, idx) => {
+                const isOwn = message.sender_id === currentUserId;
+                return (
                   <div
-                    className={`max-w-xs ${
-                      message.sender === 'user'
-                        ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none'
-                        : 'bg-gray-100 text-gray-900 rounded-2xl rounded-tl-none'
-                    } px-4 py-2`}
+                    key={idx}
+                    className={`flex gap-3 ${isOwn ? 'flex-row-reverse' : ''}`}
                   >
-                    <p className="text-sm">{message.text}</p>
-                    <p
-                      className={`text-xs mt-1 ${
-                        message.sender === 'user'
-                          ? 'text-blue-100'
-                          : 'text-gray-500'
-                      }`}
+                    <div
+                      className={`max-w-xs ${
+                        isOwn
+                          ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none'
+                          : 'bg-gray-100 text-gray-900 rounded-2xl rounded-tl-none'
+                      } px-4 py-2`}
                     >
-                      {message.timestamp}
-                    </p>
+                      <p className="text-sm">{message.text}</p>
+                      <p
+                        className={`text-xs mt-1 ${
+                          isOwn ? 'text-blue-100' : 'text-gray-500'
+                        }`}
+                      >
+                        {new Date(message.created_at).toLocaleTimeString('zh-CN', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {/* 输入框 */}
