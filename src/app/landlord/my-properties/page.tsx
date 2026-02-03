@@ -177,13 +177,13 @@ export default function MyPropertiesPage() {
 
                 <div className="absolute top-2 right-2 flex gap-2">
                   <button
-                    className="px-2.5 py-1.5 text-md bg-white/90 text-gray-900 rounded-md shadow-sm hover:bg-white transition"
+                    className="px-2.5 py-1.5 text-sm bg-white/90 text-gray-900 rounded-md shadow-sm hover:bg-white transition"
                     onClick={() => openEdit(p)}
                   >
                     编辑
                   </button>
                   <button
-                    className="px-2.5 py-1.5 text-md bg-white/90 text-red-600 rounded-md shadow-sm hover:bg-white transition"
+                    className="px-2.5 py-1.5 text-sm bg-white/90 text-red-600 rounded-md shadow-sm hover:bg-white transition"
                     onClick={() => handleDelete(p.id)}
                   >
                     删除
@@ -191,7 +191,7 @@ export default function MyPropertiesPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2 p-3 space-y-2">
+              <div className="flex items-center gap-2 p-3">
                 <h3 className="font-semibold text-lg text-gray-900">{p.title}</h3>
                 <p className="text-2xl text-lg text-blue-600">¥{Number(p.price)}</p>
                 {p.address && <p className="text-lg text-gray-600">{p.address}</p>}
