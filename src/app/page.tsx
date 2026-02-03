@@ -12,7 +12,7 @@ import { usePagination } from '@/hooks/usePagination';
 import { useI18n } from '@/i18n/context';
 import { useSupabaseUser } from '@/hooks/useSupabaseUser';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import ContactLandlord from '@/components/ContactLandlord';
 import { useRefreshStore } from '@/store/useRefreshStore';
 import { DetailSheet } from "@/components/ui/deSheet"
@@ -37,7 +37,6 @@ type MessageInputState = {
   [key: string]: string;
 };
 export default function Home() {
-  const searchParams = useSearchParams();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState('search');
@@ -94,9 +93,12 @@ export default function Home() {
 
   // 根据 URL 查询参数初始化 tab 和当前会话（用于详情页跳转）
   useEffect(() => {
-    const tab = searchParams.get('tab');
-    const peer = searchParams.get('peer');
-    const title = searchParams.get('title');
+    if (typeof window === 'undefined') return;
+
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    const peer = params.get('peer');
+    const title = params.get('title');
 
     if (tab === 'messages') {
       setActiveTab('messages');
@@ -107,7 +109,7 @@ export default function Home() {
         setSelectedPropertyTitle(title);
       }
     }
-  }, [searchParams]);
+  }, []);
 
   // 恢复滚动条位置（如需要）
   useEffect(() => {
