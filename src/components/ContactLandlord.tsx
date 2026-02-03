@@ -178,7 +178,7 @@ export default function ContactLandlord({ landlordId, propertyTitle, initialExpa
           </button>
         </div>
       ) : (
-        <div className="fixed inset-0 z-50 bg-white flex flex-col">
+        <div className="fixed inset-0 z-[120] bg-white flex flex-col">
           {/* 顶部栏 */}
           <div className="h-14 px-4 border-b border-gray-200 flex items-center justify-between">
             <span className="font-semibold text-gray-900">与房东对话</span>
