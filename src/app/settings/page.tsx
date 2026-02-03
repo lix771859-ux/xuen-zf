@@ -14,7 +14,6 @@ export default function SettingsPage() {
 
   const [settingsEmail, setSettingsEmail] = useState('');
   const [settingsPhone, setSettingsPhone] = useState('');
-  const [settingsPassword, setSettingsPassword] = useState('');
   const [savingSettings, setSavingSettings] = useState(false);
   const [settingsError, setSettingsError] = useState<string | null>(null);
   const [settingsMessage, setSettingsMessage] = useState<string | null>(null);
@@ -26,6 +25,7 @@ export default function SettingsPage() {
     setSettingsPhone(meta.phone ?? '');
   }, [user]);
 
+  // 仅保存手机和邮箱
   const handleSaveSettings = async () => {
     if (!user) {
       setSettingsError('请先登录后再修改账号信息');
@@ -48,16 +48,10 @@ export default function SettingsPage() {
         payload.email = settingsEmail;
       }
 
-      const trimmedPassword = settingsPassword.trim();
-      if (trimmedPassword) {
-        payload.password = trimmedPassword;
-      }
-
       const { error } = await supabaseBrowser.auth.updateUser(payload);
       if (error) throw error;
 
       setSettingsMessage('设置已保存');
-      setSettingsPassword('');
     } catch (err: any) {
       setSettingsError(err.message || '保存失败，请稍后重试');
     } finally {
@@ -65,20 +59,18 @@ export default function SettingsPage() {
     }
   };
 
+
   return (
     <div className="w-screen h-screen flex flex-col bg-gray-50">
       {/* 顶部栏 */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => router.push('/?tab=profile')}
-            className="text-blue-600 text-sm"
-          >
-            ← 返回
-          </button>
-          <h1 className="text-lg font-semibold text-gray-900">{t('settings')}</h1>
-        </div>
-        <LanguageSwitcher />
+      <div className="flex items-center px-4 py-3 border-b border-gray-200 bg-white">
+        <button
+          onClick={() => router.push('/?tab=profile')}
+          className="text-blue-600 text-sm mr-2"
+        >
+          ← 返回
+        </button>
+        <h1 className="text-lg font-semibold text-gray-900">{t('settings')}</h1>
       </div>
 
       {/* 内容 */}
@@ -92,7 +84,7 @@ export default function SettingsPage() {
         </div>
 
         <div className="p-4 rounded-lg border border-gray-200 bg-white space-y-3">
-          <p className="text-sm font-medium text-gray-900 mb-1">账号与联系方式</p>
+          <p className="text-sm font-medium text-gray-900 mb-1">账号与联系方式（电话 / 邮箱）</p>
 
           <div className="space-y-1">
             <label className="text-xs text-gray-500">手机号码</label>
@@ -116,24 +108,6 @@ export default function SettingsPage() {
             />
             <p className="text-[11px] text-gray-400">修改邮箱后，可能需要通过邮件确认。</p>
           </div>
-
-          <div className="space-y-1">
-            <label className="text-xs text-gray-500">新密码</label>
-            <input
-              type="password"
-              value={settingsPassword}
-              onChange={(e) => setSettingsPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="留空则不修改密码"
-            />
-          </div>
-
-          {settingsError && (
-            <p className="text-xs text-red-500 mt-1">{settingsError}</p>
-          )}
-          {settingsMessage && (
-            <p className="text-xs text-green-600 mt-1">{settingsMessage}</p>
-          )}
 
           <button
             onClick={handleSaveSettings}

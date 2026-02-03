@@ -746,6 +746,21 @@ export default function Home() {
                     <p className="text-lg font-medium">{user.email}</p>
                     <p className="text-gray-500 text-sm mt-1">已登录</p>
                     <div className="mt-4 flex items-center justify-center gap-3">
+                      <button
+                        onClick={async () => {
+                          const pwd = window.prompt('请输入新的登录密码');
+                          if (!pwd || !pwd.trim()) return;
+                          try {
+                            await supabaseBrowser.auth.updateUser({ password: pwd.trim() });
+                            window.alert('密码已更新');
+                          } catch (e: any) {
+                            window.alert(e?.message || '修改密码失败，请稍后重试');
+                          }
+                        }}
+                        className="px-4 py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                      >
+                        修改密码
+                      </button>
                       <button onClick={handleLogout} disabled={signingOut} className="px-4 py-2.5 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-60">
                         {signingOut ? '退出中…' : t('logout')}
                       </button>
@@ -784,12 +799,6 @@ export default function Home() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </a>
-                <button className="w-full text-left flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg text-red-600">
-                  <span className="font-medium">{t('logout')}</span>
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                  </svg>
-                </button>
               </div>
             </div>
           </div>
