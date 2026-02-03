@@ -232,7 +232,7 @@ export default function LandlordPropertiesPage() {
                           images: prev.images?.filter((_, i) => i !== idx) || []
                         }));
                       }}
-                      className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center bg-black/50 text-white rounded-full hover:bg-black/70 transition"
+                      className="absolute top-1 right-1 w-6 h-6 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600 transition shadow-md"
                     >
                       ✕
                     </button>
