@@ -145,21 +145,84 @@ export default function Home() {
     setConversations(convList);
   };
 
+  // 订阅当前用户的实时消息，用于 Messages 视图
+  useEffect(() => {
+    if (!currentUserId) return;
+
+    const channel = supabaseBrowser
+      .channel(`messages:list:${currentUserId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `or(recipient_id.eq.${currentUserId},sender_id.eq.${currentUserId})`,
+        },
+        (payload: any) => {
+          const msg = payload.new as MessageType & { recipient_id: string };
+          const otherId = msg.sender_id === currentUserId ? msg.recipient_id! : msg.sender_id;
+
+          setConversations((prev) => {
+            const existing = prev.find((c) => c.id === otherId);
+            if (existing) {
+              return prev.map((c) =>
+                c.id === otherId ? { ...c, messages: [...c.messages, msg] } : c
+              );
+            }
+
+            // 新会话
+            return [
+              ...prev,
+              {
+                id: otherId,
+                name: `用户 ${otherId.substring(0, 6)}`,
+                avatar:
+                  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+                messages: [msg],
+              },
+            ];
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      channel.unsubscribe();
+    };
+  }, [currentUserId]);
+
   const handleSendMessage = async () => {
     if (!selectedConversationId || !messageInputs[selectedConversationId]?.trim()) return;
 
     setSendingMessageId(selectedConversationId);
     try {
-      const { error } = await supabaseBrowser
+      const { data: inserted, error } = await supabaseBrowser
         .from('messages')
-        .insert([{
-          sender_id: currentUserId,
-          recipient_id: selectedConversationId,
-          text: messageInputs[selectedConversationId],
-          created_at: new Date().toISOString(),
-        }]);
+        .insert([
+          {
+            sender_id: currentUserId,
+            recipient_id: selectedConversationId,
+            text: messageInputs[selectedConversationId],
+            created_at: new Date().toISOString(),
+          },
+        ])
+        .select('*');
 
       if (!error) {
+        const newMsg = (inserted && inserted[0]) as MessageType & { recipient_id?: string };
+
+        // 本地立即更新当前会话
+        if (newMsg) {
+          setConversations((prev) =>
+            prev.map((c) =>
+              c.id === selectedConversationId
+                ? { ...c, messages: [...c.messages, newMsg] }
+                : c
+            )
+          );
+        }
+
         setMessageInputs((prev) => ({
           ...prev,
           [selectedConversationId]: '',

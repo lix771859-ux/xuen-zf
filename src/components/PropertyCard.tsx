@@ -83,7 +83,8 @@ export default function PropertyCard({ property, isFavorite, onToggleFavorite, o
           </svg>
         </button>
 
-        {/* 消息按钮 */}
+        {/* 消息按钮（暂时隐藏，如需恢复可取消注释） */}
+        {/*
         {property.landlord_id && (
           <button
             onClick={handleMessageClick}
@@ -95,6 +96,7 @@ export default function PropertyCard({ property, isFavorite, onToggleFavorite, o
             </svg>
           </button>
         )}
+        */}
       </div>
 
       <div className="p-3">

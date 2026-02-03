@@ -30,6 +30,7 @@ export interface Property {
   area: string;
   description?: string;
   amenities?: string[];
+  landlord_id?: string | null;
 }
 
 interface PaginationResponse {

@@ -223,6 +223,7 @@ export async function GET(request: Request) {
       reviews: 0,
       area: prop.area || '',
       description: prop.description || '',
+      landlord_id: prop.landlord_id || null,
     }));
 
     return NextResponse.json({
