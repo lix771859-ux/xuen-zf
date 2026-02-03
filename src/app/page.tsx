@@ -190,9 +190,8 @@ export default function Home() {
   const handleAddClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     if (!userId) {
-      setAddBtnText(t('pleaseLogin'));
+      alert('请先登录后再发布房源');
       setTimeout(() => {
-        setAddBtnText(t('newRent'));
         router.push('/auth');
       }, 500);
     } else {
