@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
+import { useRouter } from 'next/navigation';
 
 interface ContactLandlordProps {
   landlordId: string;
@@ -20,6 +21,7 @@ export default function ContactLandlord({ landlordId, propertyTitle }: ContactLa
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<string>('');
+  const router = useRouter();
 
   // 加载消息和订阅实时更新
   useEffect(() => {
@@ -68,6 +70,14 @@ export default function ContactLandlord({ landlordId, propertyTitle }: ContactLa
   const handleSend = async () => {
     if (!message.trim()) return;
 
+    // 检查是否登录
+    const { data } = await supabaseBrowser.auth.getUser();
+    if (!data.user?.id) {
+      alert('请先登录后再发送消息');
+      router.push('/auth');
+      return;
+    }
+
     setSending(true);
     try {
       const { error } = await supabaseBrowser
@@ -77,6 +87,7 @@ export default function ContactLandlord({ landlordId, propertyTitle }: ContactLa
             sender_id: currentUserId,
             recipient_id: landlordId,
             text: message,
+            property_title: propertyTitle,
             created_at: new Date().toISOString(),
           }
         ]);

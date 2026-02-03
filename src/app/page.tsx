@@ -16,15 +16,30 @@ import { useRouter } from 'next/navigation';
 import { useRefreshStore } from '@/store/useRefreshStore';
 import { DetailSheet } from "@/components/ui/deSheet"
 import { useHomeStore } from '@/store/useHomeStore';
-// import useSWR from 'swr'
 
-// const fetcher = (url: string) => fetch(url).then(res => res.json())
+interface MessageType {
+  id?: number;
+  sender_id: string;
+  recipient_id?: string;
+  text: string;
+  created_at: string;
+}
+
+interface Conversation {
+  id: string;
+  name: string;
+  avatar: string;
+  messages: MessageType[];
+}
 export default function Home() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { t } = useI18n();
   const [activeTab, setActiveTab] = useState('search');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchQueryPage, setSearchQueryPage] = useState('');
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   type DetailData = {
   id: number;
   title: string;
@@ -83,7 +98,43 @@ export default function Home() {
   //   // setSearchQueryPage(searchQuery);
   //   // setFiltersPage(filters);
   // }
-  
+  useEffect(() => {
+    if (activeTab === 'messages') {
+      loadConversations();
+    }
+  }, [activeTab]);
+
+  const loadConversations = async () => {
+    const { data } = await supabaseBrowser.auth.getUser();
+    if (!data.user?.id) return;
+
+    setCurrentUserId(data.user.id);
+
+    const { data: messages } = await supabaseBrowser
+      .from('messages')
+      .select('*')
+      .or(`recipient_id.eq.${data.user.id},sender_id.eq.${data.user.id}`)
+      .order('created_at', { ascending: true });
+
+    const conversationMap: { [key: string]: MessageType[] } = {};
+    messages?.forEach((msg: any) => {
+      const otherId = msg.sender_id === data.user.id ? msg.recipient_id : msg.sender_id;
+      if (!conversationMap[otherId]) {
+        conversationMap[otherId] = [];
+      }
+      conversationMap[otherId].push(msg);
+    });
+
+    const convList = Object.entries(conversationMap).map(([userId, msgs]) => ({
+      id: userId,
+      name: `用户 ${userId.substring(0, 6)}`,
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+      messages: msgs,
+    }));
+
+    setConversations(convList);
+  };
+
   useEffect(() =>{
     setFromDetailBack(false);
   }, [])
@@ -351,17 +402,132 @@ export default function Home() {
 
         {activeTab === 'messages' && (
           <div className="overflow-y-auto h-full pb-20">
-            <div className="px-4 py-8">
-              <div className="bg-white rounded-lg p-6 text-center space-y-4">
-                <svg className="w-16 h-16 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-                <p className="text-gray-500 text-lg">{t('noMessages')}</p>
-                <a href="/messages" className="inline-block text-blue-600 hover:text-blue-700 text-sm font-medium">
-                  {t('viewMessages')}
-                </a>
-              </div>
-            </div>
+            {!selectedConversationId ? (
+              // 对话列表视图
+              conversations.length === 0 ? (
+                <div className="px-4 py-8">
+                  <div className="bg-white rounded-lg p-6 text-center space-y-4">
+                    <svg className="w-16 h-16 text-gray-300 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    <p className="text-gray-500 text-lg">{t('noMessages')}</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="px-4 py-4 space-y-2">
+                  {conversations.map((conversation) => {
+                    const lastMsg = conversation.messages[conversation.messages.length - 1];
+                    return (
+                      <div
+                        key={conversation.id}
+                        onClick={() => setSelectedConversationId(conversation.id)}
+                        className="bg-white rounded-lg p-4 flex items-start gap-3 hover:bg-gray-50 cursor-pointer"
+                      >
+                        <img
+                          src={conversation.avatar}
+                          alt={conversation.name}
+                          className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-gray-900 truncate">
+                            {conversation.name}
+                          </p>
+                          <p className="text-sm text-gray-500 truncate">
+                            {lastMsg?.text || '没有消息'}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-1">
+                            {new Date(lastMsg?.created_at || '').toLocaleString('zh-CN')}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )
+            ) : (
+              // 消息详情视图
+              (() => {
+                const selectedConversation = conversations.find(c => c.id === selectedConversationId);
+                if (!selectedConversation) return null;
+                
+                // 获取第一条消息，通常包含房源信息
+                const firstMsg = selectedConversation.messages[0];
+                
+                return (
+                  <div className="flex flex-col h-full">
+                    {/* 头部 */}
+                    <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center gap-3 z-10">
+                      <button 
+                        onClick={() => setSelectedConversationId(null)}
+                        className="text-blue-600 font-medium"
+                      >
+                        ← 返回
+                      </button>
+                      <img
+                        src={selectedConversation.avatar}
+                        alt={selectedConversation.name}
+                        className="w-10 h-10 rounded-full object-cover"
+                      />
+                      <div>
+                        <p className="font-semibold text-gray-900">
+                          {selectedConversation.name}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* 房源卡片 - 显示在消息上面 */}
+                    {(firstMsg as any).property_title && (
+                      <div className="bg-gray-50 p-4 border-b border-gray-200">
+                        <div className="bg-white rounded-lg p-4 shadow-sm">
+                          <p className="text-xs text-gray-500 mb-2">关于房源</p>
+                          <div className="flex gap-3">
+                            <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
+                              <img 
+                                src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&h=200&fit=crop" 
+                                alt="房源" 
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-gray-900 truncate">
+                                {(firstMsg as any).property_title}
+                              </p>
+                              <p className="text-sm text-gray-500 mt-1">点击查看详情</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 消息列表 */}
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                      {selectedConversation.messages.map((msg, idx) => {
+                        const isOwn = msg.sender_id === currentUserId;
+                        return (
+                          <div key={idx} className={`flex gap-2 ${isOwn ? 'flex-row-reverse' : ''}`}>
+                            <div
+                              className={`max-w-xs ${
+                                isOwn
+                                  ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none'
+                                  : 'bg-gray-100 text-gray-900 rounded-2xl rounded-tl-none'
+                              } px-4 py-2`}
+                            >
+                              <p className="text-sm">{msg.text}</p>
+                              <p className={`text-xs mt-1 ${isOwn ? 'text-blue-100' : 'text-gray-500'}`}>
+                                {new Date(msg.created_at).toLocaleTimeString('zh-CN', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()
+            )}
           </div>
         )}
 
