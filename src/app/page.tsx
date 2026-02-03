@@ -143,6 +143,21 @@ export default function Home() {
     }));
 
     setConversations(convList);
+
+    // 如果当前没有选中的会话，则默认选中最新一条，方便直接看到最新消息和输入框
+    if (!selectedConversationId && convList.length > 0) {
+      const latestConv = convList.reduce((latest, conv) => {
+        const lastMsg = conv.messages[conv.messages.length - 1];
+        if (!lastMsg) return latest;
+        if (!latest) return conv;
+        const latestLastMsg = latest.messages[latest.messages.length - 1];
+        return new Date(lastMsg.created_at) > new Date(latestLastMsg.created_at) ? conv : latest;
+      }, convList[0]);
+
+      if (latestConv) {
+        setSelectedConversationId(latestConv.id);
+      }
+    }
   };
 
   // 订阅当前用户的实时消息，用于 Messages 视图
@@ -255,6 +270,7 @@ export default function Home() {
   });
 
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   // 无限滚动逻辑
   useEffect(() => {
@@ -273,6 +289,15 @@ export default function Home() {
 
     return () => observer.disconnect();
   }, [hasMore, isLoading, loadMore]);
+
+  // 消息详情：当选中的会话或消息列表变化时，自动滚动到最新一条
+  useEffect(() => {
+    if (!selectedConversationId) return;
+    const timer = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [selectedConversationId, conversations]);
 
   // 获取收藏的房产
   const favoriteProperties = items.filter((p) => favorites.has(p.id));
@@ -632,6 +657,7 @@ export default function Home() {
                           </div>
                         );
                       })}
+                      <div ref={messagesEndRef} />
                     </div>
 
                     {/* 输入框 */}
