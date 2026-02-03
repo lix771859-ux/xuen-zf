@@ -162,7 +162,7 @@ export default function LandlordPropertiesPage() {
           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
-      <h1 className="text-2xl font-bold text-gray-800">房东房源管理</h1>
+      <h1 className="text-2xl font-bold text-gray-800">出租房源</h1>
       {/* 登录提示 */}
       {!userId && (
         <div className="p-4 text-gray-800 bg-yellow-50 border border-yellow-200 rounded">
