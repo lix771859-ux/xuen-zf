@@ -173,21 +173,6 @@ export default function Home() {
         setSelectedPropertyTitle(firstMsg.property_title);
       }
     }
-
-    // 如果当前没有选中的会话，则默认选中最新一条，方便直接看到最新消息和输入框
-    if (!selectedConversationId && convList.length > 0) {
-      const latestConv = convList.reduce((latest, conv) => {
-        const lastMsg = conv.messages[conv.messages.length - 1];
-        if (!lastMsg) return latest;
-        if (!latest) return conv;
-        const latestLastMsg = latest.messages[latest.messages.length - 1];
-        return new Date(lastMsg.created_at) > new Date(latestLastMsg.created_at) ? conv : latest;
-      }, convList[0]);
-
-      if (latestConv) {
-        setSelectedConversationId(latestConv.id);
-      }
-    }
   };
 
   // 订阅当前用户的实时消息，用于 Messages 视图
@@ -626,122 +611,7 @@ export default function Home() {
                   })}
                 </div>
               )
-            ) : (
-              // 消息详情视图
-              (() => {
-                const selectedConversation =
-                  conversations.find((c) => c.id === selectedConversationId) || {
-                    id: selectedConversationId,
-                    name: `用户 ${selectedConversationId?.substring(0, 6)}`,
-                    avatar:
-                      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
-                    messages: [] as MessageType[],
-                  };
-                
-                // 获取第一条消息，通常包含房源信息
-                const firstMsg = selectedConversation.messages[0];
-                
-                return (
-                  <div className="flex flex-col h-full">
-                    {/* 头部 */}
-                    <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center gap-3 z-10">
-                      <button 
-                        onClick={() => setSelectedConversationId(null)}
-                        className="text-blue-600 font-medium"
-                      >
-                        ← 返回
-                      </button>
-                      <img
-                        src={selectedConversation.avatar}
-                        alt={selectedConversation.name}
-                        className="w-10 h-10 rounded-full object-cover"
-                      />
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          {selectedConversation.name}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* 消息列表 - 房源卡片在里面 */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                      {/* 房源卡片 - 作为第一条内容 */}
-                      {(firstMsg as any)?.property_title && (
-                        <div className="mb-4">
-                          <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
-                            <p className="text-xs text-gray-500 mb-2">关于房源</p>
-                            <div className="flex gap-3">
-                              <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
-                                <img 
-                                  src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&h=200&fit=crop" 
-                                  alt="房源" 
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="font-semibold text-gray-900 truncate">
-                                  {(firstMsg as any)?.property_title}
-                                </p>
-                                <p className="text-sm text-gray-500 mt-1">点击查看详情</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* 消息气泡 */}
-                      {selectedConversation.messages.map((msg, idx) => {
-                        const isOwn = msg.sender_id === currentUserId;
-                        return (
-                          <div key={idx} className={`flex gap-2 ${isOwn ? 'flex-row-reverse' : ''}`}>
-                            <div
-                              className={`max-w-xs ${
-                                isOwn
-                                  ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none'
-                                  : 'bg-gray-100 text-gray-900 rounded-2xl rounded-tl-none'
-                              } px-4 py-2`}
-                            >
-                              <p className="text-sm">{msg.text}</p>
-                              <p className={`text-xs mt-1 ${isOwn ? 'text-blue-100' : 'text-gray-500'}`}>
-                                {new Date(msg.created_at).toLocaleTimeString('zh-CN', {
-                                  hour: '2-digit',
-                                  minute: '2-digit',
-                                })}
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })}
-                      <div ref={messagesEndRef} />
-                    </div>
-
-                    {/* 输入框 */}
-                    <div className="px-4 py-3 border-t border-gray-200 flex items-center gap-2 bg-white">
-                      <input
-                        type="text"
-                        value={messageInputs[selectedConversationId] || ''}
-                        onChange={(e) => setMessageInputs((prev) => ({
-                          ...prev,
-                          [selectedConversationId]: e.target.value,
-                        }))}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') handleSendMessage();
-                        }}
-                        placeholder="输入消息..."
-                        className="flex-1 px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
-                      />
-                      <button
-                        onClick={handleSendMessage}
-                        disabled={sendingMessageId === selectedConversationId || !messageInputs[selectedConversationId]?.trim()}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition text-sm disabled:opacity-60 whitespace-nowrap"
-                      >
-                        发送
-                      </button>
-                    </div>
-                  </div>
-                );
-              })()
-            )}
+              ) : null}
           </div>
         )}
 
@@ -815,6 +685,120 @@ export default function Home() {
           onClose={() => setContactInfo(null)}
         />
       )}
+
+      {/* Messages 对话详情全屏浮层 */}
+      {activeTab === 'messages' && selectedConversationId && (() => {
+        const selectedConversation =
+          conversations.find((c) => c.id === selectedConversationId) || {
+            id: selectedConversationId,
+            name: `用户 ${selectedConversationId?.substring(0, 6)}`,
+            avatar:
+              'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+            messages: [] as MessageType[],
+          };
+
+        const firstMsg = selectedConversation.messages[0];
+
+        return (
+          <div className="fixed inset-0 z-50 bg-white flex flex-col">
+            {/* 头部：固定在最上方 */}
+            <div className="h-14 px-4 border-b border-gray-200 flex items-center gap-3 flex-shrink-0">
+              <button
+                onClick={() => setSelectedConversationId(null)}
+                className="text-blue-600 font-medium"
+              >
+                ← 返回
+              </button>
+              <img
+                src={selectedConversation.avatar}
+                alt={selectedConversation.name}
+                className="w-10 h-10 rounded-full object-cover"
+              />
+              <div>
+                <p className="font-semibold text-gray-900">
+                  {selectedConversation.name}
+                </p>
+              </div>
+            </div>
+
+            {/* 消息列表，可滚动 */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+              {/* 房源卡片 - 作为第一条内容 */}
+              {(firstMsg as any)?.property_title && (
+                <div className="mb-4">
+                  <div className="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                    <p className="text-xs text-gray-500 mb-2">关于房源</p>
+                    <div className="flex gap-3">
+                      <div className="w-20 h-20 bg-gray-200 rounded-lg flex-shrink-0 overflow-hidden">
+                        <img
+                          src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=200&h=200&fit=crop"
+                          alt="房源"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-gray-900 truncate">
+                          {(firstMsg as any)?.property_title}
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">点击查看详情</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 消息气泡 */}
+              {selectedConversation.messages.map((msg, idx) => {
+                const isOwn = msg.sender_id === currentUserId;
+                return (
+                  <div key={idx} className={`flex gap-2 ${isOwn ? 'flex-row-reverse' : ''}`}>
+                    <div
+                      className={`max-w-xs ${
+                        isOwn
+                          ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none'
+                          : 'bg-gray-100 text-gray-900 rounded-2xl rounded-tl-none'
+                      } px-4 py-2`}
+                    >
+                      <p className="text-sm">{msg.text}</p>
+                      <p className={`text-xs mt-1 ${isOwn ? 'text-blue-100' : 'text-gray-500'}`}>
+                        {new Date(msg.created_at).toLocaleTimeString('zh-CN', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* 输入框：固定在底部 */}
+            <div className="px-4 py-3 border-t border-gray-200 flex items-center gap-2 bg-white flex-shrink-0">
+              <input
+                type="text"
+                value={messageInputs[selectedConversationId] || ''}
+                onChange={(e) => setMessageInputs((prev) => ({
+                  ...prev,
+                  [selectedConversationId]: e.target.value,
+                }))}
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') handleSendMessage();
+                }}
+                placeholder="输入消息..."
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500 text-sm"
+              />
+              <button
+                onClick={handleSendMessage}
+                disabled={sendingMessageId === selectedConversationId || !messageInputs[selectedConversationId]?.trim()}
+                className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-700 transition text-sm disabled:opacity-60 whitespace-nowrap"
+              >
+                发送
+              </button>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* 底部导航栏 */}
       <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
