@@ -58,7 +58,14 @@ export default function ContactLandlord({ landlordId, propertyTitle, initialExpa
             filter: `or(and(sender_id.eq.${data.user.id},recipient_id.eq.${landlordId}),and(sender_id.eq.${landlordId},recipient_id.eq.${data.user.id}))`,
           },
           (payload: any) => {
-            setMessages((prev) => [...prev, payload.new]);
+              const newMsg = payload.new as MessageType;
+              // 去重：如果已存在相同 id 的消息则不再追加
+              setMessages((prev) => {
+                if (newMsg.id && prev.some((m) => m.id === newMsg.id)) {
+                  return prev;
+                }
+                return [...prev, newMsg];
+              });
           }
         )
         .subscribe();
@@ -110,7 +117,7 @@ export default function ContactLandlord({ landlordId, propertyTitle, initialExpa
 
     setSending(true);
     try {
-      const { error } = await supabaseBrowser
+      const { data: inserted, error } = await supabaseBrowser
         .from('messages')
         .insert([
           {
@@ -120,11 +127,24 @@ export default function ContactLandlord({ landlordId, propertyTitle, initialExpa
             property_title: propertyTitle,
             created_at: new Date().toISOString(),
           }
-        ]);
+        ])
+        .select('*')
+        .single();
 
       if (error) {
         console.error('发送失败:', error);
         return;
+      }
+
+      // 本地立即追加新消息，提升实时感知
+      if (inserted) {
+        const newMsg = inserted as MessageType;
+        setMessages((prev) => {
+          if (newMsg.id && prev.some((m) => m.id === newMsg.id)) {
+            return prev;
+          }
+          return [...prev, newMsg];
+        });
       }
 
       setMessage('');
