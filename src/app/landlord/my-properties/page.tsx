@@ -15,6 +15,7 @@ interface PropertyForm {
   sqft?: number;
   area?: string;
   images?: string[];
+  videos?: string[];
 }
 
 export default function MyPropertiesPage() {
@@ -48,6 +49,7 @@ export default function MyPropertiesPage() {
       sqft: p.sqft,
       area: p.area,
       images: p.images || [],
+      videos: p.videos || [],
     });
   };
 
@@ -105,6 +107,16 @@ export default function MyPropertiesPage() {
             console.error('YouTube 上传失败:', json);
           } else {
             console.log('YouTube 上传成功:', json);
+            if (json.url) {
+              setEditForm((prev) =>
+                prev
+                  ? {
+                      ...prev,
+                      videos: [...(prev.videos || []), json.url],
+                    }
+                  : prev
+              );
+            }
           }
         } catch (err) {
           console.error('调用 YouTube 上传接口出错:', err);
@@ -141,6 +153,7 @@ export default function MyPropertiesPage() {
         sqft: editForm.sqft,
         area: editForm.area,
         images: editForm.images || [],
+        videos: editForm.videos || [],
         landlord_id: userId,
       }),
     });

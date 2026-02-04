@@ -24,6 +24,7 @@ interface PropertyForm {
   images?: string[]; // 多个图片
   image?: string | null; // 兼容旧数据
   video?: string | null;
+  videos?: string[];
 }
 
 export default function LandlordPropertiesPage() {
@@ -38,6 +39,7 @@ export default function LandlordPropertiesPage() {
     sqft: undefined as any,
     area: '',
     images: [],
+    videos: [],
   });
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -131,7 +133,13 @@ export default function LandlordPropertiesPage() {
             console.error('YouTube 上传失败:', json);
           } else {
             console.log('YouTube 上传成功:', json);
-            // 如果以后需要在表里保存视频 URL，可以在这里 setForm({ video: json.url })
+            if (json.url) {
+              setForm((prev) => ({
+                ...prev,
+                video: prev.video ?? json.url,
+                videos: [...(prev.videos || []), json.url],
+              }));
+            }
           }
         } catch (err) {
           console.error('调用 YouTube 上传接口出错:', err);
@@ -172,6 +180,7 @@ export default function LandlordPropertiesPage() {
           sqft: form.sqft,
           area: form.area,
           images: form.images || [],
+          videos: form.videos || [],
           landlord_id: userId,
         }),
       });
@@ -192,6 +201,7 @@ export default function LandlordPropertiesPage() {
         images: [],
         image: null,
         video: null,
+        videos: [],
       });
       mutate('/api/properties?page=1&pageSize=6&minPrice=1000&maxPrice=15000')
 

@@ -27,6 +27,7 @@ export async function PUT(request: Request) {
       sqft,
       area,
       images,
+      videos,
       landlord_id,
     } = body;
     if (!id || !title || !price) {
@@ -44,6 +45,7 @@ export async function PUT(request: Request) {
         sqft: sqft ?? null,
         area: area ?? null,
         images: images ?? null,
+        videos: videos ?? null,
         landlord_id: landlord_id ?? null,
       })
       .eq('id', id);
@@ -219,6 +221,8 @@ export async function GET(request: Request) {
       sqft: prop.sqft ?? 0,
       image: prop.images?.[0] || 'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&h=600&fit=crop',
       images: prop.images || [], // 添加完整的 images 数组
+      videos: prop.videos || [],
+      video: prop.videos?.[0] || null,
       rating: 4.5,
       reviews: 0,
       area: prop.area || '',
@@ -295,6 +299,7 @@ export async function POST(request: Request) {
       sqft,
       area,
       images,
+      videos,
       landlord_id,
     } = body;
 
@@ -315,6 +320,7 @@ export async function POST(request: Request) {
           sqft: sqft ?? 10,
           area: area ?? 'flushing',
           images: images ?? null,
+          videos: videos ?? null,
           landlord_id: landlord_id ?? null,
         },
       ])
