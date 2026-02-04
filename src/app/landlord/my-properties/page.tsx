@@ -10,6 +10,10 @@ interface PropertyForm {
   description?: string;
   price: number;
   address?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  sqft?: number;
+  area?: string;
   images?: string[];
 }
 
@@ -39,6 +43,10 @@ export default function MyPropertiesPage() {
       description: p.description,
       price: Number(p.price),
       address: p.address,
+      bedrooms: p.bedrooms,
+      bathrooms: p.bathrooms,
+      sqft: p.sqft,
+      area: p.area,
       images: p.images || [],
     });
   };
@@ -50,7 +58,12 @@ export default function MyPropertiesPage() {
 
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setEditForm((prev) => prev ? { ...prev, [name]: name === 'price' ? Number(value) : value } : prev);
+    setEditForm((prev) => prev ? {
+      ...prev,
+      [name]: ['price', 'bedrooms', 'bathrooms', 'sqft'].includes(name)
+        ? (value === '' ? undefined : Number(value))
+        : value,
+    } : prev);
   };
 
   const handleEditImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,6 +111,10 @@ export default function MyPropertiesPage() {
         description: editForm.description,
         price: editForm.price,
         address: editForm.address,
+        bedrooms: editForm.bedrooms,
+        bathrooms: editForm.bathrooms,
+        sqft: editForm.sqft,
+        area: editForm.area,
         images: editForm.images || [],
         landlord_id: userId,
       }),
@@ -245,6 +262,51 @@ export default function MyPropertiesPage() {
                   className="w-full border border-gray-400 text-gray-800 rounded px-3 py-2"
                   required
                   min={0}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div>
+                <label className="block text-sm font-medium mb-1">卧室数</label>
+                <input
+                  type="number"
+                  name="bedrooms"
+                  value={editForm.bedrooms === undefined ? '' : editForm.bedrooms}
+                  onChange={handleEditChange}
+                  className="w-full border border-gray-400 text-gray-800 rounded px-3 py-2"
+                  min={0}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">卫生间数</label>
+                <input
+                  type="number"
+                  name="bathrooms"
+                  value={editForm.bathrooms === undefined ? '' : editForm.bathrooms}
+                  onChange={handleEditChange}
+                  className="w-full border border-gray-400 text-gray-800 rounded px-3 py-2"
+                  min={0}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">面积 (sqft)</label>
+                <input
+                  type="number"
+                  name="sqft"
+                  value={editForm.sqft === undefined ? '' : editForm.sqft}
+                  onChange={handleEditChange}
+                  className="w-full border border-gray-400 text-gray-800 rounded px-3 py-2"
+                  min={0}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">区域</label>
+                <input
+                  name="area"
+                  value={editForm.area || ''}
+                  onChange={handleEditChange}
+                  className="w-full border border-gray-400 text-gray-800 rounded px-3 py-2"
                 />
               </div>
             </div>

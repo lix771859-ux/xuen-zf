@@ -17,6 +17,10 @@ interface PropertyForm {
   description?: string;
   price: number;
   address?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  sqft?: number;
+  area?: string;
   images?: string[]; // 多个图片
   image?: string | null; // 兼容旧数据
   video?: string | null;
@@ -29,6 +33,10 @@ export default function LandlordPropertiesPage() {
   const [form, setForm] = useState<PropertyForm>({
     title: '',
     price: undefined as any,
+    bedrooms: undefined as any,
+    bathrooms: undefined as any,
+    sqft: undefined as any,
+    area: '',
     images: [],
   });
   const [submitting, setSubmitting] = useState(false);
@@ -75,7 +83,9 @@ export default function LandlordPropertiesPage() {
     const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
-      [name]: name === 'price' ? (value === '' ? undefined : Number(value)) : value,
+      [name]: ['price', 'bedrooms', 'bathrooms', 'sqft'].includes(name)
+        ? (value === '' ? undefined : Number(value))
+        : value,
     }));
   };
 
@@ -129,6 +139,10 @@ export default function LandlordPropertiesPage() {
           description: form.description,
           price: form.price,
           address: form.address,
+          bedrooms: form.bedrooms,
+          bathrooms: form.bathrooms,
+          sqft: form.sqft,
+          area: form.area,
           images: form.images || [],
           landlord_id: userId,
         }),
@@ -138,7 +152,19 @@ export default function LandlordPropertiesPage() {
         throw new Error(json.error || '发布失败');
       }
       setMessage('发布成功');
-      setForm({ title: '', price: 0, images: [] });
+      setForm({
+        title: '',
+        description: '',
+        price: undefined as any,
+        address: '',
+        bedrooms: undefined as any,
+        bathrooms: undefined as any,
+        sqft: undefined as any,
+        area: '',
+        images: [],
+        image: null,
+        video: null,
+      });
       mutate('/api/properties?page=1&pageSize=6&minPrice=1000&maxPrice=15000')
 
       router.push('/');
@@ -198,6 +224,54 @@ export default function LandlordPropertiesPage() {
               <div>
                 <label className="block text-sm font-medium mb-1 text-gray-800">地址</label>
                 <input name="address" value={form.address || ''} onChange={handleChange} className="w-full border border-gray-400 text-gray-800 placeholder-gray-500 rounded px-3 py-2" placeholder="请输入地址" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <div>
+                <label className="block text-sm font-medium mb-1 text-gray-800">卧室数</label>
+                <input
+                  type="number"
+                  name="bedrooms"
+                  value={form.bedrooms === undefined ? '' : form.bedrooms}
+                  onChange={handleChange}
+                  className="w-full border border-gray-400 text-gray-800 placeholder-gray-500 rounded px-3 py-2"
+                  min={0}
+                  placeholder="如 2"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1 text-gray-800">卫生间数</label>
+                <input
+                  type="number"
+                  name="bathrooms"
+                  value={form.bathrooms === undefined ? '' : form.bathrooms}
+                  onChange={handleChange}
+                  className="w-full border border-gray-400 text-gray-800 placeholder-gray-500 rounded px-3 py-2"
+                  min={0}
+                  placeholder="如 1"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1 text-gray-800">面积 (sqft)</label>
+                <input
+                  type="number"
+                  name="sqft"
+                  value={form.sqft === undefined ? '' : form.sqft}
+                  onChange={handleChange}
+                  className="w-full border border-gray-400 text-gray-800 placeholder-gray-500 rounded px-3 py-2"
+                  min={0}
+                  placeholder="如 80"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1 text-gray-800">区域</label>
+                <input
+                  name="area"
+                  value={form.area || ''}
+                  onChange={handleChange}
+                  className="w-full border border-gray-400 text-gray-800 placeholder-gray-500 rounded px-3 py-2"
+                  placeholder="如 downtown / north"
+                />
               </div>
             </div>
             <div>
