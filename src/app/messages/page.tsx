@@ -281,7 +281,7 @@ export default function Messages() {
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                onKeyPress={(e) => {
+                onKeyDown={(e) => {
                   if (e.key === 'Enter') handleSendMessage();
                 }}
                 placeholder="输入消息..."
