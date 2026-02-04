@@ -181,7 +181,7 @@ export default function LandlordPropertiesPage() {
       <button
         onClick={() => router.back()}
         className="absolute right-4 top-4 text-gray-400 hover:text-gray-700 bg-white rounded-full border border-gray-200 w-9 h-9 flex items-center justify-center shadow-sm z-10"
-        title="关闭"
+        title="close"
         type="button"
       >
         <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
