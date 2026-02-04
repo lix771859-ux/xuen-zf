@@ -593,7 +593,7 @@ export default function Home() {
                           const firstMsg: any = conversation.messages[0];
                           setSelectedPropertyTitle(firstMsg?.property_title ?? null);
                         }}
-                        className="bg-white outline outline-2 shadow-lg rounded-lg p-4 flex items-start gap-3 hover:bg-gray-50 cursor-pointer"
+                        className="bg-white outline shadow-lg rounded-lg p-4 flex items-start gap-3 hover:bg-gray-50 cursor-pointer"
                       >
                         <img
                           src={conversation.avatar}
