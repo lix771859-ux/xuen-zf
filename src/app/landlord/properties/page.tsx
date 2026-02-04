@@ -314,7 +314,7 @@ export default function LandlordPropertiesPage() {
                   <input
                     id="property-image-upload"
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     multiple
                     onChange={handleImageChange}
                     className="hidden"

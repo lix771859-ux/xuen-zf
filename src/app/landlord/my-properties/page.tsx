@@ -368,7 +368,7 @@ export default function MyPropertiesPage() {
                   <input
                     id="edit-property-image-upload"
                     type="file"
-                    accept="image/*"
+                    accept="image/*,video/*"
                     multiple
                     onChange={handleEditImageChange}
                     className="hidden"
