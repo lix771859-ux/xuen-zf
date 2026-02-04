@@ -1,6 +1,7 @@
 'use client';
 
 import { useI18n } from '@/i18n/context';
+import { Link } from 'lucide-react';
 
 export default function AboutPage() {
   const { t } = useI18n();
@@ -8,7 +9,7 @@ export default function AboutPage() {
   return (
     <div className="w-screen h-screen flex flex-col bg-gray-50">
       <div className="px-4 py-3 border-b border-gray-200 bg-white flex items-center gap-2">
-        <a href="/?tab=profile" className="text-blue-600 text-sm">← 返回</a>
+        <Link href="/?tab=profile" className="text-blue-600 text-sm">← 返回</Link>
         <h1 className="text-lg font-semibold text-gray-900">About Us</h1>
       </div>
       <div className="flex-1 px-4 py-6 text-sm text-gray-700 leading-relaxed">
