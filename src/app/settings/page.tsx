@@ -68,7 +68,7 @@ export default function SettingsPage() {
           onClick={() => router.back()}
           className="text-blue-600 text-sm mr-2"
         >
-          ← 返回
+          ← back
         </button>
         <h1 className="text-lg font-semibold text-gray-900">{t('settings')}</h1>
       </div>
