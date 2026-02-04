@@ -296,7 +296,7 @@ export default function LandlordPropertiesPage() {
                 <label htmlFor="property-image-upload" >
                   <div className="w-25 h-25 border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
                     <div className="text-4xl text-gray-400 mb-2">+</div>
-                    <div className="text-sm text-gray-600">点击上传（支持图片和视频）</div>
+                    <div className="text-sm text-gray-600">点击上传</div>
                   </div>
                   <input
                     id="property-image-upload"
