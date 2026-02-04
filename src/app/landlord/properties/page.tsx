@@ -89,7 +89,7 @@ export default function LandlordPropertiesPage() {
     }));
   };
 
-  // 图片上传处理 - 支持多个文件
+  // 图片 / 视频上传处理 - 支持多个文件
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -99,6 +99,7 @@ export default function LandlordPropertiesPage() {
     // 批量上传选中的文件
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
+      const isVideo = file.type.startsWith('video/');
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}-${i}.${fileExt}`;
       const filePath = `images/${fileName}`;
@@ -112,8 +113,35 @@ export default function LandlordPropertiesPage() {
         continue;
       }
 
+      // 如果是视频文件，上传到 YouTube
+      if (isVideo) {
+        try {
+          const res = await fetch('/api/youtube/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              bucket: 'property-images',
+              path: filePath,
+              title: form.title || '房源视频',
+              description: form.description || '',
+            }),
+          });
+          const json = await res.json();
+          if (!res.ok) {
+            console.error('YouTube 上传失败:', json);
+          } else {
+            console.log('YouTube 上传成功:', json);
+            // 如果以后需要在表里保存视频 URL，可以在这里 setForm({ video: json.url })
+          }
+        } catch (err) {
+          console.error('调用 YouTube 上传接口出错:', err);
+        }
+        // 视频不加入 images 列表，避免被当作图片渲染
+        continue;
+      }
+
       const { data: publicUrlData } = supabaseBrowser.storage
-        .from("property-images")
+        .from('property-images')
         .getPublicUrl(filePath);
 
       uploadedUrls.push(publicUrlData.publicUrl);
