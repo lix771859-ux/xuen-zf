@@ -17,7 +17,6 @@ import ContactLandlord from '@/components/ContactLandlord';
 import { useRefreshStore } from '@/store/useRefreshStore';
 import { DetailSheet } from "@/components/ui/deSheet"
 import { useHomeStore } from '@/store/useHomeStore';
-import { Link } from 'lucide-react';
 
 interface MessageType {
   id?: number;
@@ -779,34 +778,34 @@ export default function Home() {
               </div>
 
               <div className="bg-white rounded-lg p-4 space-y-3">
-                <Link href="/?tab=profile" className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
+                <a href="/map" className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
                   <span className="font-medium text-gray-900">{t('mapView')}</span>
                   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
-                </Link>
+                </a>
                 {user && (
-                  <Link href="/landlord/my-properties" className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
+                  <a href="/landlord/my-properties" className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
                     <span className="font-medium text-gray-900">我的房源</span>
                     <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
-                  </Link>
+                  </a>
                 )}
 
-                <Link href="/settings" className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
+                <a href="/settings" className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
                   <span className="font-medium text-gray-900">{t('settings')}</span>
                   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
-                </Link>
+                </a>
 
-                <Link href="/about" className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
+                <a href="/about" className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg">
                   <span className="font-medium text-gray-900">About Us</span>
                   <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
-                </Link>
+                </a>
               </div>
             </div>
           </div>
