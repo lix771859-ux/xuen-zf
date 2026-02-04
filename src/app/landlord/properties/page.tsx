@@ -115,42 +115,19 @@ export default function LandlordPropertiesPage() {
         continue;
       }
 
-      // 如果是视频文件，上传到 YouTube
-      if (isVideo) {
-        try {
-          const res = await fetch('/api/youtube/upload', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              bucket: 'property-images',
-              path: filePath,
-              title: form.title || '房源视频',
-              description: form.description || '',
-            }),
-          });
-          const json = await res.json();
-          if (!res.ok) {
-            console.error('YouTube 上传失败:', json);
-          } else {
-            console.log('YouTube 上传成功:', json);
-            if (json.url) {
-              setForm((prev) => ({
-                ...prev,
-                video: prev.video ?? json.url,
-                videos: [...(prev.videos || []), json.url],
-              }));
-            }
-          }
-        } catch (err) {
-          console.error('调用 YouTube 上传接口出错:', err);
-        }
-        // 视频不加入 images 列表，避免被当作图片渲染
-        continue;
-      }
-
       const { data: publicUrlData } = supabaseBrowser.storage
         .from('property-images')
         .getPublicUrl(filePath);
+
+      if (isVideo) {
+        // 暂时只使用 Supabase 存储视频，保存视频地址到表单
+        setForm((prev) => ({
+          ...prev,
+          videos: [...(prev.videos || []), publicUrlData.publicUrl],
+        }));
+        // 视频不加入 images 列表，避免被当作图片渲染
+        continue;
+      }
 
       uploadedUrls.push(publicUrlData.publicUrl);
     }
@@ -319,7 +296,7 @@ export default function LandlordPropertiesPage() {
                 <label htmlFor="property-image-upload" >
                   <div className="w-25 h-25 border-2 border-dashed border-gray-300 rounded-lg p-4 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition">
                     <div className="text-4xl text-gray-400 mb-2">+</div>
-                    <div className="text-sm text-gray-600">点击上传</div>
+                    <div className="text-sm text-gray-600">点击上传（支持图片和视频）</div>
                   </div>
                   <input
                     id="property-image-upload"
@@ -351,6 +328,48 @@ export default function LandlordPropertiesPage() {
                   </div>
                 ))}
               </div>
+              {/* 已上传视频预览（YouTube） */}
+              {form.videos && form.videos.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <div className="text-sm font-medium text-gray-800">已上传视频</div>
+                  <div className="flex flex-wrap gap-3">
+                    {form.videos.map((url, idx) => {
+                      let embedUrl: string | null = null;
+                      try {
+                        const u = new URL(url);
+                        const id = u.searchParams.get('v');
+                        if (id) embedUrl = `https://www.youtube.com/embed/${id}`;
+                      } catch {
+                        embedUrl = null;
+                      }
+                      return (
+                        <div key={idx} className="w-48">
+                          {embedUrl ? (
+                            <div className="aspect-video w-full rounded overflow-hidden border border-gray-300">
+                              <iframe
+                                src={embedUrl}
+                                title={`房源视频${idx + 1}`}
+                                className="w-full h-full"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allowFullScreen
+                              />
+                            </div>
+                          ) : (
+                            <a
+                              href={url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-sm text-blue-600 underline break-all"
+                            >
+                              查看视频 {idx + 1}
+                            </a>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
             {message && <p className="text-sm text-blue-600">{message}</p>}
             <div className="flex gap-2">

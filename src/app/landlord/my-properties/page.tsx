@@ -90,43 +90,22 @@ export default function MyPropertiesPage() {
         continue;
       }
 
-      if (isVideo) {
-        try {
-          const res = await fetch('/api/youtube/upload', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              bucket: 'property-images',
-              path: filePath,
-              title: editForm?.title || '房源视频',
-              description: editForm?.description || '',
-            }),
-          });
-          const json = await res.json();
-          if (!res.ok) {
-            console.error('YouTube 上传失败:', json);
-          } else {
-            console.log('YouTube 上传成功:', json);
-            if (json.url) {
-              setEditForm((prev) =>
-                prev
-                  ? {
-                      ...prev,
-                      videos: [...(prev.videos || []), json.url],
-                    }
-                  : prev
-              );
-            }
-          }
-        } catch (err) {
-          console.error('调用 YouTube 上传接口出错:', err);
-        }
-        continue;
-      }
-
       const { data: publicUrlData } = supabaseBrowser.storage
         .from('property-images')
         .getPublicUrl(filePath);
+
+      if (isVideo) {
+        // 编辑时视频同样只保存在 Supabase
+        setEditForm((prev) =>
+          prev
+            ? {
+                ...prev,
+                videos: [...(prev.videos || []), publicUrlData.publicUrl],
+              }
+            : prev
+        );
+        continue;
+      }
 
       uploadedUrls.push(publicUrlData.publicUrl);
     }
