@@ -27,6 +27,8 @@ export default function Messages() {
 
   // 获取当前用户和消息
   useEffect(() => {
+    let subscription: any;
+
     const init = async () => {
       const { data } = await supabaseBrowser.auth.getUser();
       if (!data.user?.id) return;
@@ -71,8 +73,8 @@ export default function Messages() {
       setConversations(convList);
       setLoading(false);
 
-      // 订阅实时消息更新
-      const subscription = supabaseBrowser
+      // 订阅实时消息更新（依赖 Supabase Realtime，不再手动追加本地数据）
+      subscription = supabaseBrowser
         .channel(`messages:user:${data.user.id}`)
         .on(
           'postgres_changes',
@@ -80,10 +82,18 @@ export default function Messages() {
             event: 'INSERT',
             schema: 'public',
             table: 'messages',
-            filter: `or(recipient_id.eq.${data.user.id},sender_id.eq.${data.user.id})`,
           },
           (payload: any) => {
             const newMsg = payload.new;
+
+            // 只处理与当前用户相关的消息
+            if (
+              newMsg.sender_id !== data.user.id &&
+              newMsg.recipient_id !== data.user.id
+            ) {
+              return;
+            }
+
             const otherId = newMsg.sender_id === data.user.id ? newMsg.recipient_id : newMsg.sender_id;
 
             setConversations((prevConvs) => {
@@ -112,13 +122,15 @@ export default function Messages() {
           }
         )
         .subscribe();
-
-      return () => {
-        subscription.unsubscribe();
-      };
     };
 
     init();
+
+    return () => {
+      if (subscription) {
+        subscription.unsubscribe();
+      }
+    };
   }, []);
 
   const selectedConversation = conversations.find((c) => c.id === selectedId);
@@ -142,21 +154,6 @@ export default function Messages() {
         console.error('发送失败:', error);
         return;
       }
-
-      // 更新本地消息
-      setConversations(conversations.map(conv => {
-        if (conv.id === selectedId) {
-          return {
-            ...conv,
-            messages: [...conv.messages, {
-              text: inputMessage,
-              sender_id: currentUserId,
-              created_at: new Date().toISOString(),
-            }]
-          };
-        }
-        return conv;
-      }));
 
       setInputMessage('');
     } catch (err) {
