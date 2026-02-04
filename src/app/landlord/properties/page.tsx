@@ -309,7 +309,7 @@ export default function LandlordPropertiesPage() {
                 </label>
                 
                 {/* 已上传图片预览 */}
-                {form.images && form.images.length > 0 && form.images.map((img, idx) => (
+                {form.images && form.images.length > 0 && form.images.map((img, idx:number) => (
                   <div key={idx} className="relative w-26 h-26 border-2 border-gray-300 rounded-lg overflow-hidden group">
                     <img src={img} alt={`图片${idx + 1}`} className="w-25 h-25 object-cover" />
                     <button
