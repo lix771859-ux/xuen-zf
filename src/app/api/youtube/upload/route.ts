@@ -1,6 +1,10 @@
 import { NextRequest } from 'next/server';
 import { google } from 'googleapis';
+import { Readable } from 'stream';
 import { supabaseServer } from '@/lib/supabaseServer';
+
+// 使用 Node.js runtime，确保 Buffer、stream 等可用
+export const runtime = 'nodejs';
 
 export async function POST(req: NextRequest) {
   try {
@@ -52,6 +56,7 @@ export async function POST(req: NextRequest) {
 
     const arrayBuffer = await fileRes.arrayBuffer();
     const fileBuffer = Buffer.from(arrayBuffer);
+    const fileStream = Readable.from(fileBuffer);
 
     // 配置 YouTube OAuth 客户端
     const oauth2Client = new google.auth.OAuth2(clientId, clientSecret);
@@ -71,7 +76,8 @@ export async function POST(req: NextRequest) {
         },
       },
       media: {
-        body: fileBuffer,
+        // googleapis 推荐使用 Readable 流进行媒体上传
+        body: fileStream,
       },
     });
 
@@ -85,9 +91,19 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (error: any) {
-    console.error('YouTube upload error:', error.response?.data || error);
+    const details = {
+      message: error?.message,
+      responseData: error?.response?.data,
+      errors: error?.errors,
+    };
+    console.error('YouTube upload error:', details);
+
+    // 在响应中返回更详细的信息，方便前端调试
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({
+        error: 'YouTube upload failed',
+        details,
+      }),
       { status: 500 }
     );
   }
