@@ -65,7 +65,7 @@ export default function SettingsPage() {
       {/* 顶部栏 */}
       <div className="flex items-center px-4 py-3 border-b border-gray-200 bg-white">
         <button
-          onClick={() => router.push('/?tab=profile')}
+          onClick={() => router.back()}
           className="text-blue-600 text-sm mr-2"
         >
           ← 返回
