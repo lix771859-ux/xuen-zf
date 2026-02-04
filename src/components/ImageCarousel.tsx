@@ -79,12 +79,22 @@ export default function ImageCarousel({ images, title = '', className = '' }: Im
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* 主图片 */}
-      <img
-        src={images[currentIndex]}
-        alt={`${title} - 图片 ${currentIndex + 1}`}
-        className="w-full h-full object-cover"
-      />
+      {/* 主图片区域：横向滑动 + 动画 */}
+      <div className="w-full h-full overflow-hidden">
+        <div
+          className="flex h-full transition-transform duration-300 ease-out"
+          style={{ transform: `translateX(-${currentIndex * 100}%)` }}
+        >
+          {images.map((src, index) => (
+            <img
+              key={index}
+              src={src}
+              alt={`${title} - 图片 ${index + 1}`}
+              className="w-full h-full object-cover flex-shrink-0"
+            />
+          ))}
+        </div>
+      </div>
 
       {/* 如果只有一张图片，不显示导航 */}
       {images.length > 1 && (
