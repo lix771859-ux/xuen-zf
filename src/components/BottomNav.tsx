@@ -1,7 +1,7 @@
 'use client';
 
 import { useI18n } from '@/i18n/context';
-
+import { useRouter } from 'next/navigation';
 interface BottomNavProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
@@ -9,7 +9,7 @@ interface BottomNavProps {
 
 export default function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
   const { t } = useI18n();
-
+  const router = useRouter();
   const navItems = [
     {
       id: 'search',
@@ -55,7 +55,10 @@ export default function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
         {navItems.map((item) => (
           <button
             key={item.id}
-            onClick={() => setActiveTab(item.id)}
+            onClick={() => {
+                setActiveTab(item.id)
+                router.push(`/?tab=${item.id}`)
+            }}
             className={`flex-1 py-1 px-3 flex flex-col items-center justify-center gap-1 transition-colors ${
               activeTab === item.id
                 ? 'text-blue-600'
