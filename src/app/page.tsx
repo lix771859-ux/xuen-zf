@@ -17,6 +17,7 @@ import ContactLandlord from '@/components/ContactLandlord';
 import { useRefreshStore } from '@/store/useRefreshStore';
 import { DetailSheet } from "@/components/ui/deSheet"
 import { useHomeStore } from '@/store/useHomeStore';
+import { useParams, useSearchParams } from "next/navigation"
 
 interface MessageType {
   id?: number;
@@ -39,7 +40,8 @@ type MessageInputState = {
 export default function Home() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const { t } = useI18n();
-  const [activeTab, setActiveTab] = useState('search');
+  const activeTab = useHomeStore(state => state.activeTab);
+  const setActiveTab = useHomeStore(state => state.setActiveTab);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [searchQueryPage, setSearchQueryPage] = useState('');
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -426,7 +428,7 @@ export default function Home() {
       document.removeEventListener('touchend', handleDragEnd);
     };
   }, [isDragging, sheetY]);
-
+  const searchParams = useSearchParams();
   return (
     <div className="w-screen h-screen flex flex-col bg-gray-50 overflow-x-hidden">
       {/* 顶部导航栏 */}
@@ -842,7 +844,10 @@ export default function Home() {
               <button
                 onClick={() => {
                   setSelectedConversationId(null);
-                  router.back();
+                  // alert(searchParams.get('peer'));
+                  // if (searchParams.get('peer')) {
+                  //   router.back();
+                  // }
                 }}
                 className="text-blue-600 font-medium"
               >
@@ -940,7 +945,7 @@ export default function Home() {
       })()}
 
       {/* 底部导航栏 */}
-      <BottomNav activeTab={activeTab} setActiveTab={setActiveTab} />
+      <BottomNav activeTab={activeTab} setActiveTab={(tab) => setActiveTab(tab)} />
 
       {/* 筛选弹层 */}
       <FilterModal
