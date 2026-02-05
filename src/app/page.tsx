@@ -842,14 +842,6 @@ export default function Home() {
               <button
                 onClick={() => {
                   setSelectedConversationId(null);
-                  const search = window.location.search;
-                  if (search === lastSearchRef.current) return;
-                  lastSearchRef.current = search;
-                  const params = new URLSearchParams(search);
-                  const peer = params.get('peer');
-                  if (peer) {
-                    router.back();
-                  }
                 }}
                 className="text-blue-600 font-medium"
               >
