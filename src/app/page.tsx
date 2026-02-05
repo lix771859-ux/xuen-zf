@@ -845,9 +845,9 @@ export default function Home() {
                 onClick={() => {
                   setSelectedConversationId(null);
                   // alert(searchParams.get('peer'));
-                  // if (searchParams.get('peer')) {
-                  //   router.back();
-                  // }
+                  if (searchParams.get('peer')) {
+                    router.back();
+                  }
                 }}
                 className="text-blue-600 font-medium"
               >
