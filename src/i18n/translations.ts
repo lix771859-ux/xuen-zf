@@ -142,7 +142,7 @@ export const translations = {
     // Common
     loading: '加载中...',
     error: '错误',
-    newRent: '发布房源',
+    newRent: '出租房源',
     pleaseLogin: '请先登录',
   },
 };
