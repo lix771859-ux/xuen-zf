@@ -17,7 +17,6 @@ import ContactLandlord from '@/components/ContactLandlord';
 import { useRefreshStore } from '@/store/useRefreshStore';
 import { DetailSheet } from "@/components/ui/deSheet"
 import { useHomeStore } from '@/store/useHomeStore';
-import { useParams, useSearchParams } from "next/navigation"
 
 interface MessageType {
   id?: number;
@@ -428,7 +427,6 @@ export default function Home() {
       document.removeEventListener('touchend', handleDragEnd);
     };
   }, [isDragging, sheetY]);
-  const searchParams = useSearchParams();
   return (
     <div className="w-screen h-screen flex flex-col bg-gray-50 overflow-x-hidden">
       {/* 顶部导航栏 */}
@@ -844,8 +842,12 @@ export default function Home() {
               <button
                 onClick={() => {
                   setSelectedConversationId(null);
-                  // alert(searchParams.get('peer'));
-                  if (searchParams.get('peer')) {
+                  const search = window.location.search;
+                  if (search === lastSearchRef.current) return;
+                  lastSearchRef.current = search;
+                  const params = new URLSearchParams(search);
+                  const peer = params.get('peer');
+                  if (peer) {
                     router.back();
                   }
                 }}
