@@ -840,7 +840,10 @@ export default function Home() {
             {/* 头部：固定在最上方 */}
             <div className="h-14 px-4 border-b border-gray-200 flex items-center gap-3 flex-shrink-0">
               <button
-                onClick={() => setSelectedConversationId(null)}
+                onClick={() => {
+                  setSelectedConversationId(null);
+                  router.back();
+                }}
                 className="text-blue-600 font-medium"
               >
                 ← 返回
