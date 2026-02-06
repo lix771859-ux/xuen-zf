@@ -14,7 +14,6 @@ import { useSupabaseUser } from '@/hooks/useSupabaseUser';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
 import { useRouter } from 'next/navigation';
 import ContactLandlord from '@/components/ContactLandlord';
-import { useRefreshStore } from '@/store/useRefreshStore';
 import { DetailSheet } from "@/components/ui/deSheet"
 import { useHomeStore } from '@/store/useHomeStore';
 
@@ -69,10 +68,10 @@ export default function Home() {
     bedrooms: null,
     area: '',
   });
-  const id = useRefreshStore((state) => state.id);
-  const setid = useRefreshStore((state) => state.setId);
-  const setOpenDetail = useRefreshStore((state) => state.setOpenDetail)
-  const openDetail = useRefreshStore((state) => state.openDetail)
+  // const id = useRefreshStore((state) => state.id);
+  // const setid = useRefreshStore((state) => state.setId);
+  // const setOpenDetail = useRefreshStore((state) => state.setOpenDetail)
+  // const openDetail = useRefreshStore((state) => state.openDetail)
   const scrollY = useHomeStore((state) => state.scrollY);
   const setScrollY = useHomeStore((state) => state.setScrollY);
   const searchQuery = useHomeStore(state => state.searchQuery);
@@ -82,9 +81,12 @@ export default function Home() {
   const { setFromDetailBack } = useHomeStore.getState();
   const setSearchQuery = useHomeStore(state => state.setSearchQuery);
   const setFilters = useHomeStore(state => state.setFilters);
-  const lastTab = useRefreshStore((state) => state.lastTab);
-  const landlordId = useRefreshStore((state) => state.landlordId);
-  const title = useRefreshStore((state) => state.title);
+  const lastTab = useHomeStore((state) => state.lastTab);
+  const setLastTab = useHomeStore((state) => state.setLastTab);
+  const title = useHomeStore((state) => state.title);
+  const landlordId = useHomeStore((state) => state.landlordId);
+  const setLandlordId = useHomeStore((state) => state.setLandlordId);
+  const setTitle = useHomeStore((state) => state.setTitle);
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -109,9 +111,11 @@ export default function Home() {
     // const peer = params.get('peer');
     // const title = params.get('title');
 
-    if (lastTab === 'messages') {
-      setActiveTab('messages');
-    }
+    // if (activeTab === 'messages') {
+    //   setActiveTab('messages');
+    // }else if(lastTab === 'messages'){
+    //   setActiveTab('search');
+    // }
     if (landlordId) {
       setSelectedConversationId(landlordId);
       if (title) {
@@ -639,8 +643,9 @@ export default function Home() {
                     <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center gap-3 z-10">
                       <button
                         onClick={() => {
-                          router.back();
                           setSelectedConversationId(null);
+                            router.back();
+                            setActiveTab('search');
                         }}
                         className="text-blue-600 font-medium"
                       >
@@ -848,6 +853,8 @@ export default function Home() {
               <button
                 onClick={() => {
                   setSelectedConversationId(null);
+                  // setLastTab('messages');
+                  // setActiveTab('search');
                 }}
                 className="text-blue-600 font-medium"
               >

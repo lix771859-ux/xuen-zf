@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
 import { useRouter } from 'next/navigation';
-import {useRefreshStore} from '@/store/useRefreshStore'
+import {useHomeStore} from '@/store/useHomeStore'
 interface ContactLandlordProps {
   landlordId: string;
   propertyTitle: string;
@@ -26,9 +26,10 @@ export default function ContactLandlord({ landlordId, propertyTitle, initialExpa
   const [currentUserId, setCurrentUserId] = useState<string>('');
   const [isExpanded, setIsExpanded] = useState(initialExpanded);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
-  const setLandlordId = useRefreshStore((state) => state.setLandlordId);
-  const setTitle = useRefreshStore((state) => state.setTitle);
-  const setLastTab = useRefreshStore((state) => state.setLastTab);
+  const setLandlordId = useHomeStore((state) => state.setLandlordId);
+  const setTitle = useHomeStore((state) => state.setTitle);
+   const setActiveTab = useHomeStore(state => state.setActiveTab);
+  const setLastTab = useHomeStore((state) => state.setLastTab);
   const router = useRouter();
 
   // 加载消息和订阅实时更新
@@ -103,7 +104,8 @@ export default function ContactLandlord({ landlordId, propertyTitle, initialExpa
       // 从详情页跳到首页 Messages 对应的会话
       setLandlordId(landlordId);
       setTitle(propertyTitle);
-      setLastTab('messages');
+      setActiveTab('messages');
+      // setLastTab('');
       router.push(`/`);
       return;
     }

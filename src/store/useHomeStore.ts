@@ -9,6 +9,12 @@ export interface FilterState {
 }
 
 interface HomeState {
+  title: string
+  setTitle: (value: string) => void
+  lastTab: string
+  setLastTab: (value: string) => void
+  landlordId: string
+  setLandlordId: (value: string) => void;
   filters: FilterState;
   setFilters: (filters: FilterState) => void;
   searchQuery: string;
@@ -46,6 +52,13 @@ const initialFilters: FilterState = {
 export const useHomeStore = create<HomeState>()(
   devtools(
     (set) => ({
+      title: '',
+      setTitle: (value: string) => set({ title: value }),
+      lastTab: '',
+      setLastTab: (value: string) => set({ lastTab: value }),
+      landlordId: '',
+      setLandlordId: (value: string) => set({ landlordId: value }),
+
       isLoadingStore: false,
       setIsLoading: (isLoadingStore: boolean) => set({ isLoadingStore }),
 
