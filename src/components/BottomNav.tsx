@@ -57,7 +57,6 @@ export default function BottomNav({ activeTab, setActiveTab }: BottomNavProps) {
             key={item.id}
             onClick={() => {
                 setActiveTab(item.id)
-                router.push(`/?tab=${item.id}`)
             }}
             className={`flex-1 py-1 px-3 flex flex-col items-center justify-center gap-1 transition-colors ${
               activeTab === item.id

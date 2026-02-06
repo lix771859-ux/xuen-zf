@@ -82,6 +82,9 @@ export default function Home() {
   const { setFromDetailBack } = useHomeStore.getState();
   const setSearchQuery = useHomeStore(state => state.setSearchQuery);
   const setFilters = useHomeStore(state => state.setFilters);
+  const lastTab = useRefreshStore((state) => state.lastTab);
+  const landlordId = useRefreshStore((state) => state.landlordId);
+  const title = useRefreshStore((state) => state.title);
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
@@ -101,16 +104,16 @@ export default function Home() {
     if (search === lastSearchRef.current) return;
     lastSearchRef.current = search;
 
-    const params = new URLSearchParams(search);
-    const tab = params.get('tab');
-    const peer = params.get('peer');
-    const title = params.get('title');
+    // const params = new URLSearchParams(search);
+    // const tab = params.get('tab');
+    // const peer = params.get('peer');
+    // const title = params.get('title');
 
-    if (tab === 'messages') {
+    if (lastTab === 'messages') {
       setActiveTab('messages');
     }
-    if (peer) {
-      setSelectedConversationId(peer);
+    if (landlordId) {
+      setSelectedConversationId(landlordId);
       if (title) {
         setSelectedPropertyTitle(title);
       }
@@ -123,7 +126,7 @@ export default function Home() {
     if (!container) return;
     console.log('resumesscrollY', container.scrollTop);
     container.scrollTo(0, scrollY)
-  }, []); // 只在组件挂载时恢复
+  }); // 只在组件挂载时恢复
 
   const { favorites, toggleFavorite, isFavorite } = useFavorites();
   const clickCard = () => {
@@ -635,7 +638,10 @@ export default function Home() {
                     {/* 头部：固定在 Messages 内容顶部 */}
                     <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center gap-3 z-10">
                       <button
-                        onClick={() => setSelectedConversationId(null)}
+                        onClick={() => {
+                          router.back();
+                          setSelectedConversationId(null);
+                        }}
                         className="text-blue-600 font-medium"
                       >
                         ← 返回
